@@ -31,17 +31,23 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251640";
+const VERSION = "V.202603251644";
 
 const state = {
   book: null,
   index: 0,
   soundEnabled: true,
   isAnimating: false,
+  isDragging: false,
   activeTurnId: 0,
   turnOriginIndex: 0,
   turnTargetIndex: 0,
   turnDirection: null,
+  dragPointerId: null,
+  dragStartX: 0,
+  dragLastX: 0,
+  dragProgress: 0,
+  dragMoved: false,
   audioContext: null,
   pageAudio: null,
   loadedAssets: new Map(),
@@ -80,8 +86,11 @@ function bindEvents() {
   });
   if (prevButton) prevButton.addEventListener("click", previousPage);
   if (nextButton) nextButton.addEventListener("click", nextPage);
-  leftPage.addEventListener("click", () => handlePageClick("left"));
-  rightPage.addEventListener("click", () => handlePageClick("right"));
+  leftPage.addEventListener("pointerdown", (event) => beginPagePointerTurn("left", event));
+  rightPage.addEventListener("pointerdown", (event) => beginPagePointerTurn("right", event));
+  window.addEventListener("pointermove", onPagePointerMove);
+  window.addEventListener("pointerup", onPagePointerEnd);
+  window.addEventListener("pointercancel", onPagePointerEnd);
 
   window.addEventListener("keydown", (event) => {
     if (event.key === "ArrowRight" || event.key === "PageDown") {
@@ -93,24 +102,6 @@ function bindEvents() {
       handleKeyboardPage("left");
     }
   });
-}
-
-function handlePageClick(side) {
-  if (state.isAnimating) {
-    if (
-      (state.turnDirection === "forward" && side === "left") ||
-      (state.turnDirection === "backward" && side === "right")
-    ) {
-      cancelCurrentTurn();
-    }
-    return;
-  }
-
-  if (side === "left") {
-    previousPage();
-  } else {
-    nextPage();
-  }
 }
 
 function handleKeyboardPage(side) {
@@ -129,6 +120,86 @@ function handleKeyboardPage(side) {
   } else {
     nextPage();
   }
+}
+
+function beginPagePointerTurn(side, event) {
+  if (event.button !== 0 || state.isDragging) return;
+  if (!state.book) return;
+
+  if (state.isAnimating) {
+    if (
+      (state.turnDirection === "forward" && side === "left") ||
+      (state.turnDirection === "backward" && side === "right")
+    ) {
+      cancelCurrentTurn();
+    }
+    return;
+  }
+
+  const direction = side === "right" ? "forward" : "backward";
+  const targetIndex = direction === "forward" ? state.index + 2 : state.index - 2;
+  if (direction === "forward" && state.index >= state.book.pages.length - 2) {
+    playFlipSound(true);
+    return;
+  }
+  if (direction === "backward" && state.index <= 0) {
+    playFlipSound(true);
+    return;
+  }
+
+  event.preventDefault();
+  if (event.currentTarget?.setPointerCapture) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+  startTurnSession(direction, direction === "forward" ? rightPage : leftPage, targetIndex, {
+    interactive: true,
+    pointerId: event.pointerId,
+    startX: event.clientX,
+  });
+}
+
+function onPagePointerMove(event) {
+  if (!state.isDragging || event.pointerId !== state.dragPointerId) return;
+  event.preventDefault();
+  updateTurnSheetProgress(event.clientX);
+}
+
+function onPagePointerEnd(event) {
+  if (!state.isDragging || event.pointerId !== state.dragPointerId) return;
+  event.preventDefault();
+
+  const commit = !state.dragMoved || state.dragProgress >= 0.5;
+  settleCurrentTurn(commit);
+}
+
+function beginProgrammaticTurn(direction, sourcePage, targetIndex) {
+  if (!state.book || state.isAnimating) return;
+  startTurnSession(direction, sourcePage, targetIndex, { interactive: false });
+  settleCurrentTurn(true);
+}
+
+function startTurnSession(direction, sourcePage, targetIndex, options = {}) {
+  if (!state.book || state.isAnimating) return false;
+
+  const { interactive = false, pointerId = null, startX = 0 } = options;
+  state.activeTurnId += 1;
+  state.isAnimating = true;
+  state.isDragging = interactive;
+  state.turnDirection = direction;
+  state.turnOriginIndex = state.index;
+  state.turnTargetIndex = targetIndex;
+  state.dragPointerId = pointerId;
+  state.dragStartX = startX;
+  state.dragLastX = startX;
+  state.dragProgress = 0;
+  state.dragMoved = false;
+
+  startSheetTurn(direction, sourcePage, targetIndex);
+  playFlipSound(false);
+  renderBook({ playAudio: false, previewIndex: targetIndex });
+  updateControls();
+  setTurnSheetRotation(0, false);
+  return true;
 }
 
 async function onFileSelected(event) {
@@ -278,7 +349,11 @@ function loadBook(book) {
   state.index = 0;
   state.activeTurnId += 1;
   state.isAnimating = false;
+  state.isDragging = false;
   state.turnDirection = null;
+  state.dragPointerId = null;
+  state.dragProgress = 0;
+  state.dragMoved = false;
   clearTurnSheet();
   resetPreloadCache();
   renderBook();
@@ -388,25 +463,7 @@ function nextPage() {
   }
 
   const targetIndex = state.index + 2;
-  const originIndex = state.index;
-  state.isAnimating = true;
-  state.turnDirection = "forward";
-  state.turnOriginIndex = originIndex;
-  state.turnTargetIndex = targetIndex;
-  const turnId = ++state.activeTurnId;
-  startSheetTurn("forward", rightPage, targetIndex);
-  playFlipSound(false);
-  renderBook({ playAudio: false, previewIndex: targetIndex });
-  updateControls();
-  runAfterAnimation(turnSheet, "turning-forward", () => {
-    if (turnId !== state.activeTurnId) return;
-    state.index = targetIndex;
-    state.isAnimating = false;
-    state.turnDirection = null;
-    renderBook();
-    clearTurnSheet();
-    updateControls();
-  });
+  beginProgrammaticTurn("forward", rightPage, targetIndex);
 }
 
 function previousPage() {
@@ -417,36 +474,59 @@ function previousPage() {
   }
 
   const targetIndex = state.index - 2;
-  const originIndex = state.index;
-  state.isAnimating = true;
-  state.turnDirection = "backward";
-  state.turnOriginIndex = originIndex;
-  state.turnTargetIndex = targetIndex;
-  const turnId = ++state.activeTurnId;
-  startSheetTurn("backward", leftPage, targetIndex);
-  playFlipSound(false);
-  renderBook({ playAudio: false, previewIndex: targetIndex });
-  updateControls();
-  runAfterAnimation(turnSheet, "turning-backward", () => {
-    if (turnId !== state.activeTurnId) return;
-    state.index = targetIndex;
-    state.isAnimating = false;
-    state.turnDirection = null;
-    renderBook();
-    clearTurnSheet();
-    updateControls();
-  });
+  beginProgrammaticTurn("backward", leftPage, targetIndex);
 }
 
 function cancelCurrentTurn() {
   if (!state.isAnimating || !state.book) return;
+  settleCurrentTurn(false);
+}
 
-  state.activeTurnId += 1;
-  clearTurnSheet();
-  state.isAnimating = false;
-  state.turnDirection = null;
-  renderBook({ playAudio: false });
-  updateControls();
+function updateTurnSheetProgress(currentX) {
+  if (!state.isDragging || !state.isAnimating) return;
+
+  const rect = book.getBoundingClientRect();
+  const halfWidth = Math.max(rect.width / 2, 1);
+  const delta = state.turnDirection === "forward" ? state.dragStartX - currentX : currentX - state.dragStartX;
+  const progress = clamp(delta / halfWidth, 0, 1);
+
+  state.dragLastX = currentX;
+  state.dragProgress = progress;
+  state.dragMoved = state.dragMoved || Math.abs(currentX - state.dragStartX) > 4;
+
+  const rotation = state.turnDirection === "forward" ? -180 * progress : 180 * progress;
+  setTurnSheetRotation(rotation, false);
+}
+
+function settleCurrentTurn(commit) {
+  if (!state.isAnimating || !state.book) return;
+
+  const turnId = state.activeTurnId;
+  const direction = state.turnDirection;
+  const finalRotation = commit ? (direction === "forward" ? -180 : 180) : 0;
+  state.isDragging = false;
+  state.dragPointerId = null;
+  state.dragLastX = 0;
+  state.turnDirection = direction;
+  turnSheet.classList.remove("dragging");
+  setTurnSheetRotation(finalRotation, true);
+
+  waitForTurnTransition(turnSheet, () => {
+    if (turnId !== state.activeTurnId) return;
+
+    state.isAnimating = false;
+    state.turnDirection = null;
+
+    if (commit) {
+      state.index = state.turnTargetIndex;
+      renderBook();
+    } else {
+      renderBook({ playAudio: false });
+    }
+
+    clearTurnSheet();
+    updateControls();
+  });
 }
 
 function updateControls() {
@@ -585,7 +665,8 @@ function startSheetTurn(direction, sourcePage, targetIndex) {
   stripIds(front);
 
   turnSheet.innerHTML = "";
-  turnSheet.className = `turn-sheet is-visible ${direction}`;
+  turnSheet.className = `turn-sheet is-visible ${direction} dragging`;
+  setTurnSheetRotation(0, false);
 
   const frontFace = document.createElement("div");
   frontFace.className = "turn-face turn-front";
@@ -600,9 +681,6 @@ function startSheetTurn(direction, sourcePage, targetIndex) {
   }
 
   turnSheet.append(frontFace, backFace);
-  requestAnimationFrame(() => {
-    turnSheet.classList.add(direction === "forward" ? "turning-forward" : "turning-backward");
-  });
 }
 
 function buildTargetPageContent(direction, targetIndex) {
@@ -644,7 +722,17 @@ function buildTargetPageContent(direction, targetIndex) {
 
 function clearTurnSheet() {
   turnSheet.className = "turn-sheet";
+  turnSheet.style.removeProperty("--turn-rotation");
   turnSheet.innerHTML = "";
+}
+
+function setTurnSheetRotation(degrees, animate) {
+  if (animate) {
+    turnSheet.classList.remove("dragging");
+  } else {
+    turnSheet.classList.add("dragging");
+  }
+  turnSheet.style.setProperty("--turn-rotation", `${degrees}deg`);
 }
 
 function stripIds(root) {
@@ -653,15 +741,24 @@ function stripIds(root) {
   root.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
 }
 
-function runAfterAnimation(element, className, callback) {
-  const onEnd = (event) => {
-    if (event.target !== element) return;
-    element.removeEventListener("animationend", onEnd);
-    element.classList.remove(className);
+function waitForTurnTransition(element, callback) {
+  const done = () => {
+    element.removeEventListener("transitionend", onEnd);
+    clearTimeout(timeoutId);
     callback();
   };
 
-  element.addEventListener("animationend", onEnd);
+  const onEnd = (event) => {
+    if (event.target !== element || event.propertyName !== "transform") return;
+    done();
+  };
+
+  const timeoutId = window.setTimeout(done, 320);
+  element.addEventListener("transitionend", onEnd);
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
 }
 
 function isDataUrl(value) {
