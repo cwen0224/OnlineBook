@@ -76,17 +76,7 @@ input {
 }
 
 .hero {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 30;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
-  padding: 16px 18px 0;
-  pointer-events: none;
+  display: none;
 }
 
 .eyebrow {
@@ -175,15 +165,7 @@ h1 {
 }
 
 .sidebar {
-  position: absolute;
-  left: 18px;
-  bottom: 18px;
-  z-index: 25;
-  display: grid;
-  gap: 12px;
-  width: min(340px, calc(100vw - 36px));
-  max-height: calc(100vh - 150px);
-  overflow: auto;
+  display: none;
 }
 
 .panel {
@@ -238,7 +220,7 @@ h1 {
   width: 100vw;
   height: 100vh;
   min-height: 100vh;
-  padding: 72px 24px 92px;
+  padding: 0;
   border-radius: 0;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)),
@@ -251,10 +233,10 @@ h1 {
 
 .book-spine {
   position: absolute;
-  top: 72px;
-  bottom: 92px;
+  top: 0;
+  bottom: 0;
   left: 50%;
-  width: 24px;
+  width: 20px;
   transform: translateX(-50%);
   background:
     linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.34), transparent),
@@ -308,7 +290,7 @@ h1 {
   height: 100%;
   display: grid;
   grid-template-rows: 1fr auto;
-  padding: 30px;
+  padding: clamp(18px, 3vw, 42px);
 }
 
 .page-art {
@@ -346,7 +328,7 @@ h1 {
 .turn-hint {
   position: absolute;
   left: 50%;
-  bottom: 20px;
+  bottom: 18px;
   transform: translateX(-50%);
   z-index: 3;
   padding: 8px 14px;
@@ -413,22 +395,6 @@ h1 {
   .workspace {
     display: block;
   }
-
-  .hero {
-    align-items: start;
-  }
-
-  .toolbar {
-    justify-content: flex-start;
-  }
-
-  .book-frame {
-    width: 100%;
-  }
-
-  .sidebar {
-    width: min(300px, calc(100vw - 36px));
-  }
 }
 
 @media (max-width: 760px) {
@@ -454,21 +420,6 @@ h1 {
 
   .page-left {
     display: none;
-  }
-
-  .hero {
-    padding: 12px 12px 0;
-  }
-
-  .sidebar {
-    left: 12px;
-    bottom: 76px;
-    width: calc(100vw - 24px);
-    max-height: 34vh;
-  }
-
-  .book-frame {
-    padding: 72px 12px 94px;
   }
 
   .controls {
