@@ -23,7 +23,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251610";
+const VERSION = "V.202603251613";
 
 const state = {
   book: null,
