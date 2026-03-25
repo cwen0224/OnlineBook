@@ -33,7 +33,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251623";
+const VERSION = "V.202603251625";
 
 const state = {
   book: null,
@@ -76,8 +76,8 @@ function bindEvents() {
       state.pageAudio = null;
     }
   });
-  prevButton.addEventListener("click", previousPage);
-  nextButton.addEventListener("click", nextPage);
+  if (prevButton) prevButton.addEventListener("click", previousPage);
+  if (nextButton) nextButton.addEventListener("click", nextPage);
   leftPage.addEventListener("click", previousPage);
   rightPage.addEventListener("click", nextPage);
 
@@ -404,6 +404,7 @@ function previousPage() {
 }
 
 function updateControls() {
+  if (!prevButton || !nextButton) return;
   const hasPrev = state.index > 0;
   const hasNext = !!state.book && state.index < state.book.pages.length - 1;
   prevButton.disabled = !hasPrev || state.isAnimating;
