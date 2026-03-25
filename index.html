@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f172a" />
+    <title>翻頁繪本</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-1"></div>
+    <div class="ambient ambient-2"></div>
+
+    <main class="shell">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">GitHub Pages Storybook</p>
+          <h1>動態翻頁繪本</h1>
+          <p class="lede">
+            支援翻頁特效、音效，以及從 JSON 或 ZIP 匯入不同繪本。
+          </p>
+          <p class="version" id="versionLabel"></p>
+        </div>
+
+        <div class="toolbar">
+          <label class="file-button">
+            匯入 JSON / ZIP
+            <input id="fileInput" type="file" accept=".json,.zip,application/json,application/zip" />
+          </label>
+          <button id="resetButton" class="ghost">回到示範書</button>
+          <button id="soundToggle" class="ghost" aria-pressed="true">音效：開</button>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="sidebar">
+          <div class="panel">
+            <div class="panel-head">
+              <span>書籍資訊</span>
+              <span id="pageCounter">0 / 0</span>
+            </div>
+            <p class="version-inline" id="versionInline"></p>
+            <h2 id="bookTitle">載入中</h2>
+            <p id="bookMeta" class="meta"></p>
+            <p id="bookDesc" class="description"></p>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <span>操作</span>
+              <span>← → / 方向鍵</span>
+            </div>
+            <ul class="tips">
+              <li>點擊右頁翻下一頁</li>
+              <li>點擊左頁翻上一頁</li>
+              <li>匯入 ZIP 時需包含 `book.json`</li>
+            </ul>
+          </div>
+        </aside>
+
+        <section class="stage">
+          <div class="book-frame">
+            <div class="book-spine"></div>
+            <div id="book" class="book" aria-label="繪本閱讀器">
+              <div class="page page-left" id="leftPage">
+                <div class="page-content">
+                  <div class="page-art" id="leftArt"></div>
+                  <div class="page-text">
+                    <h3 id="leftTitle"></h3>
+                    <p id="leftBody"></p>
+                  </div>
+                </div>
+              </div>
+              <div class="page page-right" id="rightPage">
+                <div class="page-content">
+                  <div class="page-art" id="rightArt"></div>
+                  <div class="page-text">
+                    <h3 id="rightTitle"></h3>
+                    <p id="rightBody"></p>
+                  </div>
+                </div>
+              </div>
+              <div class="turn-hint">點頁面或使用按鈕翻頁</div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button id="prevButton" class="nav">上一頁</button>
+            <button id="nextButton" class="nav primary">下一頁</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <template id="pageTemplate">
+      <div class="page-content">
+        <div class="page-art"></div>
+        <div class="page-text">
+          <h3></h3>
+          <p></p>
+        </div>
+      </div>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
