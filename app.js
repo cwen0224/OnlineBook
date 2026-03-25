@@ -31,7 +31,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251647";
+const VERSION = "V.202603251649";
 
 const state = {
   book: null,
@@ -395,6 +395,14 @@ function renderBook(options = {}) {
 
   leftPage.classList.toggle("empty", !currentLeft);
   rightPage.classList.toggle("empty", !currentRight);
+  leftPage.classList.toggle(
+    "is-hidden",
+    state.isAnimating && state.turnDirection === "backward",
+  );
+  rightPage.classList.toggle(
+    "is-hidden",
+    state.isAnimating && state.turnDirection === "forward",
+  );
 
   if (currentRight?.background) {
     rightPage.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${currentRight.background}") center/cover`;
@@ -525,11 +533,13 @@ function settleCurrentTurn(commit) {
 
     if (commit) {
       state.index = state.turnTargetIndex;
-      renderBook();
     } else {
       renderBook({ playAudio: false });
     }
 
+    if (commit) {
+      renderBook();
+    }
     clearTurnSheet();
     updateControls();
   });
