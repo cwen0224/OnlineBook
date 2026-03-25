@@ -374,8 +374,8 @@ h1 {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.03), transparent 16%, transparent 84%, rgba(0, 0, 0, 0.03)),
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.14), transparent 55%);
+    linear-gradient(90deg, rgba(0, 0, 0, 0.02), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.02)),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 60%);
 }
 
 .turn-front .page-content {
@@ -543,6 +543,11 @@ h1 {
   width: 100%;
   left: 0;
   right: 0;
+}
+
+.book.is-turning .underlay-left,
+.book.is-turning .underlay-right {
+  box-shadow: none;
 }
 
   .page-left {

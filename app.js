@@ -31,7 +31,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251652";
+const VERSION = "V.202603251654";
 
 const state = {
   book: null,
@@ -759,7 +759,7 @@ function setTurnSheetRotation(degrees, animate) {
 
 function setTurnSheetVisibility(progress) {
   const clamped = clamp(progress, 0, 1);
-  const opacity = 1 - clamped * 0.28;
+  const opacity = 1 - clamped * 0.55;
   turnSheet.style.setProperty("--turn-opacity", String(opacity));
 }
 
