@@ -322,10 +322,10 @@ function previousPage() {
   }
 
   state.isAnimating = true;
-  leftPage.classList.remove("turning");
-  leftPage.classList.add("turning-back");
+  rightPage.classList.remove("turning");
+  rightPage.classList.add("turning-back");
   playFlipSound(false);
-  runAfterAnimation(leftPage, "turning-back", () => {
+  runAfterAnimation(rightPage, "turning-back", () => {
     state.index -= 1;
     renderBook();
     updateControls();
