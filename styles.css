@@ -12,7 +12,7 @@
   --page-shadow: rgba(3, 7, 18, 0.4);
   --border: rgba(255, 255, 255, 0.08);
   --radius: 24px;
-  --book-width: min(90vw, 1050px);
+  --book-width: min(100vw, 1440px);
 }
 
 * {
@@ -22,7 +22,8 @@
 html,
 body {
   margin: 0;
-  min-height: 100%;
+  width: 100%;
+  height: 100%;
   background:
     radial-gradient(circle at top left, rgba(110, 231, 255, 0.18), transparent 30%),
     radial-gradient(circle at bottom right, rgba(247, 185, 85, 0.16), transparent 32%),
@@ -32,7 +33,7 @@ body {
 }
 
 body {
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 button,
@@ -66,17 +67,26 @@ input {
 }
 
 .shell {
-  width: min(1260px, calc(100vw - 32px));
-  margin: 0 auto;
-  padding: 28px 0 40px;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
 }
 
 .hero {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 24px;
-  padding: 18px 0 28px;
+  padding: 16px 18px 0;
+  pointer-events: none;
 }
 
 .eyebrow {
@@ -120,6 +130,7 @@ h1 {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 12px;
+  pointer-events: auto;
 }
 
 .file-button,
@@ -158,15 +169,21 @@ h1 {
 }
 
 .workspace {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 24px;
-  align-items: start;
+  position: absolute;
+  inset: 0;
+  display: block;
 }
 
 .sidebar {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  z-index: 25;
   display: grid;
-  gap: 18px;
+  gap: 12px;
+  width: min(340px, calc(100vw - 36px));
+  max-height: calc(100vh - 150px);
+  overflow: auto;
 }
 
 .panel {
@@ -209,30 +226,33 @@ h1 {
 }
 
 .stage {
+  position: absolute;
+  inset: 0;
   display: grid;
-  gap: 16px;
-  justify-items: center;
+  place-items: center;
+  padding: 0;
 }
 
 .book-frame {
   position: relative;
-  width: var(--book-width);
-  min-height: 66vh;
-  padding: 24px;
-  border-radius: calc(var(--radius) + 10px);
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 72px 24px 92px;
+  border-radius: 0;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)),
     var(--panel-strong);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 0;
   box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.45),
+    0 24px 80px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .book-spine {
   position: absolute;
-  top: 24px;
-  bottom: 24px;
+  top: 72px;
+  bottom: 92px;
   left: 50%;
   width: 24px;
   transform: translateX(-50%);
@@ -246,7 +266,7 @@ h1 {
 .book {
   position: relative;
   width: 100%;
-  min-height: calc(66vh - 48px);
+  height: 100%;
   perspective: 2200px;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -287,8 +307,8 @@ h1 {
 .page-content {
   height: 100%;
   display: grid;
-  grid-template-rows: 1.15fr auto;
-  padding: 22px;
+  grid-template-rows: 1fr auto;
+  padding: 30px;
 }
 
 .page-art {
@@ -326,7 +346,7 @@ h1 {
 .turn-hint {
   position: absolute;
   left: 50%;
-  bottom: 10px;
+  bottom: 20px;
   transform: translateX(-50%);
   z-index: 3;
   padding: 8px 14px;
@@ -339,8 +359,14 @@ h1 {
 }
 
 .controls {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 28;
   display: flex;
   gap: 12px;
+  pointer-events: auto;
 }
 
 .nav {
@@ -385,8 +411,7 @@ h1 {
 @media (max-width: 1040px) {
   .hero,
   .workspace {
-    grid-template-columns: 1fr;
-    display: grid;
+    display: block;
   }
 
   .hero {
@@ -400,17 +425,20 @@ h1 {
   .book-frame {
     width: 100%;
   }
+
+  .sidebar {
+    width: min(300px, calc(100vw - 36px));
+  }
 }
 
 @media (max-width: 760px) {
   .shell {
-    width: min(100vw - 20px, 1260px);
-    padding-top: 14px;
+    width: 100vw;
+    height: 100vh;
   }
 
   .book {
     grid-template-columns: 1fr;
-    min-height: auto;
   }
 
   .book-spine {
@@ -421,16 +449,34 @@ h1 {
   .page-right {
     border-radius: 20px;
     border-right: 1px solid rgba(31, 41, 55, 0.08);
-    min-height: 430px;
+    min-height: calc(100vh - 220px);
   }
 
   .page-left {
     display: none;
   }
 
+  .hero {
+    padding: 12px 12px 0;
+  }
+
+  .sidebar {
+    left: 12px;
+    bottom: 76px;
+    width: calc(100vw - 24px);
+    max-height: 34vh;
+  }
+
+  .book-frame {
+    padding: 72px 12px 94px;
+  }
+
   .controls {
     width: 100%;
     justify-content: space-between;
+    left: 12px;
+    right: 12px;
+    transform: none;
   }
 
   .nav {
