@@ -23,6 +23,7 @@ const underlayLeftTitle = document.getElementById("underlayLeftTitle");
 const underlayRightTitle = document.getElementById("underlayRightTitle");
 const underlayLeftBody = document.getElementById("underlayLeftBody");
 const underlayRightBody = document.getElementById("underlayRightBody");
+const spreadDeck = document.getElementById("spreadDeck");
 const book = document.getElementById("book");
 const turnSheet = document.getElementById("turnSheet");
 
@@ -31,7 +32,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251654";
+const VERSION = "V.202603251703";
 
 const state = {
   book: null,
@@ -362,6 +363,7 @@ function loadBook(book) {
   state.dragMoved = false;
   clearTurnSheet();
   resetPreloadCache();
+  preloadAllPages();
   renderBook();
   updateControls();
 }
@@ -379,6 +381,9 @@ function renderBook(options = {}) {
       : state.isAnimating
         ? state.turnTargetIndex
         : leftIndex + 2;
+  const totalSpreads = Math.max(1, Math.ceil(book.pages.length / 2));
+  const activeSpreadIndex = Math.max(0, Math.floor(leftIndex / 2));
+  const focusSpreadIndex = clamp(Math.floor(previewIndex / 2), 0, totalSpreads - 1);
   const nextLeft = book.pages[previewIndex] || null;
   const nextRight = book.pages[previewIndex + 1] || null;
 
@@ -407,30 +412,11 @@ function renderBook(options = {}) {
   book.classList.toggle("turn-forward", state.isAnimating && state.turnDirection === "forward");
   book.classList.toggle("turn-backward", state.isAnimating && state.turnDirection === "backward");
 
-  if (currentRight?.background) {
-    rightPage.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${currentRight.background}") center/cover`;
-  } else {
-    rightPage.style.background = "";
-  }
-
-  if (currentLeft?.background) {
-    leftPage.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${currentLeft.background}") center/cover`;
-  } else {
-    leftPage.style.background = "";
-  }
-
-  if (nextLeft?.background) {
-    underlayLeftPage.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${nextLeft.background}") center/cover`;
-  } else {
-    underlayLeftPage.style.background = "";
-  }
-
-  if (nextRight?.background) {
-    underlayRightPage.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${nextRight.background}") center/cover`;
-  } else {
-    underlayRightPage.style.background = "";
-  }
-
+  applyPageSurface(leftPage, currentLeft);
+  applyPageSurface(rightPage, currentRight);
+  applyPageSurface(underlayLeftPage, nextLeft);
+  applyPageSurface(underlayRightPage, nextRight);
+  renderSpreadDeck(book, activeSpreadIndex, focusSpreadIndex);
   preloadAround(state.index, 6);
   if (playAudio) {
     playPageAudio(currentRight?.audio);
@@ -469,6 +455,14 @@ function fillPage(pageEl, artEl, titleEl, bodyEl, pageData, side) {
     const svg = document.createElement("div");
     svg.innerHTML = createFallbackIllustration(pageData.title, side);
     artEl.appendChild(svg.firstElementChild);
+  }
+}
+
+function applyPageSurface(pageEl, pageData) {
+  if (pageData?.background) {
+    pageEl.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${pageData.background}") center/cover`;
+  } else {
+    pageEl.style.background = "";
   }
 }
 
@@ -513,7 +507,6 @@ function updateTurnSheetProgress(currentX) {
 
   const rotation = state.turnDirection === "forward" ? -180 * progress : 180 * progress;
   setTurnSheetRotation(rotation, false);
-  setTurnSheetVisibility(progress);
 }
 
 function settleCurrentTurn(commit) {
@@ -528,7 +521,6 @@ function settleCurrentTurn(commit) {
   state.turnDirection = direction;
   turnSheet.classList.remove("dragging");
   setTurnSheetRotation(finalRotation, true);
-  setTurnSheetVisibility(commit ? 1 : 0);
 
   waitForTurnTransition(turnSheet, () => {
     if (turnId !== state.activeTurnId) return;
@@ -634,6 +626,19 @@ function preloadAround(centerIndex, radius) {
   }
 }
 
+function preloadAllPages() {
+  if (!state.book) return;
+
+  preloadImage(state.book.coverImage);
+  preloadAudio(state.book.music?.src);
+
+  for (const page of state.book.pages) {
+    preloadImage(page.image);
+    preloadAudio(page.audio);
+    preloadImage(page.background);
+  }
+}
+
 function preloadImage(src) {
   if (!src || state.preloadedImages.has(src)) return;
   const image = new Image();
@@ -678,6 +683,55 @@ function cleanupZipAssets() {
   state.loadedAssets.clear();
   state.currentZip = null;
   resetPreloadCache();
+}
+
+function renderSpreadDeck(book, activeSpreadIndex, focusSpreadIndex) {
+  if (!spreadDeck) return;
+
+  const spreadCount = Math.max(1, Math.ceil(book.pages.length / 2));
+  const layers = [];
+
+  for (let spreadIndex = 0; spreadIndex < spreadCount; spreadIndex += 1) {
+    if (spreadIndex === activeSpreadIndex || spreadIndex === focusSpreadIndex) continue;
+    layers.push({
+      spreadIndex,
+      distance: Math.abs(spreadIndex - focusSpreadIndex),
+    });
+  }
+
+  layers.sort((a, b) => a.distance - b.distance || a.spreadIndex - b.spreadIndex);
+
+  spreadDeck.innerHTML = "";
+  for (const layerInfo of layers) {
+    const layer = document.createElement("div");
+    layer.className = "spread-layer";
+    layer.style.setProperty("--layer-depth", String(layerInfo.distance));
+    layer.style.zIndex = String(100 - layerInfo.distance);
+
+    const leftPageData = book.pages[layerInfo.spreadIndex * 2] || null;
+    const rightPageData = book.pages[layerInfo.spreadIndex * 2 + 1] || null;
+    layer.append(
+      createSpreadPage(leftPageData, "left"),
+      createSpreadPage(rightPageData, "right"),
+    );
+    spreadDeck.appendChild(layer);
+  }
+}
+
+function createSpreadPage(pageData, side) {
+  const pageEl = document.createElement("div");
+  pageEl.className = `page spread-page ${side === "left" ? "deck-left" : "deck-right"}`;
+
+  const content = pageTemplate.content.firstElementChild.cloneNode(true);
+  const artEl = content.querySelector(".page-art");
+  const titleEl = content.querySelector("h3");
+  const bodyEl = content.querySelector("p");
+
+  fillPage(pageEl, artEl, titleEl, bodyEl, pageData, side);
+  applyPageSurface(pageEl, pageData);
+  pageEl.appendChild(content);
+  pageEl.classList.toggle("blank", !pageData);
+  return pageEl;
 }
 
 function startSheetTurn(direction, sourcePage, targetIndex) {
@@ -744,6 +798,7 @@ function buildTargetPageContent(direction, targetIndex) {
 function clearTurnSheet() {
   turnSheet.className = "turn-sheet";
   turnSheet.style.removeProperty("--turn-rotation");
+  turnSheet.style.removeProperty("--turn-opacity");
   turnSheet.innerHTML = "";
   book.classList.remove("is-turning", "turn-forward", "turn-backward");
 }
@@ -755,12 +810,6 @@ function setTurnSheetRotation(degrees, animate) {
     turnSheet.classList.add("dragging");
   }
   turnSheet.style.setProperty("--turn-rotation", `${degrees}deg`);
-}
-
-function setTurnSheetVisibility(progress) {
-  const clamped = clamp(progress, 0, 1);
-  const opacity = 1 - clamped * 0.55;
-  turnSheet.style.setProperty("--turn-opacity", String(opacity));
 }
 
 function stripIds(root) {
