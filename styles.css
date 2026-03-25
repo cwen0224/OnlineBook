@@ -36,6 +36,16 @@ body {
   overflow: hidden;
 }
 
+.book,
+.book *,
+.page,
+.page *,
+.turn-sheet,
+.turn-sheet * {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 button,
 input {
   font: inherit;

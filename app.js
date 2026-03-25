@@ -31,7 +31,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251646";
+const VERSION = "V.202603251647";
 
 const state = {
   book: null,
@@ -100,6 +100,12 @@ function bindEvents() {
     if (event.key === "ArrowLeft" || event.key === "PageUp") {
       event.preventDefault();
       handleKeyboardPage("left");
+    }
+  });
+
+  document.addEventListener("selectstart", (event) => {
+    if (event.target instanceof Element && event.target.closest(".book")) {
+      event.preventDefault();
     }
   });
 }
