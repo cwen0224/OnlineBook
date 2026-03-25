@@ -17,6 +17,8 @@ const leftBody = document.getElementById("leftBody");
 const rightBody = document.getElementById("rightBody");
 const leftStack = document.getElementById("leftStack");
 const rightStack = document.getElementById("rightStack");
+const book = document.getElementById("book");
+const turnSheet = document.getElementById("turnSheet");
 
 const pageTemplate = document.getElementById("pageTemplate");
 const versionLabel = document.getElementById("versionLabel");
@@ -235,40 +237,39 @@ function loadBook(book) {
 
 function renderBook() {
   const book = state.book;
-  const current = book.pages[state.index];
-  const previous = book.pages[state.index - 1] || null;
+  const leftIndex = state.index;
+  const rightIndex = state.index + 1;
+  const currentLeft = book.pages[leftIndex] || null;
+  const currentRight = book.pages[rightIndex] || null;
 
   bookTitle.textContent = book.title;
   bookMeta.textContent = [book.author, `${book.pages.length} 頁`].filter(Boolean).join(" · ");
   bookDesc.textContent = book.description || "從 JSON 或 ZIP 匯入不同故事版本。";
-  pageCounter.textContent = `${state.index + 1} / ${book.pages.length}`;
+  pageCounter.textContent = `${leftIndex + 1}-${Math.min(rightIndex + 1, book.pages.length)} / ${book.pages.length}`;
 
-  renderPageStack(leftStack, "left", state.index - 1);
-  renderPageStack(rightStack, "right", state.index);
+  renderPageStack(leftStack, "left", leftIndex);
+  renderPageStack(rightStack, "right", rightIndex);
 
-  fillPage(leftPage, leftArt, leftTitle, leftBody, previous || null, "left");
-  fillPage(rightPage, rightArt, rightTitle, rightBody, current || null, "right");
+  fillPage(leftPage, leftArt, leftTitle, leftBody, currentLeft || null, "left");
+  fillPage(rightPage, rightArt, rightTitle, rightBody, currentRight || null, "right");
 
-  if (state.index === 0) {
-    leftPage.classList.add("empty");
-  } else {
-    leftPage.classList.remove("empty");
-  }
+  leftPage.classList.toggle("empty", !currentLeft);
+  rightPage.classList.toggle("empty", !currentRight);
 
-  if (current?.background) {
-    rightPage.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${current.background}") center/cover`;
+  if (currentRight?.background) {
+    rightPage.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${currentRight.background}") center/cover`;
   } else {
     rightPage.style.background = "";
   }
 
-  if (previous?.background) {
-    leftPage.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${previous.background}") center/cover`;
+  if (currentLeft?.background) {
+    leftPage.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${currentLeft.background}") center/cover`;
   } else {
     leftPage.style.background = "";
   }
 
-  preloadAround(state.index, 3);
-  playPageAudio(current?.audio);
+  preloadAround(state.index, 4);
+  playPageAudio(currentRight?.audio);
 }
 
 function renderPageStack(stackEl, side, activeIndex) {
@@ -277,8 +278,8 @@ function renderPageStack(stackEl, side, activeIndex) {
   stackEl.innerHTML = "";
   const indices =
     side === "left"
-      ? [activeIndex - 2, activeIndex - 1, activeIndex]
-      : [activeIndex + 2, activeIndex + 1, activeIndex];
+      ? [activeIndex - 3, activeIndex - 2, activeIndex - 1]
+      : [activeIndex + 2, activeIndex + 3, activeIndex + 4];
 
   indices.forEach((pageIndex, position) => {
     const pageData = state.book.pages[pageIndex];
@@ -342,17 +343,17 @@ function fillPage(pageEl, artEl, titleEl, bodyEl, pageData, side) {
 
 function nextPage() {
   if (state.isAnimating || !state.book) return;
-  if (state.index >= state.book.pages.length - 1) {
+  if (state.index >= state.book.pages.length - 2) {
     playFlipSound(true);
     return;
   }
 
   state.isAnimating = true;
-  rightPage.classList.remove("turning-back");
-  rightPage.classList.add("turning");
+  startSheetTurn("forward", rightPage);
   playFlipSound(false);
-  runAfterAnimation(rightPage, "turning", () => {
-    state.index += 1;
+  runAfterAnimation(turnSheet, "turning-forward", () => {
+    state.index += 2;
+    clearTurnSheet();
     renderBook();
     updateControls();
     state.isAnimating = false;
@@ -367,11 +368,11 @@ function previousPage() {
   }
 
   state.isAnimating = true;
-  leftPage.classList.remove("turning");
-  leftPage.classList.add("turning-back");
+  startSheetTurn("backward", leftPage);
   playFlipSound(false);
-  runAfterAnimation(leftPage, "turning-back", () => {
-    state.index -= 1;
+  runAfterAnimation(turnSheet, "turning-backward", () => {
+    state.index -= 2;
+    clearTurnSheet();
     renderBook();
     updateControls();
     state.isAnimating = false;
@@ -505,6 +506,38 @@ function cleanupZipAssets() {
   state.loadedAssets.clear();
   state.currentZip = null;
   resetPreloadCache();
+}
+
+function startSheetTurn(direction, sourcePage) {
+  const content = sourcePage.querySelector(".page-content");
+  const front = content ? content.cloneNode(true) : document.createElement("div");
+  stripIds(front);
+
+  turnSheet.innerHTML = "";
+  turnSheet.className = `turn-sheet is-visible ${direction}`;
+
+  const frontFace = document.createElement("div");
+  frontFace.className = "turn-face turn-front";
+  frontFace.appendChild(front);
+
+  const backFace = document.createElement("div");
+  backFace.className = "turn-face turn-back";
+
+  turnSheet.append(frontFace, backFace);
+  requestAnimationFrame(() => {
+    turnSheet.classList.add(direction === "forward" ? "turning-forward" : "turning-backward");
+  });
+}
+
+function clearTurnSheet() {
+  turnSheet.className = "turn-sheet";
+  turnSheet.innerHTML = "";
+}
+
+function stripIds(root) {
+  if (!root || !root.querySelectorAll) return;
+  if (root.id) root.removeAttribute("id");
+  root.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
 }
 
 function runAfterAnimation(element, className, callback) {
