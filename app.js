@@ -31,13 +31,17 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251635";
+const VERSION = "V.202603251637";
 
 const state = {
   book: null,
   index: 0,
   soundEnabled: true,
   isAnimating: false,
+  activeTurnId: 0,
+  turnOriginIndex: 0,
+  turnTargetIndex: 0,
+  turnDirection: null,
   audioContext: null,
   pageAudio: null,
   loadedAssets: new Map(),
@@ -76,19 +80,55 @@ function bindEvents() {
   });
   if (prevButton) prevButton.addEventListener("click", previousPage);
   if (nextButton) nextButton.addEventListener("click", nextPage);
-  leftPage.addEventListener("click", previousPage);
-  rightPage.addEventListener("click", nextPage);
+  leftPage.addEventListener("click", () => handlePageClick("left"));
+  rightPage.addEventListener("click", () => handlePageClick("right"));
 
   window.addEventListener("keydown", (event) => {
     if (event.key === "ArrowRight" || event.key === "PageDown") {
       event.preventDefault();
-      nextPage();
+      handleKeyboardPage("right");
     }
     if (event.key === "ArrowLeft" || event.key === "PageUp") {
       event.preventDefault();
-      previousPage();
+      handleKeyboardPage("left");
     }
   });
+}
+
+function handlePageClick(side) {
+  if (state.isAnimating) {
+    if (
+      (state.turnDirection === "forward" && side === "left") ||
+      (state.turnDirection === "backward" && side === "right")
+    ) {
+      cancelCurrentTurn();
+    }
+    return;
+  }
+
+  if (side === "left") {
+    previousPage();
+  } else {
+    nextPage();
+  }
+}
+
+function handleKeyboardPage(side) {
+  if (state.isAnimating) {
+    if (
+      (state.turnDirection === "forward" && side === "left") ||
+      (state.turnDirection === "backward" && side === "right")
+    ) {
+      cancelCurrentTurn();
+    }
+    return;
+  }
+
+  if (side === "left") {
+    previousPage();
+  } else {
+    nextPage();
+  }
 }
 
 async function onFileSelected(event) {
@@ -236,6 +276,10 @@ function normalizeBook(input) {
 function loadBook(book) {
   state.book = normalizeBook(book);
   state.index = 0;
+  state.activeTurnId += 1;
+  state.isAnimating = false;
+  state.turnDirection = null;
+  clearTurnSheet();
   resetPreloadCache();
   renderBook();
   updateControls();
@@ -338,16 +382,23 @@ function nextPage() {
   }
 
   const targetIndex = state.index + 2;
+  const originIndex = state.index;
   state.isAnimating = true;
+  state.turnDirection = "forward";
+  state.turnOriginIndex = originIndex;
+  state.turnTargetIndex = targetIndex;
+  const turnId = ++state.activeTurnId;
   startSheetTurn("forward", rightPage, targetIndex);
   playFlipSound(false);
   state.index = targetIndex;
   renderBook({ playAudio: false });
   updateControls();
   runAfterAnimation(turnSheet, "turning-forward", () => {
+    if (turnId !== state.activeTurnId) return;
     clearTurnSheet();
     updateControls();
     state.isAnimating = false;
+    state.turnDirection = null;
   });
 }
 
@@ -359,17 +410,36 @@ function previousPage() {
   }
 
   const targetIndex = state.index - 2;
+  const originIndex = state.index;
   state.isAnimating = true;
+  state.turnDirection = "backward";
+  state.turnOriginIndex = originIndex;
+  state.turnTargetIndex = targetIndex;
+  const turnId = ++state.activeTurnId;
   startSheetTurn("backward", leftPage, targetIndex);
   playFlipSound(false);
   state.index = targetIndex;
   renderBook({ playAudio: false });
   updateControls();
   runAfterAnimation(turnSheet, "turning-backward", () => {
+    if (turnId !== state.activeTurnId) return;
     clearTurnSheet();
     updateControls();
     state.isAnimating = false;
+    state.turnDirection = null;
   });
+}
+
+function cancelCurrentTurn() {
+  if (!state.isAnimating || !state.book) return;
+
+  state.activeTurnId += 1;
+  clearTurnSheet();
+  state.index = state.turnOriginIndex;
+  state.isAnimating = false;
+  state.turnDirection = null;
+  renderBook({ playAudio: false });
+  updateControls();
 }
 
 function updateControls() {
