@@ -21,7 +21,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251605";
+const VERSION = "V.202603251606";
 
 const state = {
   book: null,
@@ -324,10 +324,10 @@ function previousPage() {
   }
 
   state.isAnimating = true;
-  rightPage.classList.remove("turning");
-  rightPage.classList.add("turning-back");
+  leftPage.classList.remove("turning");
+  leftPage.classList.add("turning-back");
   playFlipSound(false);
-  runAfterAnimation(rightPage, "turning-back", () => {
+  runAfterAnimation(leftPage, "turning-back", () => {
     state.index -= 1;
     renderBook();
     updateControls();
