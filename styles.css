@@ -323,6 +323,10 @@ h1 {
   top: 0;
   bottom: 0;
   width: 50%;
+  z-index: 0;
+  transition:
+    transform 180ms ease,
+    z-index 0s linear 180ms;
 }
 
 .underlay-left {
@@ -334,6 +338,29 @@ h1 {
 .underlay-right {
   right: 0;
   border-radius: 0 20px 20px 0;
+}
+
+.book.preview-forward .underlay-left {
+  display: none;
+}
+
+.book.preview-forward .underlay-right {
+  z-index: 24;
+  transform: translateX(0) translateZ(0);
+}
+
+.book.preview-backward .underlay-left {
+  z-index: 24;
+  transform: translateX(0) translateZ(0);
+}
+
+.book.preview-backward .underlay-right {
+  display: none;
+}
+
+.book.preview-forward .underlay-spread,
+.book.preview-backward .underlay-spread {
+  z-index: 24;
 }
 
 .turn-sheet {

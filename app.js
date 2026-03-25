@@ -32,7 +32,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251703";
+const VERSION = "V.202603251715";
 
 const state = {
   book: null,
@@ -411,6 +411,14 @@ function renderBook(options = {}) {
   book.classList.toggle("is-turning", state.isAnimating);
   book.classList.toggle("turn-forward", state.isAnimating && state.turnDirection === "forward");
   book.classList.toggle("turn-backward", state.isAnimating && state.turnDirection === "backward");
+  book.classList.toggle(
+    "preview-forward",
+    state.isAnimating && state.turnDirection === "forward",
+  );
+  book.classList.toggle(
+    "preview-backward",
+    state.isAnimating && state.turnDirection === "backward",
+  );
 
   applyPageSurface(leftPage, currentLeft);
   applyPageSurface(rightPage, currentRight);
@@ -800,7 +808,13 @@ function clearTurnSheet() {
   turnSheet.style.removeProperty("--turn-rotation");
   turnSheet.style.removeProperty("--turn-opacity");
   turnSheet.innerHTML = "";
-  book.classList.remove("is-turning", "turn-forward", "turn-backward");
+  book.classList.remove(
+    "is-turning",
+    "turn-forward",
+    "turn-backward",
+    "preview-forward",
+    "preview-backward",
+  );
 }
 
 function setTurnSheetRotation(degrees, animate) {
