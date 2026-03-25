@@ -325,6 +325,7 @@ h1 {
   transform: rotateY(var(--turn-rotation, 0deg));
   transition: transform 240ms cubic-bezier(0.22, 0.61, 0.36, 1);
   will-change: transform;
+  opacity: var(--turn-opacity, 1);
   pointer-events: none;
   display: none;
 }
@@ -373,7 +374,7 @@ h1 {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.04), transparent 16%, transparent 84%, rgba(0, 0, 0, 0.04)),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03), transparent 16%, transparent 84%, rgba(0, 0, 0, 0.03)),
     radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.14), transparent 55%);
 }
 
@@ -499,7 +500,7 @@ h1 {
   }
   100% {
     transform: rotateY(-180deg) translateZ(0);
-    box-shadow: -10px 18px 40px rgba(0, 0, 0, 0.28);
+    box-shadow: -8px 10px 24px rgba(0, 0, 0, 0.16);
   }
 }
 
@@ -510,7 +511,7 @@ h1 {
   }
   100% {
     transform: rotateY(180deg) translateZ(0);
-    box-shadow: -10px 18px 40px rgba(0, 0, 0, 0.28);
+    box-shadow: -8px 10px 24px rgba(0, 0, 0, 0.16);
   }
 }
 

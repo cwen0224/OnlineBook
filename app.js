@@ -31,7 +31,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251650";
+const VERSION = "V.202603251652";
 
 const state = {
   book: null,
@@ -513,6 +513,7 @@ function updateTurnSheetProgress(currentX) {
 
   const rotation = state.turnDirection === "forward" ? -180 * progress : 180 * progress;
   setTurnSheetRotation(rotation, false);
+  setTurnSheetVisibility(progress);
 }
 
 function settleCurrentTurn(commit) {
@@ -527,6 +528,7 @@ function settleCurrentTurn(commit) {
   state.turnDirection = direction;
   turnSheet.classList.remove("dragging");
   setTurnSheetRotation(finalRotation, true);
+  setTurnSheetVisibility(commit ? 1 : 0);
 
   waitForTurnTransition(turnSheet, () => {
     if (turnId !== state.activeTurnId) return;
@@ -753,6 +755,12 @@ function setTurnSheetRotation(degrees, animate) {
     turnSheet.classList.add("dragging");
   }
   turnSheet.style.setProperty("--turn-rotation", `${degrees}deg`);
+}
+
+function setTurnSheetVisibility(progress) {
+  const clamped = clamp(progress, 0, 1);
+  const opacity = 1 - clamped * 0.28;
+  turnSheet.style.setProperty("--turn-opacity", String(opacity));
 }
 
 function stripIds(root) {
