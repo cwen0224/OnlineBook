@@ -23,8 +23,6 @@ const underlayLeftTitle = document.getElementById("underlayLeftTitle");
 const underlayRightTitle = document.getElementById("underlayRightTitle");
 const underlayLeftBody = document.getElementById("underlayLeftBody");
 const underlayRightBody = document.getElementById("underlayRightBody");
-const leftStack = document.getElementById("leftStack");
-const rightStack = document.getElementById("rightStack");
 const book = document.getElementById("book");
 const turnSheet = document.getElementById("turnSheet");
 
@@ -33,7 +31,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251625";
+const VERSION = "V.202603251628";
 
 const state = {
   book: null,
@@ -259,8 +257,6 @@ function renderBook() {
 
   fillPage(underlayLeftPage, underlayLeftArt, underlayLeftTitle, underlayLeftBody, nextLeft || null, "left");
   fillPage(underlayRightPage, underlayRightArt, underlayRightTitle, underlayRightBody, nextRight || null, "right");
-  renderPageStack(leftStack, "left", leftIndex);
-  renderPageStack(rightStack, "right", rightIndex);
 
   fillPage(leftPage, leftArt, leftTitle, leftBody, currentLeft || null, "left");
   fillPage(rightPage, rightArt, rightTitle, rightBody, currentRight || null, "right");
@@ -294,40 +290,6 @@ function renderBook() {
 
   preloadAround(state.index, 6);
   playPageAudio(currentRight?.audio);
-}
-
-function renderPageStack(stackEl, side, activeIndex) {
-  if (!stackEl || !state.book) return;
-
-  stackEl.innerHTML = "";
-  const indices =
-    side === "left"
-      ? [activeIndex - 3, activeIndex - 2, activeIndex - 1]
-      : [activeIndex + 2, activeIndex + 3, activeIndex + 4];
-
-  indices.forEach((pageIndex, position) => {
-    const pageData = state.book.pages[pageIndex];
-    const layer = document.createElement("div");
-    layer.className = `page-layer layer-${position}`;
-
-    const art = document.createElement("div");
-    art.className = "layer-art";
-    if (pageData?.image) {
-      art.style.backgroundImage = `url("${pageData.image}")`;
-    } else {
-      art.style.backgroundImage = `linear-gradient(145deg, rgba(110,231,255,0.22), rgba(247,185,85,0.2))`;
-    }
-
-    const tint = document.createElement("div");
-    tint.className = "layer-tint";
-
-    const label = document.createElement("div");
-    label.className = "page-layer-title";
-    label.textContent = pageData ? pageData.title : "";
-
-    layer.append(art, tint, label);
-    stackEl.appendChild(layer);
-  });
 }
 
 function fillPage(pageEl, artEl, titleEl, bodyEl, pageData, side) {
