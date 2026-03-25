@@ -19,8 +19,9 @@ const rightBody = document.getElementById("rightBody");
 const pageTemplate = document.getElementById("pageTemplate");
 const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
+const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251549";
+const VERSION = "V.202603251557";
 
 const state = {
   book: null,
@@ -40,6 +41,7 @@ function init() {
   document.title = `動態翻頁繪本 ${VERSION}`;
   versionLabel.textContent = VERSION;
   versionInline.textContent = `版本 ${VERSION}`;
+  buildBadge.textContent = VERSION;
   bindEvents();
   loadBook(defaultBook);
 }
