@@ -31,7 +31,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251637";
+const VERSION = "V.202603251640";
 
 const state = {
   book: null,
@@ -292,8 +292,14 @@ function renderBook(options = {}) {
   const rightIndex = state.index + 1;
   const currentLeft = book.pages[leftIndex] || null;
   const currentRight = book.pages[rightIndex] || null;
-  const nextLeft = book.pages[leftIndex + 2] || null;
-  const nextRight = book.pages[leftIndex + 3] || null;
+  const previewIndex =
+    typeof options.previewIndex === "number"
+      ? options.previewIndex
+      : state.isAnimating
+        ? state.turnTargetIndex
+        : leftIndex + 2;
+  const nextLeft = book.pages[previewIndex] || null;
+  const nextRight = book.pages[previewIndex + 1] || null;
 
   bookTitle.textContent = book.title;
   bookMeta.textContent = [book.author, `${book.pages.length} 頁`].filter(Boolean).join(" · ");
@@ -390,15 +396,16 @@ function nextPage() {
   const turnId = ++state.activeTurnId;
   startSheetTurn("forward", rightPage, targetIndex);
   playFlipSound(false);
-  state.index = targetIndex;
-  renderBook({ playAudio: false });
+  renderBook({ playAudio: false, previewIndex: targetIndex });
   updateControls();
   runAfterAnimation(turnSheet, "turning-forward", () => {
     if (turnId !== state.activeTurnId) return;
-    clearTurnSheet();
-    updateControls();
+    state.index = targetIndex;
     state.isAnimating = false;
     state.turnDirection = null;
+    renderBook();
+    clearTurnSheet();
+    updateControls();
   });
 }
 
@@ -418,15 +425,16 @@ function previousPage() {
   const turnId = ++state.activeTurnId;
   startSheetTurn("backward", leftPage, targetIndex);
   playFlipSound(false);
-  state.index = targetIndex;
-  renderBook({ playAudio: false });
+  renderBook({ playAudio: false, previewIndex: targetIndex });
   updateControls();
   runAfterAnimation(turnSheet, "turning-backward", () => {
     if (turnId !== state.activeTurnId) return;
-    clearTurnSheet();
-    updateControls();
+    state.index = targetIndex;
     state.isAnimating = false;
     state.turnDirection = null;
+    renderBook();
+    clearTurnSheet();
+    updateControls();
   });
 }
 
@@ -435,7 +443,6 @@ function cancelCurrentTurn() {
 
   state.activeTurnId += 1;
   clearTurnSheet();
-  state.index = state.turnOriginIndex;
   state.isAnimating = false;
   state.turnDirection = null;
   renderBook({ playAudio: false });
