@@ -273,6 +273,28 @@ h1 {
   gap: 0;
 }
 
+.underlay-spread {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  pointer-events: none;
+}
+
+.underlay-page {
+  opacity: 0.98;
+}
+
+.underlay-left {
+  border-radius: 20px 0 0 20px;
+  border-right: 0;
+}
+
+.underlay-right {
+  border-radius: 0 20px 20px 0;
+}
+
 .turn-sheet {
   position: absolute;
   top: 0;

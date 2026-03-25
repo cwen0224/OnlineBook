@@ -15,6 +15,14 @@ const leftTitle = document.getElementById("leftTitle");
 const rightTitle = document.getElementById("rightTitle");
 const leftBody = document.getElementById("leftBody");
 const rightBody = document.getElementById("rightBody");
+const underlayLeftPage = document.getElementById("underlayLeftPage");
+const underlayRightPage = document.getElementById("underlayRightPage");
+const underlayLeftArt = document.getElementById("underlayLeftArt");
+const underlayRightArt = document.getElementById("underlayRightArt");
+const underlayLeftTitle = document.getElementById("underlayLeftTitle");
+const underlayRightTitle = document.getElementById("underlayRightTitle");
+const underlayLeftBody = document.getElementById("underlayLeftBody");
+const underlayRightBody = document.getElementById("underlayRightBody");
 const leftStack = document.getElementById("leftStack");
 const rightStack = document.getElementById("rightStack");
 const book = document.getElementById("book");
@@ -25,7 +33,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251613";
+const VERSION = "V.202603251621";
 
 const state = {
   book: null,
@@ -241,12 +249,16 @@ function renderBook() {
   const rightIndex = state.index + 1;
   const currentLeft = book.pages[leftIndex] || null;
   const currentRight = book.pages[rightIndex] || null;
+  const nextLeft = book.pages[leftIndex + 2] || null;
+  const nextRight = book.pages[leftIndex + 3] || null;
 
   bookTitle.textContent = book.title;
   bookMeta.textContent = [book.author, `${book.pages.length} 頁`].filter(Boolean).join(" · ");
   bookDesc.textContent = book.description || "從 JSON 或 ZIP 匯入不同故事版本。";
   pageCounter.textContent = `${leftIndex + 1}-${Math.min(rightIndex + 1, book.pages.length)} / ${book.pages.length}`;
 
+  fillPage(underlayLeftPage, underlayLeftArt, underlayLeftTitle, underlayLeftBody, nextLeft || null, "left");
+  fillPage(underlayRightPage, underlayRightArt, underlayRightTitle, underlayRightBody, nextRight || null, "right");
   renderPageStack(leftStack, "left", leftIndex);
   renderPageStack(rightStack, "right", rightIndex);
 
@@ -268,7 +280,19 @@ function renderBook() {
     leftPage.style.background = "";
   }
 
-  preloadAround(state.index, 4);
+  if (nextLeft?.background) {
+    underlayLeftPage.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${nextLeft.background}") center/cover`;
+  } else {
+    underlayLeftPage.style.background = "";
+  }
+
+  if (nextRight?.background) {
+    underlayRightPage.style.background = `linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,237,220,0.96)), url("${nextRight.background}") center/cover`;
+  } else {
+    underlayRightPage.style.background = "";
+  }
+
+  preloadAround(state.index, 6);
   playPageAudio(currentRight?.audio);
 }
 
@@ -523,10 +547,50 @@ function startSheetTurn(direction, sourcePage) {
   const backFace = document.createElement("div");
   backFace.className = "turn-face turn-back";
 
+  const targetContent = buildTargetPageContent(direction);
+  if (targetContent) {
+    backFace.appendChild(targetContent);
+  }
+
   turnSheet.append(frontFace, backFace);
   requestAnimationFrame(() => {
     turnSheet.classList.add(direction === "forward" ? "turning-forward" : "turning-backward");
   });
+}
+
+function buildTargetPageContent(direction) {
+  if (!state.book) return null;
+
+  const targetIndex = direction === "forward" ? state.index + 2 : state.index - 1;
+  const page = state.book.pages[targetIndex] || null;
+  if (!page) return null;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "page-content";
+
+  const art = document.createElement("div");
+  art.className = "page-art";
+  if (page.image) {
+    const img = document.createElement("img");
+    img.alt = page.title;
+    img.src = page.image;
+    art.appendChild(img);
+  } else {
+    const svg = document.createElement("div");
+    svg.innerHTML = createFallbackIllustration(page.title, direction === "forward" ? "right" : "left");
+    art.appendChild(svg.firstElementChild);
+  }
+
+  const text = document.createElement("div");
+  text.className = "page-text";
+  const title = document.createElement("h3");
+  title.textContent = page.title;
+  const body = document.createElement("p");
+  body.textContent = page.text;
+  text.append(title, body);
+
+  wrapper.append(art, text);
+  return wrapper;
 }
 
 function clearTurnSheet() {

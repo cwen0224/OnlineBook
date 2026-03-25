@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0f172a" />
     <title>翻頁繪本</title>
-    <link rel="stylesheet" href="./styles.css?v=202603251613" />
+    <link rel="stylesheet" href="./styles.css?v=202603251621" />
   </head>
   <body>
     <div class="ambient ambient-1"></div>
@@ -63,6 +63,26 @@
           <div class="book-frame">
             <div class="book-spine"></div>
             <div id="book" class="book" aria-label="繪本閱讀器">
+              <div id="underlaySpread" class="underlay-spread" aria-hidden="true">
+                <div class="page underlay-page underlay-left" id="underlayLeftPage">
+                  <div class="page-content">
+                    <div class="page-art" id="underlayLeftArt"></div>
+                    <div class="page-text">
+                      <h3 id="underlayLeftTitle"></h3>
+                      <p id="underlayLeftBody"></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="page underlay-page underlay-right" id="underlayRightPage">
+                  <div class="page-content">
+                    <div class="page-art" id="underlayRightArt"></div>
+                    <div class="page-text">
+                      <h3 id="underlayRightTitle"></h3>
+                      <p id="underlayRightBody"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div id="turnSheet" class="turn-sheet" aria-hidden="true"></div>
               <div class="page page-left" id="leftPage">
                 <div class="page-stack" id="leftStack" aria-hidden="true"></div>
@@ -107,6 +127,6 @@
     </template>
 
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-    <script src="./app.js?v=202603251613"></script>
+    <script src="./app.js?v=202603251621"></script>
   </body>
 </html>
