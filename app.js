@@ -435,12 +435,16 @@ function playPageAudio(src) {
     state.pageAudio = null;
   }
 
-  const audio = new Audio(src);
+  const audio = state.preloadedAudio.get(src) || new Audio(src);
   audio.preload = "auto";
   audio.volume = 0.8;
+  audio.currentTime = 0;
   audio.play().catch(() => {
     // Some browsers block remote playback or delayed autoplay.
   });
+  if (!state.preloadedAudio.has(src)) {
+    state.preloadedAudio.set(src, audio);
+  }
   state.pageAudio = audio;
 }
 
