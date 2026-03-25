@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0f172a" />
     <title>翻頁繪本</title>
-    <link rel="stylesheet" href="./styles.css?v=202603251606" />
+    <link rel="stylesheet" href="./styles.css?v=202603251610" />
   </head>
   <body>
     <div class="ambient ambient-1"></div>
@@ -64,6 +64,7 @@
             <div class="book-spine"></div>
             <div id="book" class="book" aria-label="繪本閱讀器">
               <div class="page page-left" id="leftPage">
+                <div class="page-stack" id="leftStack" aria-hidden="true"></div>
                 <div class="page-content">
                   <div class="page-art" id="leftArt"></div>
                   <div class="page-text">
@@ -73,6 +74,7 @@
                 </div>
               </div>
               <div class="page page-right" id="rightPage">
+                <div class="page-stack" id="rightStack" aria-hidden="true"></div>
                 <div class="page-content">
                   <div class="page-art" id="rightArt"></div>
                   <div class="page-text">
@@ -104,6 +106,6 @@
     </template>
 
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-    <script src="./app.js?v=202603251606"></script>
+    <script src="./app.js?v=202603251610"></script>
   </body>
 </html>

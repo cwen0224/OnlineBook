@@ -15,13 +15,15 @@ const leftTitle = document.getElementById("leftTitle");
 const rightTitle = document.getElementById("rightTitle");
 const leftBody = document.getElementById("leftBody");
 const rightBody = document.getElementById("rightBody");
+const leftStack = document.getElementById("leftStack");
+const rightStack = document.getElementById("rightStack");
 
 const pageTemplate = document.getElementById("pageTemplate");
 const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251606";
+const VERSION = "V.202603251610";
 
 const state = {
   book: null,
@@ -29,7 +31,10 @@ const state = {
   soundEnabled: true,
   isAnimating: false,
   audioContext: null,
+  pageAudio: null,
   loadedAssets: new Map(),
+  preloadedImages: new Map(),
+  preloadedAudio: new Map(),
   currentZip: null,
 };
 
@@ -223,6 +228,7 @@ function normalizeBook(input) {
 function loadBook(book) {
   state.book = normalizeBook(book);
   state.index = 0;
+  resetPreloadCache();
   renderBook();
   updateControls();
 }
@@ -230,13 +236,15 @@ function loadBook(book) {
 function renderBook() {
   const book = state.book;
   const current = book.pages[state.index];
-  const next = book.pages[state.index + 1] || null;
   const previous = book.pages[state.index - 1] || null;
 
   bookTitle.textContent = book.title;
   bookMeta.textContent = [book.author, `${book.pages.length} 頁`].filter(Boolean).join(" · ");
   bookDesc.textContent = book.description || "從 JSON 或 ZIP 匯入不同故事版本。";
   pageCounter.textContent = `${state.index + 1} / ${book.pages.length}`;
+
+  renderPageStack(leftStack, "left", state.index - 1);
+  renderPageStack(rightStack, "right", state.index);
 
   fillPage(leftPage, leftArt, leftTitle, leftBody, previous || null, "left");
   fillPage(rightPage, rightArt, rightTitle, rightBody, current || null, "right");
@@ -259,7 +267,42 @@ function renderBook() {
     leftPage.style.background = "";
   }
 
+  preloadAround(state.index, 3);
   playPageAudio(current?.audio);
+}
+
+function renderPageStack(stackEl, side, activeIndex) {
+  if (!stackEl || !state.book) return;
+
+  stackEl.innerHTML = "";
+  const indices =
+    side === "left"
+      ? [activeIndex - 2, activeIndex - 1, activeIndex]
+      : [activeIndex + 2, activeIndex + 1, activeIndex];
+
+  indices.forEach((pageIndex, position) => {
+    const pageData = state.book.pages[pageIndex];
+    const layer = document.createElement("div");
+    layer.className = `page-layer layer-${position}`;
+
+    const art = document.createElement("div");
+    art.className = "layer-art";
+    if (pageData?.image) {
+      art.style.backgroundImage = `url("${pageData.image}")`;
+    } else {
+      art.style.backgroundImage = `linear-gradient(145deg, rgba(110,231,255,0.22), rgba(247,185,85,0.2))`;
+    }
+
+    const tint = document.createElement("div");
+    tint.className = "layer-tint";
+
+    const label = document.createElement("div");
+    label.className = "page-layer-title";
+    label.textContent = pageData ? pageData.title : "";
+
+    layer.append(art, tint, label);
+    stackEl.appendChild(layer);
+  });
 }
 
 function fillPage(pageEl, artEl, titleEl, bodyEl, pageData, side) {
@@ -401,6 +444,44 @@ function playPageAudio(src) {
   state.pageAudio = audio;
 }
 
+function preloadAround(centerIndex, radius) {
+  if (!state.book) return;
+
+  const start = Math.max(0, centerIndex - radius);
+  const end = Math.min(state.book.pages.length - 1, centerIndex + radius);
+
+  for (let index = start; index <= end; index += 1) {
+    const page = state.book.pages[index];
+    preloadImage(page.image);
+    preloadAudio(page.audio);
+  }
+}
+
+function preloadImage(src) {
+  if (!src || state.preloadedImages.has(src)) return;
+  const image = new Image();
+  image.decoding = "async";
+  image.src = src;
+  state.preloadedImages.set(src, image);
+}
+
+function preloadAudio(src) {
+  if (!src || state.preloadedAudio.has(src)) return;
+  const audio = new Audio();
+  audio.preload = "auto";
+  audio.src = src;
+  state.preloadedAudio.set(src, audio);
+}
+
+function resetPreloadCache() {
+  state.preloadedImages.clear();
+  state.preloadedAudio.clear();
+  if (state.pageAudio) {
+    state.pageAudio.pause();
+    state.pageAudio = null;
+  }
+}
+
 function ensureAudioContext() {
   if (state.audioContext) {
     if (state.audioContext.state === "suspended") {
@@ -419,11 +500,7 @@ function cleanupZipAssets() {
   }
   state.loadedAssets.clear();
   state.currentZip = null;
-
-  if (state.pageAudio) {
-    state.pageAudio.pause();
-    state.pageAudio = null;
-  }
+  resetPreloadCache();
 }
 
 function runAfterAnimation(element, className, callback) {
