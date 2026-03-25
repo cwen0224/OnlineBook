@@ -7,32 +7,16 @@ const pageCounter = document.getElementById("pageCounter");
 const bookTitle = document.getElementById("bookTitle");
 const bookMeta = document.getElementById("bookMeta");
 const bookDesc = document.getElementById("bookDesc");
-const leftPage = document.getElementById("leftPage");
-const rightPage = document.getElementById("rightPage");
-const leftArt = document.getElementById("leftArt");
-const rightArt = document.getElementById("rightArt");
-const leftTitle = document.getElementById("leftTitle");
-const rightTitle = document.getElementById("rightTitle");
-const leftBody = document.getElementById("leftBody");
-const rightBody = document.getElementById("rightBody");
-const underlayLeftPage = document.getElementById("underlayLeftPage");
-const underlayRightPage = document.getElementById("underlayRightPage");
-const underlayLeftArt = document.getElementById("underlayLeftArt");
-const underlayRightArt = document.getElementById("underlayRightArt");
-const underlayLeftTitle = document.getElementById("underlayLeftTitle");
-const underlayRightTitle = document.getElementById("underlayRightTitle");
-const underlayLeftBody = document.getElementById("underlayLeftBody");
-const underlayRightBody = document.getElementById("underlayRightBody");
-const spreadDeck = document.getElementById("spreadDeck");
-const book = document.getElementById("book");
+const sheetDeck = document.getElementById("sheetDeck");
 const turnSheet = document.getElementById("turnSheet");
+const book = document.getElementById("book");
 
 const pageTemplate = document.getElementById("pageTemplate");
 const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251723";
+const VERSION = "V.202603251748";
 
 const state = {
   book: null,
@@ -87,8 +71,7 @@ function bindEvents() {
   });
   if (prevButton) prevButton.addEventListener("click", previousPage);
   if (nextButton) nextButton.addEventListener("click", nextPage);
-  leftPage.addEventListener("pointerdown", (event) => beginPagePointerTurn("left", event));
-  rightPage.addEventListener("pointerdown", (event) => beginPagePointerTurn("right", event));
+  sheetDeck.addEventListener("pointerdown", onDeckPointerDown);
   window.addEventListener("pointermove", onPagePointerMove);
   window.addEventListener("pointerup", onPagePointerEnd);
   window.addEventListener("pointercancel", onPagePointerEnd);
@@ -129,6 +112,15 @@ function handleKeyboardPage(side) {
   }
 }
 
+function onDeckPointerDown(event) {
+  const half = event.target instanceof Element ? event.target.closest(".page-left, .page-right") : null;
+  const activeSheet = getActiveSheet();
+  if (!half || !activeSheet || !activeSheet.contains(half)) return;
+
+  const side = half.classList.contains("page-right") ? "right" : "left";
+  beginPagePointerTurn(side, event);
+}
+
 function beginPagePointerTurn(side, event) {
   if (event.button !== 0 || state.isDragging) return;
   if (!state.book) return;
@@ -158,7 +150,7 @@ function beginPagePointerTurn(side, event) {
   if (event.currentTarget?.setPointerCapture) {
     event.currentTarget.setPointerCapture(event.pointerId);
   }
-  startTurnSession(direction, direction === "forward" ? rightPage : leftPage, targetIndex, {
+  startTurnSession(direction, targetIndex, {
     interactive: true,
     pointerId: event.pointerId,
     startX: event.clientX,
@@ -179,13 +171,13 @@ function onPagePointerEnd(event) {
   settleCurrentTurn(commit);
 }
 
-function beginProgrammaticTurn(direction, sourcePage, targetIndex) {
+function beginProgrammaticTurn(direction, targetIndex) {
   if (!state.book || state.isAnimating) return;
-  startTurnSession(direction, sourcePage, targetIndex, { interactive: false });
+  startTurnSession(direction, targetIndex, { interactive: false });
   settleCurrentTurn(true);
 }
 
-function startTurnSession(direction, sourcePage, targetIndex, options = {}) {
+function startTurnSession(direction, targetIndex, options = {}) {
   if (!state.book || state.isAnimating) return false;
 
   const { interactive = false, pointerId = null, startX = 0 } = options;
@@ -201,9 +193,8 @@ function startTurnSession(direction, sourcePage, targetIndex, options = {}) {
   state.dragProgress = 0;
   state.dragMoved = false;
 
-  startSheetTurn(direction, sourcePage, targetIndex);
   playFlipSound(false);
-  renderBook({ playAudio: false, previewIndex: targetIndex });
+  renderBook({ playAudio: false });
   updateControls();
   setTurnSheetRotation(0, false);
   return true;
@@ -373,59 +364,24 @@ function renderBook(options = {}) {
   const book = state.book;
   const leftIndex = state.index;
   const rightIndex = state.index + 1;
-  const currentLeft = book.pages[leftIndex] || null;
   const currentRight = book.pages[rightIndex] || null;
-  const previewIndex =
-    typeof options.previewIndex === "number"
-      ? options.previewIndex
-      : state.isAnimating
-        ? state.turnTargetIndex
-        : leftIndex + 2;
   const totalSpreads = Math.max(1, Math.ceil(book.pages.length / 2));
   const activeSpreadIndex = Math.max(0, Math.floor(leftIndex / 2));
-  const focusSpreadIndex = clamp(Math.floor(previewIndex / 2), 0, totalSpreads - 1);
-  const nextLeft = book.pages[previewIndex] || null;
-  const nextRight = book.pages[previewIndex + 1] || null;
 
   bookTitle.textContent = book.title;
   bookMeta.textContent = [book.author, `${book.pages.length} 頁`].filter(Boolean).join(" · ");
   bookDesc.textContent = book.description || "從 JSON 或 ZIP 匯入不同故事版本。";
   pageCounter.textContent = `${leftIndex + 1}-${Math.min(rightIndex + 1, book.pages.length)} / ${book.pages.length}`;
 
-  fillPage(underlayLeftPage, underlayLeftArt, underlayLeftTitle, underlayLeftBody, nextLeft || null, "left");
-  fillPage(underlayRightPage, underlayRightArt, underlayRightTitle, underlayRightBody, nextRight || null, "right");
-
-  fillPage(leftPage, leftArt, leftTitle, leftBody, currentLeft || null, "left");
-  fillPage(rightPage, rightArt, rightTitle, rightBody, currentRight || null, "right");
-
-  leftPage.classList.toggle("empty", !currentLeft);
-  rightPage.classList.toggle("empty", !currentRight);
-  leftPage.classList.toggle(
-    "is-hidden",
-    state.isAnimating && state.turnDirection === "backward",
-  );
-  rightPage.classList.toggle(
-    "is-hidden",
-    state.isAnimating && state.turnDirection === "forward",
-  );
   book.classList.toggle("is-turning", state.isAnimating);
-  book.classList.toggle("turn-forward", state.isAnimating && state.turnDirection === "forward");
-  book.classList.toggle("turn-backward", state.isAnimating && state.turnDirection === "backward");
-  book.classList.toggle(
-    "preview-forward",
-    state.isAnimating && state.turnDirection === "forward",
-  );
-  book.classList.toggle(
-    "preview-backward",
-    state.isAnimating && state.turnDirection === "backward",
-  );
 
-  applyPageSurface(leftPage, currentLeft);
-  applyPageSurface(rightPage, currentRight);
-  applyPageSurface(underlayLeftPage, nextLeft);
-  applyPageSurface(underlayRightPage, nextRight);
-  renderSpreadDeck(book, activeSpreadIndex, focusSpreadIndex);
-  preloadAround(state.index, 6);
+  renderSheetDeck(book, activeSpreadIndex, totalSpreads);
+  if (state.isAnimating) {
+    renderTurnSheet(book);
+  } else {
+    clearTurnSheet();
+  }
+  preloadAround(state.index, 8);
   if (playAudio) {
     playPageAudio(currentRight?.audio);
   }
@@ -482,7 +438,7 @@ function nextPage() {
   }
 
   const targetIndex = state.index + 2;
-  beginProgrammaticTurn("forward", rightPage, targetIndex);
+  beginProgrammaticTurn("forward", targetIndex);
 }
 
 function previousPage() {
@@ -493,7 +449,7 @@ function previousPage() {
   }
 
   const targetIndex = state.index - 2;
-  beginProgrammaticTurn("backward", leftPage, targetIndex);
+  beginProgrammaticTurn("backward", targetIndex);
 }
 
 function cancelCurrentTurn() {
@@ -538,14 +494,10 @@ function settleCurrentTurn(commit) {
 
     if (commit) {
       state.index = state.turnTargetIndex;
-    } else {
-      renderBook({ playAudio: false });
     }
 
-    if (commit) {
-      renderBook();
-    }
     clearTurnSheet();
+    renderBook({ playAudio: commit });
     updateControls();
   });
 }
@@ -553,7 +505,7 @@ function settleCurrentTurn(commit) {
 function updateControls() {
   if (!prevButton || !nextButton) return;
   const hasPrev = state.index > 0;
-  const hasNext = !!state.book && state.index < state.book.pages.length - 1;
+  const hasNext = !!state.book && state.index < state.book.pages.length - 2;
   prevButton.disabled = !hasPrev || state.isAnimating;
   nextButton.disabled = !hasNext || state.isAnimating;
 }
@@ -693,42 +645,9 @@ function cleanupZipAssets() {
   resetPreloadCache();
 }
 
-function renderSpreadDeck(book, activeSpreadIndex, focusSpreadIndex) {
-  if (!spreadDeck) return;
-
-  const spreadCount = Math.max(1, Math.ceil(book.pages.length / 2));
-  const layers = [];
-
-  for (let spreadIndex = 0; spreadIndex < spreadCount; spreadIndex += 1) {
-    if (spreadIndex === activeSpreadIndex || spreadIndex === focusSpreadIndex) continue;
-    layers.push({
-      spreadIndex,
-      distance: Math.abs(spreadIndex - focusSpreadIndex),
-    });
-  }
-
-  layers.sort((a, b) => a.distance - b.distance || a.spreadIndex - b.spreadIndex);
-
-  spreadDeck.innerHTML = "";
-  for (const layerInfo of layers) {
-    const layer = document.createElement("div");
-    layer.className = "spread-layer";
-    layer.style.setProperty("--layer-depth", String(layerInfo.distance));
-    layer.style.zIndex = String(100 - layerInfo.distance);
-
-    const leftPageData = book.pages[layerInfo.spreadIndex * 2] || null;
-    const rightPageData = book.pages[layerInfo.spreadIndex * 2 + 1] || null;
-    layer.append(
-      createSpreadPage(leftPageData, "left"),
-      createSpreadPage(rightPageData, "right"),
-    );
-    spreadDeck.appendChild(layer);
-  }
-}
-
-function createSpreadPage(pageData, side) {
+function createBookPage(pageData, side, className) {
   const pageEl = document.createElement("div");
-  pageEl.className = `page spread-page ${side === "left" ? "deck-left" : "deck-right"}`;
+  pageEl.className = `page ${className}`;
 
   const content = pageTemplate.content.firstElementChild.cloneNode(true);
   const artEl = content.querySelector(".page-art");
@@ -742,52 +661,118 @@ function createSpreadPage(pageData, side) {
   return pageEl;
 }
 
-function startSheetTurn(direction, sourcePage, targetIndex) {
-  const content = sourcePage.querySelector(".page-content");
-  const front = content ? content.cloneNode(true) : document.createElement("div");
-  stripIds(front);
+function createSpreadPage(pageData, side) {
+  return createBookPage(pageData, side, side === "left" ? "page-left" : "page-right");
+}
 
-  turnSheet.innerHTML = "";
-  turnSheet.className = `turn-sheet is-visible ${direction} dragging`;
-  setTurnSheetRotation(0, false);
+function createTurnFace(pageData, side, faceClass) {
+  const sideClass = side === "left" ? "turn-left" : "turn-right";
+  return createBookPage(pageData, side, `turn-page ${sideClass} ${faceClass}`);
+}
+
+function buildLayerOffsets(direction) {
+  const offsets = [0];
+  for (let step = 1; offsets.length < 8; step += 1) {
+    const primary = direction === "backward" ? -step : step;
+    const secondary = -primary;
+    offsets.push(primary);
+    if (offsets.length < 8) {
+      offsets.push(secondary);
+    }
+  }
+  return offsets.slice(0, 8);
+}
+
+function renderSheetDeck(book, activeSpreadIndex, totalSpreads) {
+  if (!sheetDeck) return;
+
+  const offsets = buildLayerOffsets(state.turnDirection);
+  sheetDeck.innerHTML = "";
+
+  offsets.forEach((offset, layerIndex) => {
+    const spreadIndex = activeSpreadIndex + offset;
+    const layer = createSheetLayer(book, spreadIndex, offset, layerIndex);
+    layer.style.setProperty("--sheet-depth", String(layerIndex));
+    layer.style.zIndex = String(100 - layerIndex);
+
+    if (offset === 0) {
+      layer.classList.add("is-active");
+    }
+
+    sheetDeck.appendChild(layer);
+  });
+}
+
+function renderTurnSheet(book) {
+  if (!turnSheet || !state.isAnimating || !state.turnDirection) return;
+
+  const frontSide = state.turnDirection === "forward" ? "right" : "left";
+  const backSide = state.turnDirection === "forward" ? "left" : "right";
+  const frontPageData =
+    state.turnDirection === "forward"
+      ? book.pages[state.turnOriginIndex + 1] || null
+      : book.pages[state.turnOriginIndex] || null;
+  const backPageData =
+    state.turnDirection === "forward"
+      ? book.pages[state.turnTargetIndex] || null
+      : book.pages[state.turnTargetIndex + 1] || null;
+
+  turnSheet.replaceChildren(
+    createTurnFace(frontPageData, frontSide, "turn-front"),
+    createTurnFace(backPageData, backSide, "turn-back"),
+  );
+
+  turnSheet.classList.add("is-active");
+  turnSheet.classList.toggle("turn-forward", state.turnDirection === "forward");
+  turnSheet.classList.toggle("turn-backward", state.turnDirection === "backward");
+  turnSheet.classList.remove("dragging");
+  turnSheet.style.setProperty("--sheet-rotation", "0deg");
+}
+
+function createSheetLayer(book, spreadIndex, offset, layerIndex) {
+  const layer = document.createElement("div");
+  layer.className = "sheet-layer";
+  layer.dataset.offset = String(offset);
+  layer.dataset.layer = String(layerIndex);
+  layer.classList.toggle("blank", spreadIndex < 0 || spreadIndex * 2 >= book.pages.length);
+
+  const surface = document.createElement("div");
+  surface.className = "sheet-surface";
 
   const frontFace = document.createElement("div");
-  frontFace.className = "turn-face turn-front";
-  frontFace.appendChild(front);
+  frontFace.className = "sheet-face sheet-front";
 
   const backFace = document.createElement("div");
-  backFace.className = "turn-face turn-back";
+  backFace.className = "sheet-face sheet-back";
 
-  turnSheet.append(frontFace, backFace);
+  const leftPageData = book.pages[spreadIndex * 2] || null;
+  const rightPageData = book.pages[spreadIndex * 2 + 1] || null;
+  frontFace.append(
+    createSpreadPage(leftPageData, "left"),
+    createSpreadPage(rightPageData, "right"),
+  );
+
+  surface.append(frontFace, backFace);
+  layer.append(surface);
+  return layer;
+}
+
+function getActiveSheet() {
+  return sheetDeck?.querySelector(".sheet-layer.is-active") || null;
 }
 
 function clearTurnSheet() {
-  turnSheet.className = "turn-sheet";
-  turnSheet.style.removeProperty("--turn-rotation");
-  turnSheet.style.removeProperty("--turn-opacity");
-  turnSheet.innerHTML = "";
-  book.classList.remove(
-    "is-turning",
-    "turn-forward",
-    "turn-backward",
-    "preview-forward",
-    "preview-backward",
-  );
+  if (!turnSheet) return;
+  turnSheet.replaceChildren();
+  turnSheet.classList.remove("is-active", "turn-forward", "turn-backward", "dragging");
+  turnSheet.style.removeProperty("--sheet-rotation");
+  book.classList.remove("is-turning");
 }
 
 function setTurnSheetRotation(degrees, animate) {
-  if (animate) {
-    turnSheet.classList.remove("dragging");
-  } else {
-    turnSheet.classList.add("dragging");
-  }
-  turnSheet.style.setProperty("--turn-rotation", `${degrees}deg`);
-}
-
-function stripIds(root) {
-  if (!root || !root.querySelectorAll) return;
-  if (root.id) root.removeAttribute("id");
-  root.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
+  if (!turnSheet) return;
+  turnSheet.classList.toggle("dragging", !animate);
+  turnSheet.style.setProperty("--sheet-rotation", `${degrees}deg`);
 }
 
 function waitForTurnTransition(element, callback) {
