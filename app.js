@@ -31,7 +31,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251628";
+const VERSION = "V.202603251633";
 
 const state = {
   book: null,
@@ -241,7 +241,8 @@ function loadBook(book) {
   updateControls();
 }
 
-function renderBook() {
+function renderBook(options = {}) {
+  const { playAudio = true } = options;
   const book = state.book;
   const leftIndex = state.index;
   const rightIndex = state.index + 1;
@@ -289,7 +290,9 @@ function renderBook() {
   }
 
   preloadAround(state.index, 6);
-  playPageAudio(currentRight?.audio);
+  if (playAudio) {
+    playPageAudio(currentRight?.audio);
+  }
 }
 
 function fillPage(pageEl, artEl, titleEl, bodyEl, pageData, side) {
@@ -334,13 +337,15 @@ function nextPage() {
     return;
   }
 
+  const targetIndex = state.index + 2;
   state.isAnimating = true;
-  startSheetTurn("forward", rightPage);
+  startSheetTurn("forward", rightPage, targetIndex);
   playFlipSound(false);
+  state.index = targetIndex;
+  renderBook({ playAudio: false });
+  updateControls();
   runAfterAnimation(turnSheet, "turning-forward", () => {
-    state.index += 2;
     clearTurnSheet();
-    renderBook();
     updateControls();
     state.isAnimating = false;
   });
@@ -353,13 +358,15 @@ function previousPage() {
     return;
   }
 
+  const targetIndex = state.index - 2;
   state.isAnimating = true;
-  startSheetTurn("backward", leftPage);
+  startSheetTurn("backward", leftPage, targetIndex);
   playFlipSound(false);
+  state.index = targetIndex;
+  renderBook({ playAudio: false });
+  updateControls();
   runAfterAnimation(turnSheet, "turning-backward", () => {
-    state.index -= 2;
     clearTurnSheet();
-    renderBook();
     updateControls();
     state.isAnimating = false;
   });
@@ -495,7 +502,7 @@ function cleanupZipAssets() {
   resetPreloadCache();
 }
 
-function startSheetTurn(direction, sourcePage) {
+function startSheetTurn(direction, sourcePage, targetIndex) {
   const content = sourcePage.querySelector(".page-content");
   const front = content ? content.cloneNode(true) : document.createElement("div");
   stripIds(front);
@@ -510,7 +517,7 @@ function startSheetTurn(direction, sourcePage) {
   const backFace = document.createElement("div");
   backFace.className = "turn-face turn-back";
 
-  const targetContent = buildTargetPageContent(direction);
+  const targetContent = buildTargetPageContent(direction, targetIndex);
   if (targetContent) {
     backFace.appendChild(targetContent);
   }
@@ -521,11 +528,13 @@ function startSheetTurn(direction, sourcePage) {
   });
 }
 
-function buildTargetPageContent(direction) {
+function buildTargetPageContent(direction, targetIndex) {
   if (!state.book) return null;
 
-  const targetIndex = direction === "forward" ? state.index + 2 : state.index - 1;
-  const page = state.book.pages[targetIndex] || null;
+  const page =
+    direction === "forward"
+      ? state.book.pages[targetIndex] || null
+      : state.book.pages[targetIndex + 1] || null;
   if (!page) return null;
 
   const wrapper = document.createElement("div");
