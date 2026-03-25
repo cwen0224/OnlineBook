@@ -32,7 +32,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251715";
+const VERSION = "V.202603251723";
 
 const state = {
   book: null,
@@ -758,49 +758,7 @@ function startSheetTurn(direction, sourcePage, targetIndex) {
   const backFace = document.createElement("div");
   backFace.className = "turn-face turn-back";
 
-  const targetContent = buildTargetPageContent(direction, targetIndex);
-  if (targetContent) {
-    backFace.appendChild(targetContent);
-  }
-
   turnSheet.append(frontFace, backFace);
-}
-
-function buildTargetPageContent(direction, targetIndex) {
-  if (!state.book) return null;
-
-  const page =
-    direction === "forward"
-      ? state.book.pages[targetIndex] || null
-      : state.book.pages[targetIndex + 1] || null;
-  if (!page) return null;
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "page-content";
-
-  const art = document.createElement("div");
-  art.className = "page-art";
-  if (page.image) {
-    const img = document.createElement("img");
-    img.alt = page.title;
-    img.src = page.image;
-    art.appendChild(img);
-  } else {
-    const svg = document.createElement("div");
-    svg.innerHTML = createFallbackIllustration(page.title, direction === "forward" ? "right" : "left");
-    art.appendChild(svg.firstElementChild);
-  }
-
-  const text = document.createElement("div");
-  text.className = "page-text";
-  const title = document.createElement("h3");
-  title.textContent = page.title;
-  const body = document.createElement("p");
-  body.textContent = page.text;
-  text.append(title, body);
-
-  wrapper.append(art, text);
-  return wrapper;
 }
 
 function clearTurnSheet() {

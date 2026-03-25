@@ -340,10 +340,6 @@ h1 {
   border-radius: 0 20px 20px 0;
 }
 
-.book.preview-forward .underlay-left {
-  display: none;
-}
-
 .book.preview-forward .underlay-right {
   z-index: 24;
   transform: translateX(0) translateZ(0);
@@ -352,10 +348,6 @@ h1 {
 .book.preview-backward .underlay-left {
   z-index: 24;
   transform: translateX(0) translateZ(0);
-}
-
-.book.preview-backward .underlay-right {
-  display: none;
 }
 
 .book.preview-forward .underlay-spread,
