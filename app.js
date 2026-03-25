@@ -31,7 +31,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251633";
+const VERSION = "V.202603251635";
 
 const state = {
   book: null,
@@ -659,9 +659,44 @@ function createDefaultBook() {
         audio: specialFilePath("Nl-pageturner.ogg"),
       },
       {
+        title: "第三站",
+        text: "樹影慢慢把月光切成碎片，像有人在紙上灑了灰藍色的墨。",
+        image: specialFilePath("Night_sky_ft_Moon.jpg"),
+        audio: specialFilePath("Nl-pageturner.ogg"),
+      },
+      {
+        title: "第四站",
+        text: "狐狸又出現一次，這回牠站得更近，像是知道你正在翻頁。",
+        image: specialFilePath("Red fox (8385104980).jpg"),
+        audio: specialFilePath("Nl-pageturner.ogg"),
+      },
+      {
+        title: "第五站",
+        text: "海面捲起白色浪尖，下一頁像是剛從水裡浮上來。",
+        image: specialFilePath("Ocean_waves_water.jpg"),
+        audio: specialFilePath("Nl-pageturner.ogg"),
+      },
+      {
+        title: "第六站",
+        text: "這一頁故意留白，看看翻頁後的底層預載能不能先露出來。",
+        audio: specialFilePath("Nl-pageturner.ogg"),
+      },
+      {
+        title: "第七站",
+        text: "月亮再次回到頁面中央，像是在提醒故事還沒結束。",
+        image: specialFilePath("Night sky ft Moon.jpg"),
+        audio: specialFilePath("Nl-pageturner.ogg"),
+      },
+      {
+        title: "第八站",
+        text: "狐狸在這裡停了一下，牠的眼睛像兩枚會發光的書籤。",
+        image: specialFilePath("Red fox (8385104980).jpg"),
+        audio: specialFilePath("Nl-pageturner.ogg"),
+      },
+      {
         title: "終點",
         text: "當第一道晨光出現，故事也輕輕停在頁尾。",
-        image: specialFilePath("Night_sky_ft_Moon.jpg"),
+        image: specialFilePath("Night sky ft Moon.jpg"),
         audio: specialFilePath("Nl-pageturner.ogg"),
       },
     ],
