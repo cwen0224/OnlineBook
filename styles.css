@@ -445,6 +445,7 @@ h1 {
   width: 50%;
   border-radius: 20px 0 0 20px;
   z-index: 2;
+  transition: opacity 160ms ease;
 }
 
 .page-right {
@@ -456,6 +457,7 @@ h1 {
   border-radius: 0 20px 20px 0;
   transform-origin: left center;
   z-index: 2;
+  transition: opacity 160ms ease;
 }
 
 .page-content {
@@ -499,6 +501,16 @@ h1 {
   line-height: 1.75;
   font-size: 1rem;
   color: #344055;
+}
+
+.book.is-turning.turn-forward .sheet-layer.is-active .page-right {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.book.is-turning.turn-backward .sheet-layer.is-active .page-left {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .ghost:disabled {

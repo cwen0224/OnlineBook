@@ -16,7 +16,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603261033";
+const VERSION = "V.202603261106";
 
 const state = {
   book: null,
@@ -374,6 +374,8 @@ function renderBook(options = {}) {
   pageCounter.textContent = `${leftIndex + 1}-${Math.min(rightIndex + 1, currentBook.pages.length)} / ${currentBook.pages.length}`;
 
   book.classList.toggle("is-turning", state.isAnimating);
+  book.classList.toggle("turn-forward", state.isAnimating && state.turnDirection === "forward");
+  book.classList.toggle("turn-backward", state.isAnimating && state.turnDirection === "backward");
 
   renderSheetDeck(currentBook, activeSpreadIndex, totalSpreads);
   if (state.isAnimating) {
@@ -766,7 +768,7 @@ function clearTurnSheet() {
   turnSheet.replaceChildren();
   turnSheet.classList.remove("is-active", "turn-forward", "turn-backward", "dragging");
   turnSheet.style.removeProperty("--sheet-rotation");
-  book.classList.remove("is-turning");
+  book.classList.remove("is-turning", "turn-forward", "turn-backward");
 }
 
 function setTurnSheetRotation(degrees, animate) {
