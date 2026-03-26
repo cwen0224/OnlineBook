@@ -1,15 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const overlay = document.getElementById('instruction-overlay');
-    const closeBtn = document.getElementById('close-instruction');
+    let tutorialStep = 1;
+    const tutNext = document.getElementById('tutorial-next');
+    const tutPrev = document.getElementById('tutorial-prev');
+    const tutContainer = document.getElementById('tutorial-container');
 
-    const closeOverlay = () => {
-        if (overlay && overlay.style.opacity !== '0') {
-            overlay.style.opacity = '0';
-            setTimeout(() => overlay.remove(), 400);
+    const advanceTutorial = (direction) => {
+        if (tutorialStep === 1 && direction === 'next') {
+            tutorialStep = 2;
+            if (tutNext) tutNext.style.opacity = '0';
+            setTimeout(() => {
+                if (tutNext) tutNext.style.display = 'none';
+                if (tutPrev) {
+                    tutPrev.style.display = 'flex';
+                    tutPrev.style.opacity = '0';
+                    setTimeout(() => tutPrev.style.opacity = '1', 50);
+                }
+            }, 500);
+        } else if (tutorialStep === 2 && direction === 'prev') {
+            tutorialStep = 3;
+            if (tutPrev) tutPrev.style.opacity = '0';
+            setTimeout(() => {
+                if (tutContainer) tutContainer.remove();
+            }, 500);
         }
     };
-
-    if (closeBtn) closeBtn.addEventListener('click', closeOverlay);
 
     // 徹底阻擋原生拖曳
     document.addEventListener('dragstart', (e) => e.preventDefault());
@@ -22,11 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let startAngle = 0;
     let bookRect = book.getBoundingClientRect();
     
-    // 設定高規格的全 3D 厚度架構 (多重樹狀葉面)
-    const TOTAL_LEAVES = 5; // 5 張雙面實體紙 = 10 頁
+    const TOTAL_LEAVES = 5; 
     const leaves = [];
     
-    book.innerHTML = ''; // 清除舊版靜態渲染
+    book.innerHTML = ''; 
 
     for (let i = 0; i < TOTAL_LEAVES; i++) {
         const leaf = document.createElement('div');
@@ -83,8 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     book.addEventListener('pointerdown', (e) => {
-        closeOverlay();
-        
         const leafEl = e.target.closest('.leaf');
         if (!leafEl) return;
         
@@ -128,17 +139,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const deltaX = lastClientX - startX;
         let snapAngle;
         
-        // 若單純點擊（位移 < 10px），自動全頁翻轉
         if (Math.abs(deltaX) < 10) {
             if (startAngle === 0) {
-                snapAngle = -180; // 點擊右側，自動翻向左
+                snapAngle = -180;
+                advanceTutorial('next');
             } else if (startAngle === -180) {
-                snapAngle = 0;    // 點擊左側，自動翻回右
+                snapAngle = 0;   
+                advanceTutorial('prev');
             } else {
                 snapAngle = leafObj.angle < -90 ? -180 : 0;
             }
         } else {
             snapAngle = leafObj.angle < -90 ? -180 : 0;
+            if (startAngle === 0 && snapAngle === -180) advanceTutorial('next');
+            if (startAngle === -180 && snapAngle === 0) advanceTutorial('prev');
         }
         
         leafObj.el.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';

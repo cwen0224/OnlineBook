@@ -88,67 +88,85 @@ body {
     opacity: 0; 
 }
 
-/* Instruction Overlay */
-#instruction-overlay {
+/* Step-by-Step Guided Tutorial Overlay */
+#tutorial-container {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.75);
+    pointer-events: none; /* Let all clicks pass through to the 3D book */
+    z-index: 2000;
+}
+
+.tutorial-box {
+    position: absolute;
+    top: 3%;
+    width: 44%;
+    height: 94%;
+    border: 4px dashed rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.2);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    animation: pulse 2s infinite;
+    transition: opacity 0.5s ease;
+}
+
+#tutorial-next {
+    right: 3%;
+}
+
+#tutorial-prev {
+    left: 3%;
+}
+
+.tutorial-text {
+    text-align: center;
     color: white;
-    backdrop-filter: blur(8px);
-    transition: opacity 0.4s ease;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+    backdrop-filter: blur(10px);
 }
 
-.instruction-content {
-    background: rgba(30, 30, 30, 0.85);
-    padding: 40px 50px;
-    border-radius: 12px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+.tutorial-text span {
+    font-size: 3.5rem;
+    display: block;
+    margin-bottom: 10px;
+    animation: bounceX 1.5s infinite;
 }
 
-.instruction-content h2 {
-    margin-top: 0;
-    font-size: 2.2rem;
-    border-bottom: 2px solid #555;
-    padding-bottom: 15px;
-    text-align: center;
+.tutorial-text h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
 }
 
-.instruction-content p {
-    font-size: 1.25rem;
-    line-height: 1.6;
-    margin: 15px 0;
-    text-align: left;
-}
-
-.close-btn-container {
-    margin-top: 30px;
-    text-align: center;
-}
-
-#close-instruction {
-    padding: 12px 35px;
+.tutorial-text p {
+    margin: 0;
     font-size: 1.2rem;
-    background: #fff;
-    color: #111;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    font-weight: 700;
-    transition: background 0.2s, transform 0.1s;
+    color: #ccc;
 }
 
-#close-instruction:hover {
-    background: #e0e0e0;
+@keyframes pulse {
+    0% { background: rgba(0, 0, 0, 0.1); border-color: rgba(255,255,255,0.4); }
+    50% { background: rgba(0, 0, 0, 0.5); border-color: rgba(255,255,255,1); }
+    100% { background: rgba(0, 0, 0, 0.1); border-color: rgba(255,255,255,0.4); }
 }
 
-#close-instruction:active {
-    transform: scale(0.95);
+@keyframes bounceX {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(15px); }
+}
+
+#tutorial-prev .tutorial-text span {
+    animation: bounceXReverse 1.5s infinite;
+}
+
+@keyframes bounceXReverse {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-15px); }
 }
