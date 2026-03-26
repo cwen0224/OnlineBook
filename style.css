@@ -7,7 +7,8 @@
 }
 
 body {
-    background: #000;
+    background:
+        radial-gradient(circle at 50% 45%, rgba(255, 247, 229, 0.95), rgba(248, 234, 210, 0.94) 42%, rgba(235, 218, 188, 0.92) 100%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -23,7 +24,9 @@ body {
     display: flex;
     perspective: 3500px;
     position: relative;
-    background: #000;
+    background:
+        radial-gradient(circle at center, rgba(255, 252, 245, 0.45), rgba(255, 252, 245, 0) 42%),
+        linear-gradient(145deg, rgba(250, 241, 223, 1), rgba(237, 223, 195, 1));
     cursor: grab;
 }
 
@@ -58,7 +61,7 @@ body {
     height: 100%;
     backface-visibility: hidden;
     overflow: hidden;
-    background-color: #fdfdfd;
+    background-color: #f7eddc;
 }
 
 .face.front {
