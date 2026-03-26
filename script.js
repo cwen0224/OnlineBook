@@ -1,169 +1,137 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 徹底阻擋任何原生的拖曳行為 (包含選擇文字、拖曳影像)
+    // 徹底阻擋原生拖曳
     document.addEventListener('dragstart', (e) => e.preventDefault());
 
     const book = document.getElementById('book');
-    const flipSheet = document.getElementById('flip-sheet');
-    const frontShadow = flipSheet.querySelector('.front .shadow-overlay');
-    const backShadow = flipSheet.querySelector('.back .shadow-overlay');
-    
     let isDragging = false;
-    let isAnimating = false;
-    let animationTimer = null;
-    let currentAngle = 0;
-    let bookRect = book.getBoundingClientRect();
+    let currentDragLeaf = null;
     let startX = 0;
+    let startAngle = 0;
+    let bookRect = book.getBoundingClientRect();
     
-    // Create 10 logical pages
-    const pages = [];
-    for (let i = 1; i <= 10; i++) {
-        pages.push({
-            title: `Page ${i}`,
-            content: `This is the detailed content for page ${i}. Adding dynamic multi-page support makes the 3D flipping effect incredibly satisfying to drag left and right!`,
-            color: `hsl(${i * 36}, 70%, 95%)`
-        });
+    // 設定高規格的全 3D 厚度架構 (多重樹狀葉面)
+    const TOTAL_LEAVES = 5; // 5 張雙面實體紙 = 10 頁
+    const leaves = [];
+    
+    book.innerHTML = ''; // 清除舊版靜態渲染
+
+    for (let i = 0; i < TOTAL_LEAVES; i++) {
+        const leaf = document.createElement('div');
+        leaf.className = 'leaf';
+        leaf.dataset.index = i;
+        
+        const pageNumFront = i * 2 + 1;
+        const pageNumBack = i * 2 + 2;
+
+        leaf.innerHTML = `
+            <div class="face front" style="background-color: hsl(${pageNumFront*36}, 70%, 95%)">
+                <div class="content">
+                    <h1>Page ${pageNumFront}</h1>
+                    <p>這是一本真實 3D 多重書頁體驗的電子書，你可以同時撥動好幾頁在空中飛舞，完美實現連續狂翻！</p>
+                    <div class="page-number">${pageNumFront}</div>
+                </div>
+                <div class="shadow-overlay"></div>
+            </div>
+            <div class="face back" style="background-color: hsl(${pageNumBack*36}, 70%, 95%)">
+                <div class="content">
+                    <h1>Page ${pageNumBack}</h1>
+                    <p>獨立的紙張 DOM 元素不受任何動畫延遲拘束！</p>
+                    <div class="page-number">${pageNumBack}</div>
+                </div>
+                <div class="shadow-overlay"></div>
+            </div>
+        `;
+        book.appendChild(leaf);
+        
+        const leafObj = {
+            el: leaf,
+            index: i,
+            baseZ: TOTAL_LEAVES - i,
+            angle: 0,
+            isAnimating: false,
+            timer: null
+        };
+        
+        leaves.push(leafObj);
+        updateLeafTransform(leafObj, 0); 
     }
-    
-    let N = 0; 
-    let flipDirection = null;
 
-    const staticLeft = document.querySelector('.static-left .content');
-    const staticRight = document.querySelector('.static-right .content');
-    const frontFace = document.querySelector('.face.front .content');
-    const backFace = document.querySelector('.face.back .content');
-
-    const populateFace = (element, pageIndex) => {
-        if (pageIndex < 0 || pageIndex >= pages.length) {
-            element.innerHTML = '<h2>--</h2>';
-            element.parentElement.style.backgroundColor = '#fdfdfd';
-            return;
-        }
-        const page = pages[pageIndex];
-        element.innerHTML = `<h1>${page.title}</h1><p>${page.content}</p><div class="page-number">${pageIndex + 1}</div>`;
-        element.parentElement.style.backgroundColor = page.color;
-    };
-
-    const renderIdleState = () => {
-        setTransition(false);
-        updateFlip(0);
-        
-        populateFace(staticLeft, N);
-        populateFace(frontFace, N + 1);
-        
-        populateFace(backFace, -1);
-        populateFace(staticRight, -1);
-    };
-
-    const setTransition = (active) => {
-        // 加速動畫至 0.4 秒，感覺更俐落
-        const transitionVal = active ? 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)' : 'none';
-        const shadowTransition = active ? 'opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)' : 'none';
-        
-        flipSheet.style.transition = transitionVal;
-        frontShadow.style.transition = shadowTransition;
-        backShadow.style.transition = shadowTransition;
-    };
-
-    const updateFlip = (angle) => {
+    function updateLeafTransform(leafObj, angle) {
         angle = Math.max(-180, Math.min(0, angle));
-        flipSheet.style.transform = `rotateY(${angle}deg)`;
-        currentAngle = angle;
+        leafObj.angle = angle;
         
-        const progress = Math.abs(angle) / 180; 
+        // 使用原生的 Z-index 搭配 TranslateZ 解決 Safari 破圖，堆疊邏輯：
+        let currentZ = (TOTAL_LEAVES - leafObj.index); // 右側閉合時，0號在最上面 (5)
+        if (angle <= -90) currentZ = leafObj.index; // 左側翻開時，4號在最上面 (4)
+        if (angle < 0 && angle > -180) currentZ += 50; // 空中飄浮時，Z軸大幅提升避免穿模
+        
+        leafObj.el.style.zIndex = currentZ;
+        leafObj.el.style.transform = `rotateY(${angle}deg) translateZ(${leafObj.baseZ}px)`;
+        
+        // 陰影渲染
+        const progress = Math.abs(angle) / 180;
+        const frontShadow = leafObj.el.querySelector('.front .shadow-overlay');
+        const backShadow = leafObj.el.querySelector('.back .shadow-overlay');
         frontShadow.style.opacity = progress.toFixed(2);
         backShadow.style.opacity = (1 - progress).toFixed(2);
-    };
-
-    const completeAnimation = () => {
-        if (!isAnimating) return;
-        clearTimeout(animationTimer);
-        isAnimating = false;
-        flipDirection = null;
-        renderIdleState();
-    };
+    }
 
     book.addEventListener('pointerdown', (e) => {
-        // 若在動畫中點擊，直接強制完成前一個動畫並接受新的一波拖曳 (高速連續翻頁)
-        if (isAnimating) {
-            completeAnimation();
-        }
+        const leafEl = e.target.closest('.leaf');
+        if (!leafEl) return;
         
-        bookRect = book.getBoundingClientRect();
-        const halfWidth = bookRect.width / 2;
-        const spineX = bookRect.left + halfWidth;
-
-        startX = e.clientX; 
-
-        if (e.clientX > spineX) {
-            // Drag Right -> Left (Next)
-            if (N + 2 >= pages.length) return; 
-            flipDirection = 'next';
-            
-            populateFace(staticLeft, N);
-            populateFace(frontFace, N + 1);
-            populateFace(backFace, N + 2);
-            populateFace(staticRight, N + 3);
-            
-            updateFlip(0);
-        } else {
-            // Drag Left -> Right (Prev)
-            if (N - 2 < 0) return; 
-            flipDirection = 'prev';
-            
-            populateFace(staticLeft, N - 2);
-            populateFace(frontFace, N - 1);
-            populateFace(backFace, N);
-            populateFace(staticRight, N + 1);
-            
-            setTransition(false);
-            updateFlip(-180);
-        }
+        const leafIndex = parseInt(leafEl.dataset.index);
+        const leafObj = leaves[leafIndex];
+        
+        // 瞬間物理接住這張隨時在空中的實體書頁
+        leafObj.el.style.transition = 'none';
+        leafObj.el.querySelectorAll('.shadow-overlay').forEach(s => s.style.transition = 'none');
+        clearTimeout(leafObj.timer);
+        leafObj.isAnimating = false;
 
         isDragging = true;
-        setTransition(false);
+        currentDragLeaf = leafObj;
+        startX = e.clientX;
+        startAngle = leafObj.angle;
+        bookRect = book.getBoundingClientRect();
+        
         book.setPointerCapture(e.pointerId);
     });
 
     book.addEventListener('pointermove', (e) => {
-        if (!isDragging) return;
+        if (!isDragging || !currentDragLeaf) return;
         e.preventDefault();
         
         const deltaX = e.clientX - startX;
         const dragDist = bookRect.width / 2;
-        let percentage;
-
-        if (flipDirection === 'next') {
-            percentage = -deltaX / dragDist;
-        } else {
-            percentage = 1 - (deltaX / dragDist);
-        }
         
-        percentage = Math.max(0, Math.min(1, percentage)); 
-        updateFlip(-180 * percentage);
+        // 無論往左往右，皆換算成物理角度推播
+        let newAngle = startAngle + (deltaX / dragDist) * 180;
+        updateLeafTransform(currentDragLeaf, newAngle);
     });
 
     const endDrag = () => {
-        if (!isDragging) return;
+        if (!isDragging || !currentDragLeaf) return;
         isDragging = false;
-        isAnimating = true;
         
-        setTransition(true); 
+        const leafObj = currentDragLeaf;
+        currentDragLeaf = null;
         
-        if (currentAngle < -90) {
-            updateFlip(-180);
-            if (flipDirection === 'next') N += 2;
-        } else {
-            updateFlip(0);
-            if (flipDirection === 'prev') N -= 2;
-        }
-
-        animationTimer = setTimeout(() => {
-            completeAnimation();
+        // 自動吸附
+        let snapAngle = leafObj.angle < -90 ? -180 : 0;
+        
+        leafObj.el.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
+        leafObj.el.querySelectorAll('.shadow-overlay').forEach(s => s.style.transition = 'opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)');
+        
+        updateLeafTransform(leafObj, snapAngle);
+        
+        leafObj.isAnimating = true;
+        leafObj.timer = setTimeout(() => {
+            leafObj.isAnimating = false;
+            updateLeafTransform(leafObj, snapAngle); // 確保最終定位
         }, 400); 
     };
 
     book.addEventListener('pointerup', endDrag);
     book.addEventListener('pointercancel', endDrag);
-
-    renderIdleState();
 });

@@ -44,36 +44,23 @@ body {
     box-sizing: border-box;
 }
 
-.static-left {
-    left: 0;
-    z-index: 1;
-    border-right: 1px solid #ddd;
-    border-radius: 5px 0 0 5px;
-}
-
-.static-right {
+.leaf {
+    position: absolute;
     right: 0;
-    z-index: 1;
-    border-radius: 0 5px 5px 0;
-}
-
-/* 
- * The Flipping Sheet
- * Needs highest Z-index and a left-center Transform Origin (Anchored to Spine)
- */
-.flipping {
-    right: 0;
-    z-index: 10;
+    width: 50%;
+    height: 100%;
     transform-style: preserve-3d;
-    transform-origin: left center; /* Anchor Point at the spine */
-    transform: rotateY(0deg);
+    transform-origin: left center;
+    cursor: grab;
 }
+
+.leaf:active { cursor: grabbing; }
 
 .face {
     position: absolute;
     width: 100%;
     height: 100%;
-    backface-visibility: hidden; /* Prevents seeing the back through the front */
+    backface-visibility: hidden;
     overflow: hidden;
     background-color: #fdfdfd;
 }
@@ -81,6 +68,12 @@ body {
 .face.front {
     transform: rotateY(0deg);
     border-radius: 0 5px 5px 0;
+}
+
+.face.back {
+    transform: rotateY(180deg);
+    border-radius: 5px 0 0 5px;
+    border-right: 1px solid #ddd;
 }
 
 /* 

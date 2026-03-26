@@ -3,65 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Page Flip Electronic Book</title>
+    <title>True 3D Page Flip Book</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="book" class="book">
-        <!-- Static Left Area: Displays Page N (Page 1) -->
-        <div class="page static-left">
-            <div class="content">
-                <h1>Page 1</h1>
-                <p>This is the <strong>Static Left Area</strong>.</p>
-                <p>It stays at the bottom left displaying Page N.</p>
-                <div class="page-number">1</div>
-            </div>
-            <div class="shadow-overlay"></div>
-        </div>
-
-        <!-- Static Right Area: Displays Page N+3 (Page 4) -->
-        <div class="page static-right">
-            <div class="content">
-                <h1>Page 4</h1>
-                <p>This is the <strong>Static Right Area</strong>.</p>
-                <p>This new page gets revealed as the current page is lifted. It displays Page N+3.</p>
-                <div class="page-number">4</div>
-            </div>
-            <div class="shadow-overlay"></div>
-        </div>
-
-        <!-- The Flipping Sheet (Contains Page 2 and Page 3) -->
-        <div id="flip-sheet" class="page flipping">
-            
-            <!-- Front side of Flipping Sheet: Displays Page N+1 (Page 2) -->
-            <div class="face front">
-                <div class="content">
-                    <h1>Page 2</h1>
-                    <p>This is the <strong>Flipping Sheet (Front side)</strong>.</p>
-                    <p>It shrinks and curls dynamically using CSS 3D Perspective as it moves left. This is Page N+1.</p>
-                    <p><strong>Drag me to the left!</strong></p>
-                    <div class="page-number">2</div>
-                </div>
-                <div class="shadow-overlay"></div>
-            </div>
-            
-            <!-- Back side of Flipping Sheet: Displays Page N+2 (Page 3) -->
-            <div class="face back">
-                <div class="content">
-                    <h1>Page 3</h1>
-                    <p>This is the <strong>Flipping Sheet (Back side)</strong>.</p>
-                    <p>It reveals itself as the page drops to the left edge. This is Page N+2.</p>
-                    <p><em>Notice that the text is un-mirrored due to the mirror fix!</em></p>
-                    <div class="page-number">3</div>
-                </div>
-                <div class="shadow-overlay"></div>
-            </div>
-
-        </div>
+        <!-- Leaves dynamically injected here -->
     </div>
 
-    <div style="position: fixed; bottom: 10px; right: 10px; color: #888; font-family: monospace; z-index: 100;">V.2603261356</div>
+    <!-- Version string to verify updates -->
+    <div style="position: fixed; bottom: 10px; right: 10px; color: #888; font-family: monospace; z-index: 100;">V.2603261358</div>
 
     <script src="script.js"></script>
 </body>
