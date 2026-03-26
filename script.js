@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isDragging = false;
     let currentDragLeaf = null;
     let startX = 0;
+    let lastClientX = 0;
     let startAngle = 0;
     let bookRect = book.getBoundingClientRect();
     
@@ -87,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isDragging = true;
         currentDragLeaf = leafObj;
         startX = e.clientX;
+        lastClientX = e.clientX;
         startAngle = leafObj.angle;
         bookRect = book.getBoundingClientRect();
         
@@ -97,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isDragging || !currentDragLeaf) return;
         e.preventDefault();
         
+        lastClientX = e.clientX;
         const deltaX = e.clientX - startX;
         const dragDist = bookRect.width / 2;
         
@@ -112,8 +115,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const leafObj = currentDragLeaf;
         currentDragLeaf = null;
         
-        // 自動吸附
-        let snapAngle = leafObj.angle < -90 ? -180 : 0;
+        const deltaX = lastClientX - startX;
+        let snapAngle;
+        
+        // 若單純點擊（位移 < 10px），自動全頁翻轉
+        if (Math.abs(deltaX) < 10) {
+            if (startAngle === 0) {
+                snapAngle = -180; // 點擊右側，自動翻向左
+            } else if (startAngle === -180) {
+                snapAngle = 0;    // 點擊左側，自動翻回右
+            } else {
+                snapAngle = leafObj.angle < -90 ? -180 : 0;
+            }
+        } else {
+            // 若為拖曳操作，依據是否過半進行吸附
+            snapAngle = leafObj.angle < -90 ? -180 : 0;
+        }
         
         leafObj.el.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
         leafObj.el.querySelectorAll('.shadow-overlay').forEach(s => s.style.transition = 'opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)');
