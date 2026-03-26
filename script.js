@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const versionBanner = document.getElementById('version-banner');
+    if (versionBanner) {
+        setTimeout(() => {
+            versionBanner.style.top = '0';
+            setTimeout(() => {
+                versionBanner.style.top = '-50px';
+            }, 3000);
+        }, 500);
+    }
+
     let tutorialStep = 1;
     const tutNext = document.getElementById('tutorial-next');
     const tutPrev = document.getElementById('tutorial-prev');
@@ -54,11 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         leaf.innerHTML = `
             <div class="face front" style="background-image: url('${imgUrlFront}'); background-size: cover; background-position: center;">
-                <div class="page-number" style="position: absolute; bottom: 30px; right: 40px; font-size: 3rem; font-weight: bold; color: white; text-shadow: 0 2px 15px rgba(0,0,0,1);">${pageNumFront}</div>
+                <div class="page-number" style="position: absolute; bottom: 20px; right: 20px; font-size: 1.2rem; font-family: monospace; color: rgba(255,255,255,0.5); text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${pageNumFront}</div>
                 <div class="shadow-overlay"></div>
             </div>
             <div class="face back" style="background-image: url('${imgUrlBack}'); background-size: cover; background-position: center;">
-                <div class="page-number" style="position: absolute; bottom: 30px; left: 40px; font-size: 3rem; font-weight: bold; color: white; text-shadow: 0 2px 15px rgba(0,0,0,1);">${pageNumBack}</div>
+                <div class="page-number" style="position: absolute; bottom: 20px; left: 20px; font-size: 1.2rem; font-family: monospace; color: rgba(255,255,255,0.5); text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${pageNumBack}</div>
                 <div class="shadow-overlay"></div>
             </div>
         `;
