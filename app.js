@@ -16,7 +16,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603261106";
+const VERSION = "V.202603261139";
 
 const state = {
   book: null,
@@ -374,8 +374,6 @@ function renderBook(options = {}) {
   pageCounter.textContent = `${leftIndex + 1}-${Math.min(rightIndex + 1, currentBook.pages.length)} / ${currentBook.pages.length}`;
 
   book.classList.toggle("is-turning", state.isAnimating);
-  book.classList.toggle("turn-forward", state.isAnimating && state.turnDirection === "forward");
-  book.classList.toggle("turn-backward", state.isAnimating && state.turnDirection === "backward");
 
   renderSheetDeck(currentBook, activeSpreadIndex, totalSpreads);
   if (state.isAnimating) {
@@ -689,11 +687,14 @@ function renderSheetDeck(book, activeSpreadIndex, totalSpreads) {
   if (!sheetDeck) return;
 
   const offsets = buildLayerOffsets(state.turnDirection);
+  const visibleBaseIndices = getVisibleBasePageIndices();
   sheetDeck.innerHTML = "";
 
   offsets.forEach((offset, layerIndex) => {
     const spreadIndex = activeSpreadIndex + offset;
-    const layer = createSheetLayer(book, spreadIndex, offset, layerIndex);
+    const layerPageIndices =
+      offset === 0 ? visibleBaseIndices : null;
+    const layer = createSheetLayer(book, spreadIndex, offset, layerIndex, layerPageIndices);
     layer.style.setProperty("--sheet-depth", String(layerIndex));
     layer.style.zIndex = String(100 - layerIndex);
 
@@ -731,7 +732,28 @@ function renderTurnSheet(book) {
   turnSheet.style.setProperty("--sheet-rotation", "0deg");
 }
 
-function createSheetLayer(book, spreadIndex, offset, layerIndex) {
+function getVisibleBasePageIndices() {
+  if (!state.isAnimating) {
+    return {
+      leftIndex: state.index,
+      rightIndex: state.index + 1,
+    };
+  }
+
+  if (state.turnDirection === "forward") {
+    return {
+      leftIndex: state.turnOriginIndex,
+      rightIndex: state.turnTargetIndex + 1,
+    };
+  }
+
+  return {
+    leftIndex: state.turnTargetIndex,
+    rightIndex: state.turnOriginIndex + 1,
+  };
+}
+
+function createSheetLayer(book, spreadIndex, offset, layerIndex, pageIndices = null) {
   const layer = document.createElement("div");
   layer.className = "sheet-layer";
   layer.dataset.offset = String(offset);
@@ -747,8 +769,10 @@ function createSheetLayer(book, spreadIndex, offset, layerIndex) {
   const backFace = document.createElement("div");
   backFace.className = "sheet-face sheet-back";
 
-  const leftPageData = book.pages[spreadIndex * 2] || null;
-  const rightPageData = book.pages[spreadIndex * 2 + 1] || null;
+  const leftPageIndex = pageIndices ? pageIndices.leftIndex : spreadIndex * 2;
+  const rightPageIndex = pageIndices ? pageIndices.rightIndex : spreadIndex * 2 + 1;
+  const leftPageData = book.pages[leftPageIndex] || null;
+  const rightPageData = book.pages[rightPageIndex] || null;
   frontFace.append(
     createSpreadPage(leftPageData, "left"),
     createSpreadPage(rightPageData, "right"),
@@ -768,13 +792,17 @@ function clearTurnSheet() {
   turnSheet.replaceChildren();
   turnSheet.classList.remove("is-active", "turn-forward", "turn-backward", "dragging");
   turnSheet.style.removeProperty("--sheet-rotation");
-  book.classList.remove("is-turning", "turn-forward", "turn-backward");
+  turnSheet.style.removeProperty("--sheet-scale");
+  book.classList.remove("is-turning");
 }
 
 function setTurnSheetRotation(degrees, animate) {
   if (!turnSheet) return;
   turnSheet.classList.toggle("dragging", !animate);
   turnSheet.style.setProperty("--sheet-rotation", `${degrees}deg`);
+  const progress = clamp(Math.abs(degrees) / 180, 0, 1);
+  const scale = 1 - progress * 0.55;
+  turnSheet.style.setProperty("--sheet-scale", scale.toFixed(4));
 }
 
 function waitForTurnTransition(element, callback) {
