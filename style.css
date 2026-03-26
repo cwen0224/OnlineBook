@@ -7,28 +7,24 @@
 }
 
 body {
-    background: #1e1e1e;
+    background: #000;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
 }
 
 .book {
-    width: 70vw;
-    height: 45vw;
-    max-width: 1000px;
-    max-height: 650px;
+    width: 100vw;
+    height: 100vh;
     display: flex;
-    perspective: 2500px; /* Provides the 3D spatial logic/curling effect */
+    perspective: 3500px;
     position: relative;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-    background: #fff;
+    background: #000;
     cursor: grab;
-    /* Adding subtle border radius to look like a book */
-    border-radius: 5px;
 }
 
 .book:active {
@@ -67,13 +63,10 @@ body {
 
 .face.front {
     transform: rotateY(0deg);
-    border-radius: 0 5px 5px 0;
 }
 
 .face.back {
     transform: rotateY(180deg);
-    border-radius: 5px 0 0 5px;
-    border-right: 1px solid #ddd;
 }
 
 /* 

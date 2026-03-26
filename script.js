@@ -23,21 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const pageNumFront = i * 2 + 1;
         const pageNumBack = i * 2 + 2;
 
+        const imgUrlFront = `https://picsum.photos/seed/book${pageNumFront*7}/1080/1920`;
+        const imgUrlBack = `https://picsum.photos/seed/book${pageNumBack*7}/1080/1920`;
+
         leaf.innerHTML = `
-            <div class="face front" style="background-color: hsl(${pageNumFront*36}, 70%, 95%)">
-                <div class="content">
-                    <h1>Page ${pageNumFront}</h1>
-                    <p>這是一本真實 3D 多重書頁體驗的電子書，你可以同時撥動好幾頁在空中飛舞，完美實現連續狂翻！</p>
-                    <div class="page-number">${pageNumFront}</div>
-                </div>
+            <div class="face front" style="background-image: url('${imgUrlFront}'); background-size: cover; background-position: center;">
+                <div class="page-number" style="position: absolute; bottom: 30px; right: 40px; font-size: 3rem; font-weight: bold; color: white; text-shadow: 0 2px 15px rgba(0,0,0,1);">${pageNumFront}</div>
                 <div class="shadow-overlay"></div>
             </div>
-            <div class="face back" style="background-color: hsl(${pageNumBack*36}, 70%, 95%)">
-                <div class="content">
-                    <h1>Page ${pageNumBack}</h1>
-                    <p>獨立的紙張 DOM 元素不受任何動畫延遲拘束！</p>
-                    <div class="page-number">${pageNumBack}</div>
-                </div>
+            <div class="face back" style="background-image: url('${imgUrlBack}'); background-size: cover; background-position: center;">
+                <div class="page-number" style="position: absolute; bottom: 30px; left: 40px; font-size: 3rem; font-weight: bold; color: white; text-shadow: 0 2px 15px rgba(0,0,0,1);">${pageNumBack}</div>
                 <div class="shadow-overlay"></div>
             </div>
         `;
