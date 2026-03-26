@@ -69,86 +69,86 @@ body {
     transform: rotateY(180deg);
 }
 
-/* 
- * The Mirror Fix
- * Because the book rotates -180deg towards the left, standard planar logic flips the text backward.
- * Applying rotateY(180deg) implicitly acts as a horizontal mirror (scaleX(-1) behavior + axis alignment),
- * fixing the mirroring so the user can read Page N+2 normally.
- */
-.face.back {
-    transform: rotateY(180deg);
-    border-radius: 5px 0 0 5px;
-    border-right: 1px solid #ddd; /* Serves as the spine line from the other side */
-}
-
-/* Text and Elements Formatting */
-.content {
-    padding: 3rem;
-    height: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-}
-
-.content h1 {
-    color: #222;
-    font-size: 2.5rem;
-    border-bottom: 2px solid #222;
-    padding-bottom: 0.5rem;
-    margin-top: 0;
-}
-
-.content p {
-    color: #444;
-    font-size: 1.2rem;
-    line-height: 1.6;
-}
-
-.page-number {
-    position: absolute;
-    bottom: 20px;
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: #999;
-}
-
-.static-left .page-number, .face.back .page-number {
-    left: 30px;
-}
-
-.static-right .page-number, .face.front .page-number {
-    right: 30px;
-}
-
-/* 
- * Dynamic CSS linear-gradient Shadows for 3D depth and paper overlaps
- */
 .shadow-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Ignore mouse events over shadows */
+    pointer-events: none;
 }
 
-/* Darkens as the page folds */
 .face.front .shadow-overlay {
     background: linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 25%);
     opacity: 0; 
 }
 
-/* Darkest initially when flat, lightens when fully opened to the left */
 .face.back .shadow-overlay {
     background: linear-gradient(to left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 25%);
     opacity: 0; 
 }
 
-/* Static shadow around the spine for base depth */
-.static-left .shadow-overlay {
-    background: linear-gradient(to left, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 10%);
+/* Instruction Overlay */
+#instruction-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    color: white;
+    backdrop-filter: blur(8px);
+    transition: opacity 0.4s ease;
 }
 
-.static-right .shadow-overlay {
-    background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 10%);
+.instruction-content {
+    background: rgba(30, 30, 30, 0.85);
+    padding: 40px 50px;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.instruction-content h2 {
+    margin-top: 0;
+    font-size: 2.2rem;
+    border-bottom: 2px solid #555;
+    padding-bottom: 15px;
+    text-align: center;
+}
+
+.instruction-content p {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    margin: 15px 0;
+    text-align: left;
+}
+
+.close-btn-container {
+    margin-top: 30px;
+    text-align: center;
+}
+
+#close-instruction {
+    padding: 12px 35px;
+    font-size: 1.2rem;
+    background: #fff;
+    color: #111;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background 0.2s, transform 0.1s;
+}
+
+#close-instruction:hover {
+    background: #e0e0e0;
+}
+
+#close-instruction:active {
+    transform: scale(0.95);
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>True 3D Page Flip Book</title>
-    <link rel="stylesheet" href="style.css?v=2603261423">
+    <link rel="stylesheet" href="style.css?v=2603261425">
 </head>
 <body>
 
@@ -12,9 +12,22 @@
         <!-- Leaves dynamically injected here -->
     </div>
 
-    <!-- Version string to verify updates -->
-    <div style="position: fixed; bottom: 20px; right: 20px; color: rgba(255,255,255,0.7); font-family: monospace; font-size: 1.2rem; z-index: 100; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">V.2603261423</div>
+    <!-- Instruction Overlay -->
+    <div id="instruction-overlay">
+        <div class="instruction-content">
+            <h2>📖 操控指南</h2>
+            <p>👉 <strong>單點左右側邊緣</strong>：快速自動切換上一頁或下一頁</p>
+            <p>🖐️ <strong>長按畫面並拖曳</strong>：享受真實的 3D 物理厚度連續翻頁</p>
+            <p style="color: #aaa; font-size: 0.95rem; margin-top: 15px;"><em>(💡 提示：在上一頁落地前，你可以同時拖曳多個書頁在空中交疊)</em></p>
+            <div class="close-btn-container">
+                <button id="close-instruction">開始進入書本</button>
+            </div>
+        </div>
+    </div>
 
-    <script src="script.js?v=2603261423"></script>
+    <!-- Version string to verify updates -->
+    <div style="position: fixed; bottom: 20px; right: 20px; color: rgba(255,255,255,0.7); font-family: monospace; font-size: 1.2rem; z-index: 100; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">V.2603261425</div>
+
+    <script src="script.js?v=2603261425"></script>
 </body>
 </html>

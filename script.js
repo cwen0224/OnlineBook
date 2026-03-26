@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('instruction-overlay');
+    const closeBtn = document.getElementById('close-instruction');
+
+    const closeOverlay = () => {
+        if (overlay && overlay.style.opacity !== '0') {
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 400);
+        }
+    };
+
+    if (closeBtn) closeBtn.addEventListener('click', closeOverlay);
+
     // 徹底阻擋原生拖曳
     document.addEventListener('dragstart', (e) => e.preventDefault());
 
@@ -56,15 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
         angle = Math.max(-180, Math.min(0, angle));
         leafObj.angle = angle;
         
-        // 使用原生的 Z-index 搭配 TranslateZ 解決 Safari 破圖，堆疊邏輯：
-        let currentZ = (TOTAL_LEAVES - leafObj.index); // 右側閉合時，0號在最上面 (5)
-        if (angle <= -90) currentZ = leafObj.index; // 左側翻開時，4號在最上面 (4)
-        if (angle < 0 && angle > -180) currentZ += 50; // 空中飄浮時，Z軸大幅提升避免穿模
+        let currentZ = (TOTAL_LEAVES - leafObj.index); 
+        if (angle <= -90) currentZ = leafObj.index; 
+        if (angle < 0 && angle > -180) currentZ += 50; 
         
         leafObj.el.style.zIndex = currentZ;
         leafObj.el.style.transform = `rotateY(${angle}deg) translateZ(${leafObj.baseZ}px)`;
         
-        // 陰影渲染
         const progress = Math.abs(angle) / 180;
         const frontShadow = leafObj.el.querySelector('.front .shadow-overlay');
         const backShadow = leafObj.el.querySelector('.back .shadow-overlay');
@@ -73,13 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     book.addEventListener('pointerdown', (e) => {
+        closeOverlay();
+        
         const leafEl = e.target.closest('.leaf');
         if (!leafEl) return;
         
         const leafIndex = parseInt(leafEl.dataset.index);
         const leafObj = leaves[leafIndex];
         
-        // 瞬間物理接住這張隨時在空中的實體書頁
         leafObj.el.style.transition = 'none';
         leafObj.el.querySelectorAll('.shadow-overlay').forEach(s => s.style.transition = 'none');
         clearTimeout(leafObj.timer);
@@ -103,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const deltaX = e.clientX - startX;
         const dragDist = bookRect.width / 2;
         
-        // 無論往左往右，皆換算成物理角度推播
         let newAngle = startAngle + (deltaX / dragDist) * 180;
         updateLeafTransform(currentDragLeaf, newAngle);
     });
@@ -128,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 snapAngle = leafObj.angle < -90 ? -180 : 0;
             }
         } else {
-            // 若為拖曳操作，依據是否過半進行吸附
             snapAngle = leafObj.angle < -90 ? -180 : 0;
         }
         
@@ -140,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         leafObj.isAnimating = true;
         leafObj.timer = setTimeout(() => {
             leafObj.isAnimating = false;
-            updateLeafTransform(leafObj, snapAngle); // 確保最終定位
+            updateLeafTransform(leafObj, snapAngle); 
         }, 400); 
     };
 
