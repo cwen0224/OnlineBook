@@ -16,7 +16,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603261022";
+const VERSION = "V.202603261033";
 
 const state = {
   book: null,
@@ -787,7 +787,7 @@ function waitForTurnTransition(element, callback) {
     done();
   };
 
-  const timeoutId = window.setTimeout(done, 320);
+  const timeoutId = window.setTimeout(done, 900);
   element.addEventListener("transitionend", onEnd);
 }
 
