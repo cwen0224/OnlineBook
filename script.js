@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let isDragging = false;
     let isAnimating = false;
+    let animationTimer = null;
     let currentAngle = 0;
     let bookRect = book.getBoundingClientRect();
     let startX = 0;
@@ -49,14 +50,14 @@ document.addEventListener('DOMContentLoaded', () => {
         populateFace(staticLeft, N);
         populateFace(frontFace, N + 1);
         
-        // Hide these visually using empty or off-screen states
         populateFace(backFace, -1);
         populateFace(staticRight, -1);
     };
 
     const setTransition = (active) => {
-        const transitionVal = active ? 'transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)' : 'none';
-        const shadowTransition = active ? 'opacity 0.5s cubic-bezier(0.25, 0.8, 0.25, 1)' : 'none';
+        // 加速動畫至 0.4 秒，感覺更俐落
+        const transitionVal = active ? 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)' : 'none';
+        const shadowTransition = active ? 'opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)' : 'none';
         
         flipSheet.style.transition = transitionVal;
         frontShadow.style.transition = shadowTransition;
@@ -73,14 +74,25 @@ document.addEventListener('DOMContentLoaded', () => {
         backShadow.style.opacity = (1 - progress).toFixed(2);
     };
 
+    const completeAnimation = () => {
+        if (!isAnimating) return;
+        clearTimeout(animationTimer);
+        isAnimating = false;
+        flipDirection = null;
+        renderIdleState();
+    };
+
     book.addEventListener('pointerdown', (e) => {
-        if (isAnimating) return;
+        // 若在動畫中點擊，直接強制完成前一個動畫並接受新的一波拖曳 (高速連續翻頁)
+        if (isAnimating) {
+            completeAnimation();
+        }
         
         bookRect = book.getBoundingClientRect();
         const halfWidth = bookRect.width / 2;
         const spineX = bookRect.left + halfWidth;
 
-        startX = e.clientX; // Save initial X position
+        startX = e.clientX; 
 
         if (e.clientX > spineX) {
             // Drag Right -> Left (Next)
@@ -116,7 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isDragging) return;
         e.preventDefault();
         
-        // Relative dragging formula completely negates the positional jumping bug
         const deltaX = e.clientX - startX;
         const dragDist = bookRect.width / 2;
         let percentage;
@@ -146,11 +157,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (flipDirection === 'prev') N -= 2;
         }
 
-        setTimeout(() => {
-            isAnimating = false;
-            flipDirection = null;
-            renderIdleState();
-        }, 500); 
+        animationTimer = setTimeout(() => {
+            completeAnimation();
+        }, 400); 
     };
 
     book.addEventListener('pointerup', endDrag);
