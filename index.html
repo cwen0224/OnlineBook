@@ -1,24 +1,40 @@
-<!doctype html>
-<html lang="zh-Hant">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>動態翻頁繪本</title>
-  <link rel="stylesheet" href="style.css?v=202603261513" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>True 3D Page Flip Book</title>
+    <link rel="stylesheet" href="style.css?v=2603261437">
 </head>
 <body>
-  <div class="ambient ambient-1" aria-hidden="true"></div>
-  <div class="ambient ambient-2" aria-hidden="true"></div>
 
-  <div id="buildBadge" class="build-badge">V.202603261513</div>
-  <button id="soundToggle" class="sound-toggle" type="button" aria-pressed="true">音效：開</button>
+    <div id="book" class="book">
+        <!-- Leaves dynamically injected here -->
+    </div>
 
-  <main class="shell">
-    <section class="stage" aria-label="繪本舞台">
-      <div id="book" class="book" aria-label="動態翻頁繪本"></div>
-    </section>
-  </main>
+    <!-- Step-by-Step Guided Tutorial Overlay -->
+    <div id="tutorial-container">
+        <!-- Step 1: Next Page -->
+        <div id="tutorial-next" class="tutorial-box">
+            <div class="tutorial-text">
+                <span>👉</span>
+                <h3>單擊或拖曳此處</h3>
+                <p>翻至下一頁</p>
+            </div>
+        </div>
+        <!-- Step 2: Prev Page -->
+        <div id="tutorial-prev" class="tutorial-box" style="display: none;">
+            <div class="tutorial-text">
+                <span>👈</span>
+                <h3>單擊或拖曳此處</h3>
+                <p>翻回上一頁</p>
+            </div>
+        </div>
+    </div>
 
-  <script src="script.js?v=202603261513"></script>
+    <!-- Version banner that drops down on load -->
+    <div id="version-banner" style="position: fixed; top: -50px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 5px 20px; border-radius: 0 0 10px 10px; color: rgba(255,255,255,0.8); font-family: monospace; font-size: 1rem; z-index: 3000; backdrop-filter: blur(5px); transition: top 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-top: none;">V.2603261437</div>
+
+    <script src="script.js?v=2603261437"></script>
 </body>
 </html>
