@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 徹底阻擋任何原生的拖曳行為 (包含選擇文字、拖曳影像)
+    document.addEventListener('dragstart', (e) => e.preventDefault());
+
     const book = document.getElementById('book');
     const flipSheet = document.getElementById('flip-sheet');
     const frontShadow = flipSheet.querySelector('.front .shadow-overlay');
@@ -8,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isAnimating = false;
     let currentAngle = 0;
     let bookRect = book.getBoundingClientRect();
+    let startX = 0;
     
     // Create 10 logical pages
     const pages = [];
@@ -19,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    let N = 0; // Current left page index.
+    let N = 0; 
     let flipDirection = null;
 
     const staticLeft = document.querySelector('.static-left .content');
@@ -69,23 +73,14 @@ document.addEventListener('DOMContentLoaded', () => {
         backShadow.style.opacity = (1 - progress).toFixed(2);
     };
 
-    const calculateAngleAndFlip = (clientX) => {
-        const halfWidth = bookRect.width / 2;
-        const spineX = bookRect.left + halfWidth;
-        const pointerDistFromSpine = clientX - spineX;
-        
-        let percentage = (halfWidth - pointerDistFromSpine) / (halfWidth * 2);
-        percentage = Math.max(0, Math.min(1, percentage)); 
-        
-        updateFlip(-180 * percentage);
-    };
-
     book.addEventListener('pointerdown', (e) => {
         if (isAnimating) return;
         
         bookRect = book.getBoundingClientRect();
         const halfWidth = bookRect.width / 2;
         const spineX = bookRect.left + halfWidth;
+
+        startX = e.clientX; // Save initial X position
 
         if (e.clientX > spineX) {
             // Drag Right -> Left (Next)
@@ -115,13 +110,25 @@ document.addEventListener('DOMContentLoaded', () => {
         isDragging = true;
         setTransition(false);
         book.setPointerCapture(e.pointerId);
-        calculateAngleAndFlip(e.clientX);
     });
 
     book.addEventListener('pointermove', (e) => {
         if (!isDragging) return;
         e.preventDefault();
-        calculateAngleAndFlip(e.clientX);
+        
+        // Relative dragging formula completely negates the positional jumping bug
+        const deltaX = e.clientX - startX;
+        const dragDist = bookRect.width / 2;
+        let percentage;
+
+        if (flipDirection === 'next') {
+            percentage = -deltaX / dragDist;
+        } else {
+            percentage = 1 - (deltaX / dragDist);
+        }
+        
+        percentage = Math.max(0, Math.min(1, percentage)); 
+        updateFlip(-180 * percentage);
     });
 
     const endDrag = () => {
@@ -132,11 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setTransition(true); 
         
         if (currentAngle < -90) {
-            // Snap to Left
             updateFlip(-180);
             if (flipDirection === 'next') N += 2;
         } else {
-            // Snap to Right
             updateFlip(0);
             if (flipDirection === 'prev') N -= 2;
         }
@@ -151,6 +156,5 @@ document.addEventListener('DOMContentLoaded', () => {
     book.addEventListener('pointerup', endDrag);
     book.addEventListener('pointercancel', endDrag);
 
-    // Initial render
     renderIdleState();
 });

@@ -1,3 +1,11 @@
+* {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
 body {
     background: #1e1e1e;
     display: flex;
@@ -6,8 +14,6 @@ body {
     min-height: 100vh;
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    user-select: none;
-    -webkit-user-select: none;
 }
 
 .book {
