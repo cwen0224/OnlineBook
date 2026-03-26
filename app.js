@@ -16,7 +16,7 @@ const versionLabel = document.getElementById("versionLabel");
 const versionInline = document.getElementById("versionInline");
 const buildBadge = document.getElementById("buildBadge");
 
-const VERSION = "V.202603251748";
+const VERSION = "V.202603261022";
 
 const state = {
   book: null,
@@ -361,23 +361,23 @@ function loadBook(book) {
 
 function renderBook(options = {}) {
   const { playAudio = true } = options;
-  const book = state.book;
+  const currentBook = state.book;
   const leftIndex = state.index;
   const rightIndex = state.index + 1;
-  const currentRight = book.pages[rightIndex] || null;
-  const totalSpreads = Math.max(1, Math.ceil(book.pages.length / 2));
+  const currentRight = currentBook.pages[rightIndex] || null;
+  const totalSpreads = Math.max(1, Math.ceil(currentBook.pages.length / 2));
   const activeSpreadIndex = Math.max(0, Math.floor(leftIndex / 2));
 
-  bookTitle.textContent = book.title;
-  bookMeta.textContent = [book.author, `${book.pages.length} 頁`].filter(Boolean).join(" · ");
-  bookDesc.textContent = book.description || "從 JSON 或 ZIP 匯入不同故事版本。";
-  pageCounter.textContent = `${leftIndex + 1}-${Math.min(rightIndex + 1, book.pages.length)} / ${book.pages.length}`;
+  bookTitle.textContent = currentBook.title;
+  bookMeta.textContent = [currentBook.author, `${currentBook.pages.length} 頁`].filter(Boolean).join(" · ");
+  bookDesc.textContent = currentBook.description || "從 JSON 或 ZIP 匯入不同故事版本。";
+  pageCounter.textContent = `${leftIndex + 1}-${Math.min(rightIndex + 1, currentBook.pages.length)} / ${currentBook.pages.length}`;
 
   book.classList.toggle("is-turning", state.isAnimating);
 
-  renderSheetDeck(book, activeSpreadIndex, totalSpreads);
+  renderSheetDeck(currentBook, activeSpreadIndex, totalSpreads);
   if (state.isAnimating) {
-    renderTurnSheet(book);
+    renderTurnSheet(currentBook);
   } else {
     clearTurnSheet();
   }
