@@ -1,87 +1,66 @@
-<!doctype html>
-<html lang="zh-Hant">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0f172a" />
-    <title>翻頁繪本</title>
-    <link rel="stylesheet" href="./styles.css?v=202603261139" />
-  </head>
-  <body>
-    <div class="ambient ambient-1"></div>
-    <div class="ambient ambient-2"></div>
-    <div class="build-badge" id="buildBadge"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Page Flip Electronic Book</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-    <main class="shell">
-      <section class="hero">
-        <div>
-          <p class="eyebrow">GitHub Pages Storybook</p>
-          <h1>動態翻頁繪本</h1>
-          <p class="lede">
-            支援翻頁特效、音效，以及從 JSON 或 ZIP 匯入不同繪本。
-          </p>
-          <p class="version" id="versionLabel"></p>
+    <div id="book" class="book">
+        <!-- Static Left Area: Displays Page N (Page 1) -->
+        <div class="page static-left">
+            <div class="content">
+                <h1>Page 1</h1>
+                <p>This is the <strong>Static Left Area</strong>.</p>
+                <p>It stays at the bottom left displaying Page N.</p>
+                <div class="page-number">1</div>
+            </div>
+            <div class="shadow-overlay"></div>
         </div>
 
-        <div class="toolbar">
-          <label class="file-button">
-            匯入 JSON / ZIP
-            <input id="fileInput" type="file" accept=".json,.zip,application/json,application/zip" />
-          </label>
-          <button id="resetButton" class="ghost">回到示範書</button>
-          <button id="soundToggle" class="ghost" aria-pressed="true">音效：開</button>
+        <!-- Static Right Area: Displays Page N+3 (Page 4) -->
+        <div class="page static-right">
+            <div class="content">
+                <h1>Page 4</h1>
+                <p>This is the <strong>Static Right Area</strong>.</p>
+                <p>This new page gets revealed as the current page is lifted. It displays Page N+3.</p>
+                <div class="page-number">4</div>
+            </div>
+            <div class="shadow-overlay"></div>
         </div>
-      </section>
 
-      <section class="workspace">
-        <aside class="sidebar">
-          <div class="panel">
-            <div class="panel-head">
-              <span>書籍資訊</span>
-              <span id="pageCounter">0 / 0</span>
+        <!-- The Flipping Sheet (Contains Page 2 and Page 3) -->
+        <div id="flip-sheet" class="page flipping">
+            
+            <!-- Front side of Flipping Sheet: Displays Page N+1 (Page 2) -->
+            <div class="face front">
+                <div class="content">
+                    <h1>Page 2</h1>
+                    <p>This is the <strong>Flipping Sheet (Front side)</strong>.</p>
+                    <p>It shrinks and curls dynamically using CSS 3D Perspective as it moves left. This is Page N+1.</p>
+                    <p><strong>Drag me to the left!</strong></p>
+                    <div class="page-number">2</div>
+                </div>
+                <div class="shadow-overlay"></div>
             </div>
-            <p class="version-inline" id="versionInline"></p>
-            <h2 id="bookTitle">載入中</h2>
-            <p id="bookMeta" class="meta"></p>
-            <p id="bookDesc" class="description"></p>
-          </div>
-
-          <div class="panel">
-            <div class="panel-head">
-              <span>操作</span>
-              <span>← → / 方向鍵</span>
+            
+            <!-- Back side of Flipping Sheet: Displays Page N+2 (Page 3) -->
+            <div class="face back">
+                <div class="content">
+                    <h1>Page 3</h1>
+                    <p>This is the <strong>Flipping Sheet (Back side)</strong>.</p>
+                    <p>It reveals itself as the page drops to the left edge. This is Page N+2.</p>
+                    <p><em>Notice that the text is un-mirrored due to the mirror fix!</em></p>
+                    <div class="page-number">3</div>
+                </div>
+                <div class="shadow-overlay"></div>
             </div>
-            <ul class="tips">
-              <li>點擊右頁翻下一頁</li>
-              <li>點擊左頁翻上一頁</li>
-              <li>匯入 ZIP 時需包含 `book.json`</li>
-            </ul>
-          </div>
-        </aside>
 
-        <section class="stage">
-          <div class="book-frame">
-            <div class="book-spine"></div>
-            <div id="book" class="book" aria-label="繪本閱讀器">
-              <div id="sheetDeck" class="sheet-deck" aria-hidden="true"></div>
-              <div id="turnSheet" class="turn-sheet" aria-hidden="true"></div>
-            </div>
-          </div>
-        </section>
-      </section>
-    </main>
-
-    <template id="pageTemplate">
-      <div class="page-content">
-        <div class="page-art"></div>
-        <div class="page-text">
-          <h3></h3>
-          <p></p>
         </div>
-      </div>
-    </template>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-    <script src="./app.js?v=202603261139"></script>
-  </body>
+    <script src="script.js"></script>
+</body>
 </html>
