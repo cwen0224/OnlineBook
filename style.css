@@ -83,12 +83,12 @@ body {
 }
 
 .face.front .shadow-overlay {
-    background: linear-gradient(to right, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 25%);
+    background: linear-gradient(to right, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 25%);
     opacity: 0; 
 }
 
 .face.back .shadow-overlay {
-    background: linear-gradient(to left, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 25%);
+    background: linear-gradient(to left, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 25%);
     opacity: 0; 
 }
 
@@ -238,29 +238,27 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    margin: 0 2px;
-    position: relative;
-    padding-top: 2em; /* Ensure ample headroom for ruby so lines don't clip */
-    font-size: 2.2rem; /* Move base font-size here so '1em' equals a character width */
+    margin: 0 1px;
+    font-size: 2.2rem; /* Master font size */
 }
 
 .char-base {
     font-weight: 700;
-    color: #444;
-    line-height: 1;
+    color: #333;
+    line-height: 1.1;
     font-family: 'DFKai-sb', 'BiauKai', 'Heiti TC', sans-serif; /* Friendly book font */
     letter-spacing: 0.05em;
+    position: relative;
 }
 
 .char-base.polyphone-warning {
     color: #d9423e;
-    position: relative;
 }
 
 .char-base.polyphone-warning::after {
     content: '';
     position: absolute;
-    bottom: -8px;
+    bottom: -6px;
     left: 50%;
     transform: translateX(-50%);
     width: 6px;
@@ -270,16 +268,13 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
 }
 
 .char-rt {
-    position: absolute;
-    top: 5px;
-    left: 50%;
-    transform: translateX(-50%);
     font-family: 'Arial', sans-serif;
     color: #666;
-    line-height: 1;
+    line-height: 1.1;
     white-space: nowrap;
-    /* use CSS var to scale based on parent font-size */
+    /* Calculate precise scale dynamically */
     font-size: calc(1em * var(--ruby-scale, 0.5));
+    margin-bottom: 2px; /* Close spacing to the character below */
 }
 
 .word-group {
