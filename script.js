@@ -70,33 +70,47 @@ document.addEventListener('DOMContentLoaded', () => {
         pageData.lines.forEach(line => {
             let indent = line.indent ? (line.indent.level + 'em') : '0';
             html += `<div class="text-line ${line.role || 'body'}" style="margin-left: ${indent};">`;
-            let inWordGroup = false;
-
-            line.tokens.forEach(t => {
-                if (t.type === 'word_boundary') {
-                    if (!inWordGroup) {
-                        html += `<div class="word-group">`;
-                        inWordGroup = true;
-                    } else {
-                        html += `</div>`;
-                        inWordGroup = false;
+            
+            let currentGroup = [];
+            let groups = [];
+            
+            for (let i = 0; i < line.tokens.length; i++) {
+                let t = line.tokens[i];
+                if (t.type === 'word_boundary') continue; // Bound marker
+                
+                if (i > 0 && line.tokens[i-1].type !== 'word_boundary') {
+                    // Separate unless previous was boundary
+                    if (currentGroup.length > 0) {
+                        groups.push(currentGroup);
+                        currentGroup = [];
                     }
-                } else if (t.type === 'char' || t.type === 'punctuation') {
-                    let wUnits = t.width_units ? `flex-basis: ${t.width_units}em; min-width: ${t.width_units}em;` : '';
-                    html += `<div class="char-block" style="${wUnits}">`;
-                    if (t.type === 'char') {
-                        html += `<div class="char-rt zhuyin">${t.zhuyin}</div>`;
-                        html += `<div class="char-rt pinyin">${t.pinyin}</div>`;
-                        html += `<div class="char-base ${t.polyphone || t.emphasis ? 'polyphone-warning' : ''}">${t.char}</div>`;
-                    } else {
-                        html += `<div class="char-base">${t.char}</div>`;
-                    }
-                    html += `</div>`;
-                } else if (t.type === 'space') {
-                    html += `<div class="char-block" style="min-width: 1em;"></div>`;
                 }
+                currentGroup.push(t);
+            }
+            if (currentGroup.length > 0) groups.push(currentGroup);
+
+            groups.forEach(grp => {
+                if (grp.length > 1) html += `<div class="word-group">`;
+                grp.forEach(t => {
+                    if (t.type === 'char' || t.type === 'punctuation') {
+                        let wUnits = t.width_units ? `flex-basis: ${t.width_units}em; min-width: ${t.width_units}em;` : '';
+                        html += `<div class="char-block" style="${wUnits}">`;
+                        if (t.type === 'char') {
+                            html += `<div class="char-rt zhuyin">${t.zhuyin}</div>`;
+                            html += `<div class="char-rt pinyin">${t.pinyin}</div>`;
+                            html += `<div class="char-base ${t.polyphone || t.emphasis ? 'polyphone-warning' : ''}">${t.char}</div>`;
+                        } else {
+                            html += `<div class="char-base">${t.char}</div>`;
+                        }
+                        html += `</div>`;
+                    } else if (t.type === 'space') {
+                        // Using a generic block for space parsing
+                        html += `<div class="char-block space" style="min-width: 0.5em;"></div>`;
+                    }
+                });
+                if (grp.length > 1) html += `</div>`;
             });
-            if (inWordGroup) html += `</div>`;
+
             html += `</div>`;
         });
         html += `</div>`;

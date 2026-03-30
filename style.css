@@ -46,7 +46,7 @@ body {
 .leaf {
     position: absolute;
     right: 0;
-    width: 50%;
+    width: calc(50% + 1px);
     height: 100%;
     transform-style: preserve-3d;
     transform-origin: left center;
@@ -99,7 +99,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    pointer-events: none; /* Let all clicks pass through to the 3D book */
+    pointer-events: none;
     z-index: 2000;
 }
 
@@ -173,4 +173,116 @@ body {
 @keyframes bounceXReverse {
     0%, 100% { transform: translateX(0); }
     50% { transform: translateX(-15px); }
+}
+
+/* Ruby Text Toggle Core Logic */
+body[data-phonetic="zhuyin"] .char-rt.pinyin { display: none !important; }
+body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
+
+/* Phonetic UI and Ruby Block Structures */
+#phonetic-toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 5000;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+    transition: transform 0.1s, background 0.2s;
+}
+
+#phonetic-toggle-btn:hover {
+    background: rgba(50,50,50,0.9);
+}
+
+#phonetic-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+/* Text Container */
+.page-text-container {
+    position: absolute;
+    width: 60%;
+    bottom: 20%;
+    left: 20%; /* Keep it centered loosely */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 20px 30px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.5);
+    pointer-events: none; /* Text shouldn't block pointer drags */
+}
+
+/* Fix width scaling issues for absolute text blocks inside the 3d face */
+.text-line {
+    display: flex;
+    flex-wrap: wrap; /* ensures row layout wrapping perfectly */
+    align-items: flex-end;
+    margin-bottom: 25px; /* room between rows */
+}
+
+.char-block {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 0 2px;
+    position: relative;
+    padding-top: 2em; /* Ensure ample headroom for ruby so lines don't clip */
+}
+
+.char-base {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #444;
+    line-height: 1;
+    font-family: 'DFKai-sb', 'BiauKai', 'Heiti TC', sans-serif; /* Friendly book font */
+    letter-spacing: 0.05em;
+}
+
+.char-base.polyphone-warning {
+    color: #d9423e;
+    position: relative;
+}
+
+.char-base.polyphone-warning::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d9423e;
+}
+
+.char-rt {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Arial', sans-serif;
+    color: #666;
+    line-height: 1;
+    white-space: nowrap;
+    /* use CSS var to scale */
+    font-size: calc(2.2rem * var(--ruby-scale, 0.5));
+}
+
+.word-group {
+    display: inline-flex;
+    white-space: nowrap;
 }
