@@ -267,21 +267,39 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
     background: #d9423e;
 }
 
-.char-rt {
+/* Pinyin Horizontal (Top) */
+.char-rt.pinyin {
     font-family: 'Arial', sans-serif;
     color: #666;
     line-height: 1.1;
     white-space: nowrap;
-    /* Calculated in JS primarily, this is fallback */
-    font-size: calc(1em * var(--ruby-scale, 0.5));
     margin-bottom: 2px; /* Close spacing to the character below */
     
-    /* Ultimate guard: phonetic block mathematically forced to neutral flex flex-width */
+    /* Ultimate guard: phonetic block mathematically forced to neutral flex width */
     max-width: 0;
     min-width: 100%;
     overflow: visible;
     display: flex;
     justify-content: center;
+}
+
+/* Base + Zhuyin Wrapper */
+.char-bottom {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center; /* Aligns character and vertical zhuyin */
+}
+
+/* Zhuyin Vertical (Right) */
+.char-rt.zhuyin {
+    writing-mode: vertical-rl;
+    text-orientation: mixed; /* Mixed natively centers vertical bopomofo */
+    font-family: 'BiauKai', 'DFKai-sb', 'Heiti TC', sans-serif;
+    color: #555;
+    font-size: 0.33em; /* Precisely 1/3 of the base char size so 3 stacked phonetics fit 100% inside base height */
+    line-height: 1.05;
+    margin-left: 2px;
+    align-self: center; /* Vertically center relative to character */
 }
 
 .word-group {
