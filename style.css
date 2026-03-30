@@ -46,7 +46,7 @@ body {
 .leaf {
     position: absolute;
     right: 0;
-    width: calc(50% + 1px);
+    width: 50%; /* EXACT 50% so pivot is exactly dead center */
     height: 100%;
     transform-style: preserve-3d;
     transform-origin: left center;
@@ -57,8 +57,8 @@ body {
 
 .face {
     position: absolute;
-    width: calc(100% + 1px);
-    left: -0.5px;
+    width: calc(100% + 2px); /* Extend 2px total */
+    left: -1px; /* Bleed 1px past the spine center line to eliminate gap */
     height: 100%;
     backface-visibility: hidden;
     overflow: hidden;
