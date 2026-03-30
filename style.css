@@ -57,7 +57,8 @@ body {
 
 .face {
     position: absolute;
-    width: 100%;
+    width: calc(100% + 1px);
+    left: -0.5px;
     height: 100%;
     backface-visibility: hidden;
     overflow: hidden;
