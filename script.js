@@ -96,15 +96,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         let wUnits = t.width_units ? `flex-basis: ${t.width_units}em; min-width: ${t.width_units}em;` : '';
                         html += `<div class="char-block" style="${wUnits}">`;
                         if (t.type === 'char') {
-                            const zLen = t.zhuyin ? t.zhuyin.length : 1;
                             const pLen = t.pinyin ? t.pinyin.length : 1;
-                            const zScale = Math.min(0.5, 1.1 / zLen).toFixed(2);
                             const pScale = Math.min(0.5, 1.8 / pLen).toFixed(2);
-                            html += `<div class="char-rt zhuyin" style="font-size: ${zScale}em">${t.zhuyin}</div>`;
                             html += `<div class="char-rt pinyin" style="font-size: ${pScale}em">${t.pinyin}</div>`;
+                            html += `<div class="char-bottom">`;
                             html += `<div class="char-base ${t.polyphone || t.emphasis ? 'polyphone-warning' : ''}">${t.char}</div>`;
+                            html += `<div class="char-rt zhuyin">${t.zhuyin}</div>`;
+                            html += `</div>`;
                         } else {
-                            html += `<div class="char-base">${t.char}</div>`;
+                            html += `<div class="char-bottom"><div class="char-base">${t.char}</div></div>`;
                         }
                         html += `</div>`;
                     } else if (t.type === 'space') {
