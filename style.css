@@ -272,9 +272,16 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
     color: #666;
     line-height: 1.1;
     white-space: nowrap;
-    /* Calculate precise scale dynamically */
+    /* Calculated in JS primarily, this is fallback */
     font-size: calc(1em * var(--ruby-scale, 0.5));
     margin-bottom: 2px; /* Close spacing to the character below */
+    
+    /* Ultimate guard: phonetic block mathematically forced to neutral flex flex-width */
+    max-width: 0;
+    min-width: 100%;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
 }
 
 .word-group {
