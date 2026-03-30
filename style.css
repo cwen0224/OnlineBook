@@ -241,10 +241,10 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
     margin: 0 2px;
     position: relative;
     padding-top: 2em; /* Ensure ample headroom for ruby so lines don't clip */
+    font-size: 2.2rem; /* Move base font-size here so '1em' equals a character width */
 }
 
 .char-base {
-    font-size: 2.2rem;
     font-weight: 700;
     color: #444;
     line-height: 1;
@@ -278,8 +278,8 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
     color: #666;
     line-height: 1;
     white-space: nowrap;
-    /* use CSS var to scale */
-    font-size: calc(2.2rem * var(--ruby-scale, 0.5));
+    /* use CSS var to scale based on parent font-size */
+    font-size: calc(1em * var(--ruby-scale, 0.5));
 }
 
 .word-group {
