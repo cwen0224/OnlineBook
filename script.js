@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Version Banner
     const versionBanner = document.getElementById('version-banner');
     if (versionBanner) {
         setTimeout(() => {
             versionBanner.style.top = '0';
-            setTimeout(() => {
-                versionBanner.style.top = '-50px';
-            }, 3000);
+            setTimeout(() => { versionBanner.style.top = '-50px'; }, 3000);
         }, 500);
     }
 
@@ -29,14 +28,28 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (tutorialStep === 2 && direction === 'prev') {
             tutorialStep = 3;
             if (tutPrev) tutPrev.style.opacity = '0';
-            setTimeout(() => {
-                if (tutContainer) tutContainer.remove();
-            }, 500);
+            setTimeout(() => { if (tutContainer) tutContainer.remove(); }, 500);
         }
     };
 
-    // 徹底阻擋原生拖曳
     document.addEventListener('dragstart', (e) => e.preventDefault());
+
+    // Phonetic Switcher Logic
+    const toggleBtn = document.getElementById('phonetic-toggle-btn');
+    if (toggleBtn) {
+        document.body.dataset.phonetic = 'zhuyin'; // default
+        toggleBtn.addEventListener('pointerdown', (e) => {
+            e.stopPropagation(); // Avoid triggering book flip
+            const curr = document.body.dataset.phonetic;
+            if (curr === 'zhuyin') {
+                document.body.dataset.phonetic = 'pinyin';
+                toggleBtn.textContent = '切換注音';
+            } else {
+                document.body.dataset.phonetic = 'zhuyin';
+                toggleBtn.textContent = '切換拼音';
+            }
+        });
+    }
 
     const book = document.getElementById('book');
     let isDragging = false;
@@ -45,46 +58,100 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastClientX = 0;
     let startAngle = 0;
     let bookRect = book.getBoundingClientRect();
-    
     const TOTAL_LEAVES = 5; 
     const leaves = [];
-    
     book.innerHTML = ''; 
 
-    for (let i = 0; i < TOTAL_LEAVES; i++) {
-        const leaf = document.createElement('div');
-        leaf.className = 'leaf';
-        leaf.dataset.index = i;
-        
-        const pageNumFront = i * 2 + 1;
-        const pageNumBack = i * 2 + 2;
+    // ---- JSON Layout Parse Engine ----
+    const generateHTMLFromJson = (pageData) => {
+        if (!pageData || !pageData.lines) return '';
+        let scale = pageData.ruby_scale || 0.5;
+        let html = `<div class="page-text-container" style="--ruby-scale: ${scale};">`;
+        pageData.lines.forEach(line => {
+            let indent = line.indent ? (line.indent.level + 'em') : '0';
+            html += `<div class="text-line ${line.role || 'body'}" style="margin-left: ${indent};">`;
+            let inWordGroup = false;
 
-        const imgUrlFront = `https://picsum.photos/seed/book${pageNumFront*7}/1080/1920`;
-        const imgUrlBack = `https://picsum.photos/seed/book${pageNumBack*7}/1080/1920`;
+            line.tokens.forEach(t => {
+                if (t.type === 'word_boundary') {
+                    if (!inWordGroup) {
+                        html += `<div class="word-group">`;
+                        inWordGroup = true;
+                    } else {
+                        html += `</div>`;
+                        inWordGroup = false;
+                    }
+                } else if (t.type === 'char' || t.type === 'punctuation') {
+                    let wUnits = t.width_units ? `flex-basis: ${t.width_units}em; min-width: ${t.width_units}em;` : '';
+                    html += `<div class="char-block" style="${wUnits}">`;
+                    if (t.type === 'char') {
+                        html += `<div class="char-rt zhuyin">${t.zhuyin}</div>`;
+                        html += `<div class="char-rt pinyin">${t.pinyin}</div>`;
+                        html += `<div class="char-base ${t.polyphone || t.emphasis ? 'polyphone-warning' : ''}">${t.char}</div>`;
+                    } else {
+                        html += `<div class="char-base">${t.char}</div>`;
+                    }
+                    html += `</div>`;
+                } else if (t.type === 'space') {
+                    html += `<div class="char-block" style="min-width: 1em;"></div>`;
+                }
+            });
+            if (inWordGroup) html += `</div>`;
+            html += `</div>`;
+        });
+        html += `</div>`;
+        return html;
+    };
 
-        leaf.innerHTML = `
-            <div class="face front" style="background-image: url('${imgUrlFront}'); background-size: cover; background-position: center;">
-                <div class="page-number" style="position: absolute; bottom: 20px; right: 20px; font-size: 1.2rem; font-family: monospace; color: rgba(255,255,255,0.5); text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${pageNumFront}</div>
-                <div class="shadow-overlay"></div>
-            </div>
-            <div class="face back" style="background-image: url('${imgUrlBack}'); background-size: cover; background-position: center;">
-                <div class="page-number" style="position: absolute; bottom: 20px; left: 20px; font-size: 1.2rem; font-family: monospace; color: rgba(255,255,255,0.5); text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${pageNumBack}</div>
-                <div class="shadow-overlay"></div>
-            </div>
-        `;
-        book.appendChild(leaf);
-        
-        const leafObj = {
-            el: leaf,
-            index: i,
-            baseZ: TOTAL_LEAVES - i,
-            angle: 0,
-            isAnimating: false,
-            timer: null
-        };
-        
-        leaves.push(leafObj);
-        updateLeafTransform(leafObj, 0); 
+    let mockDataJson = null;
+    fetch('mockData.json')
+        .then(res => res.json())
+        .then(data => {
+            mockDataJson = data;
+            buildBook();
+        })
+        .catch(err => {
+            console.error("No MockData Found:", err);
+            buildBook();
+        });
+
+    function buildBook() {
+        for (let i = 0; i < TOTAL_LEAVES; i++) {
+            const leaf = document.createElement('div');
+            leaf.className = 'leaf';
+            leaf.dataset.index = i;
+            
+            const pageNumFront = i * 2 + 1;
+            const pageNumBack = i * 2 + 2;
+
+            const imgUrlFront = `https://picsum.photos/seed/book${pageNumFront*7}/1080/1920`;
+            const imgUrlBack = `https://picsum.photos/seed/book${pageNumBack*7}/1080/1920`;
+
+            const getPageContent = (n) => {
+                if (mockDataJson && mockDataJson.find(p => p.page === n)) {
+                    return generateHTMLFromJson(mockDataJson.find(p => p.page === n));
+                }
+                return '';
+            };
+
+            leaf.innerHTML = `
+                <div class="face front" style="background-image: url('${imgUrlFront}'); background-size: cover; background-position: center;">
+                    ${getPageContent(pageNumFront)}
+                    <div class="page-number" style="position: absolute; bottom: 20px; right: 20px; font-size: 1.2rem; font-family: monospace; color: rgba(255,255,255,0.5); text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${pageNumFront}</div>
+                    <div class="shadow-overlay"></div>
+                </div>
+                <div class="face back" style="background-image: url('${imgUrlBack}'); background-size: cover; background-position: center;">
+                    ${getPageContent(pageNumBack)}
+                    <div class="page-number" style="position: absolute; bottom: 20px; left: 20px; font-size: 1.2rem; font-family: monospace; color: rgba(255,255,255,0.5); text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${pageNumBack}</div>
+                    <div class="shadow-overlay"></div>
+                </div>
+            `;
+            book.appendChild(leaf);
+            
+            const leafObj = { el: leaf, index: i, baseZ: TOTAL_LEAVES - i, angle: 0, isAnimating: false, timer: null };
+            leaves.push(leafObj);
+            updateLeafTransform(leafObj, 0); 
+        }
     }
 
     function updateLeafTransform(leafObj, angle) {

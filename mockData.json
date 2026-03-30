@@ -1,0 +1,58 @@
+[
+  {
+    "page": 1,
+    "layout": "text_bottom",
+    "text_direction": "ltr",
+    "ruby_scale": 0.5,
+    "lines": [
+      {
+        "line_id": "p1-l1",
+        "role": "body",
+        "indent": { "level": 0, "unit": "char" },
+        "ruby_scale": null,
+        "tokens": [
+          {
+            "type": "char",
+            "char": "小",
+            "zhuyin": "ㄒㄧㄠˇ",
+            "zhuyin_parts": { "initial": "ㄒ", "final": "ㄧㄠ", "tone_mark": "ˇ", "tone_number": 3, "tone_position": "after" },
+            "pinyin": "xiǎo",
+            "pinyin_parts": { "initial": "x", "final": "iǎo", "tone_number": 3 },
+            "emphasis": false, "width_units": 1, "polyphone": false
+          },
+          { "type": "word_boundary" },
+          {
+            "type": "char",
+            "char": "兔",
+            "zhuyin": "ㄊㄨˋ",
+            "zhuyin_parts": { "initial": "ㄊ", "final": "ㄨ", "tone_mark": "ˋ", "tone_number": 4, "tone_position": "after" },
+            "pinyin": "tù",
+            "pinyin_parts": { "initial": "t", "final": "ù", "tone_number": 4 },
+            "emphasis": false, "width_units": 1, "polyphone": false
+          },
+          {
+            "type": "char",
+            "char": "子",
+            "zhuyin": "ㄗˇ",
+            "zhuyin_parts": { "initial": "ㄗ", "final": "", "tone_mark": "ˇ", "tone_number": 3, "tone_position": "after" },
+            "pinyin": "zǐ",
+            "pinyin_parts": { "initial": "z", "final": "ǐ", "tone_number": 3 },
+            "emphasis": false, "width_units": 1, "polyphone": false
+          },
+          { "type": "punctuation", "char": "，", "zhuyin": "", "line_break_rule": "no_start" },
+          { "type": "space" },
+          {
+            "type": "char",
+            "char": "跑",
+            "zhuyin": "ㄆㄠˇ",
+            "zhuyin_parts": { "initial": "ㄆ", "final": "ㄠ", "tone_mark": "ˇ", "tone_number": 3, "tone_position": "after" },
+            "pinyin": "pǎo",
+            "pinyin_parts": { "initial": "p", "final": "ǎo", "tone_number": 3 },
+            "emphasis": true, "width_units": 1, "polyphone": false
+          },
+          { "type": "punctuation", "char": "！", "zhuyin": "", "line_break_rule": "no_start" }
+        ]
+      }
+    ]
+  }
+]
