@@ -1,84 +1,81 @@
-{
-  "bookTitle": "視覺大師測試 (V.2200)",
-  "pages": [
-    {
-      "pageNumber": 1,
-      "lines": [
-        {
-          "tokens": [
-            { "type": "char", "char": "小", "zhuyin": "ㄒㄧㄠˇ" }
-          ]
-        }
-      ],
-      "image": "https://picsum.photos/seed/page1/800/1000"
-    },
-    {
-      "pageNumber": 2,
-      "lines": [
-        {
-          "tokens": [
-            { "type": "char", "char": "小", "zhuyin": "ㄒㄧㄠˇ" },
-            { "type": "char", "char": "兔", "zhuyin": "ㄊㄨˋ" },
-            { "type": "char", "char": "子", "zhuyin": "ㄗ˙" },
-            { "type": "punctuation", "char": "，" },
-            { "type": "char", "char": "跑", "zhuyin": "ㄆㄠˇ" },
-            { "type": "char", "char": "得", "zhuyin": "ㄉㄜˊ" },
-            { "type": "char", "char": "快", "zhuyin": "ㄎㄨㄞˋ" },
-            { "type": "punctuation", "char": "。" }
-          ]
-        }
-      ],
-      "image": "https://picsum.photos/seed/page2/800/1000"
-    },
-    {
-      "pageNumber": 3,
-      "lines": [
-        {
-          "tokens": [
-            { "type": "char", "char": "今", "zhuyin": "ㄐㄧㄣ" },
-            { "type": "char", "char": "天", "zhuyin": "ㄊㄧㄢ" },
-            { "type": "char", "char": "天", "zhuyin": "ㄊㄧㄢ" },
-            { "type": "char", "char": "氣", "zhuyin": "ㄑㄧˋ" },
-            { "type": "char", "char": "非", "zhuyin": "ㄈㄟ" },
-            { "type": "char", "char": "常", "zhuyin": "ㄔㄤˊ" },
-            { "type": "char", "char": "好", "zhuyin": "ㄏㄠˇ" },
-            { "type": "punctuation", "char": "！" }
-          ]
-        }
-      ],
-      "image": "https://picsum.photos/seed/page3/800/1000"
-    },
-    {
-      "pageNumber": 4,
-      "lines": [
-        {
-          "tokens": [
-            { "type": "char", "char": "森", "zhuyin": "ㄙㄣ" },
-            { "type": "char", "char": "林", "zhuyin": "ㄌㄧㄣˊ" },
-            { "type": "char", "char": "裡", "zhuyin": "ㄌㄧˇ" },
-            { "type": "char", "char": "有", "zhuyin": "ㄧㄡˇ" },
-            { "type": "char", "char": "多", "zhuyin": "ㄉㄨㄛ" },
-            { "type": "char", "char": "好", "zhuyin": "ㄏㄠˇ" },
-            { "type": "char", "char": "朋", "zhuyin": "ㄆㄥˊ" },
-            { "type": "char", "char": "友", "zhuyin": "ㄧㄡˇ" },
-            { "type": "punctuation", "char": "。" }
-          ]
-        },
-        {
-          "tokens": [
-             { "type": "char", "char": "大", "zhuyin": "ㄉㄚˋ" },
-             { "type": "char", "char": "家", "zhuyin": "ㄐㄧㄚ" },
-             { "type": "char", "char": "一", "zhuyin": "ㄧˋ" },
-             { "type": "char", "char": "起", "zhuyin": "ㄑㄧˇ" },
-             { "type": "char", "char": "開", "zhuyin": "ㄎㄞ" },
-             { "type": "char", "char": "心", "zhuyin": "ㄒㄧㄣ" },
-             { "type": "char", "char": "跳", "zhuyin": "ㄊㄧㄠˋ" },
-             { "type": "char", "char": "舞", "zhuyin": "ㄨˇ" },
-             { "type": "punctuation", "char": "。" }
-          ]
-        }
-      ],
-      "image": "https://picsum.photos/seed/page4/800/1000"
-    }
-  ]
-}
+[
+  {
+    "page": 1,
+    "lines": [
+      {
+        "tokens": [
+          { "type": "char", "char": "小", "zhuyin": "ㄒㄧㄠˇ" }
+        ]
+      }
+    ],
+    "image": "https://picsum.photos/seed/page1/800/1000"
+  },
+  {
+    "page": 2,
+    "lines": [
+      {
+        "tokens": [
+          { "type": "char", "char": "小", "zhuyin": "ㄒㄧㄠˇ" },
+          { "type": "char", "char": "兔", "zhuyin": "ㄊㄨˋ" },
+          { "type": "char", "char": "子", "zhuyin": "ㄗ˙" },
+          { "type": "punctuation", "char": "，" },
+          { "type": "char", "char": "跑", "zhuyin": "ㄆㄠˇ" },
+          { "type": "char", "char": "得", "zhuyin": "ㄉㄜˊ" },
+          { "type": "char", "char": "快", "zhuyin": "ㄎㄨㄞˋ" },
+          { "type": "punctuation", "char": "。" }
+        ]
+      }
+    ],
+    "image": "https://picsum.photos/seed/page2/800/1000"
+  },
+  {
+    "page": 3,
+    "lines": [
+      {
+        "tokens": [
+          { "type": "char", "char": "今", "zhuyin": "ㄐㄧㄣ" },
+          { "type": "char", "char": "天", "zhuyin": "ㄊㄧㄢ" },
+          { "type": "char", "char": "天", "zhuyin": "ㄊㄧㄢ" },
+          { "type": "char", "char": "氣", "zhuyin": "ㄑㄧˋ" },
+          { "type": "char", "char": "非", "zhuyin": "ㄈㄟ" },
+          { "type": "char", "char": "常", "zhuyin": "ㄔㄤˊ" },
+          { "type": "char", "char": "好", "zhuyin": "ㄏㄠˇ" },
+          { "type": "punctuation", "char": "！" }
+        ]
+      }
+    ],
+    "image": "https://picsum.photos/seed/page3/800/1000"
+  },
+  {
+    "page": 4,
+    "lines": [
+      {
+        "tokens": [
+          { "type": "char", "char": "森", "zhuyin": "ㄙㄣ" },
+          { "type": "char", "char": "林", "zhuyin": "ㄌㄧㄣˊ" },
+          { "type": "char", "char": "裡", "zhuyin": "ㄌㄧˇ" },
+          { "type": "char", "char": "有", "zhuyin": "ㄧㄡˇ" },
+          { "type": "char", "char": "多", "zhuyin": "ㄉㄨㄛ" },
+          { "type": "char", "char": "好", "zhuyin": "ㄏㄠˇ" },
+          { "type": "char", "char": "朋", "zhuyin": "ㄆㄥˊ" },
+          { "type": "char", "char": "友", "zhuyin": "ㄧㄡˇ" },
+          { "type": "punctuation", "char": "。" }
+        ]
+      },
+      {
+        "tokens": [
+           { "type": "char", "char": "大", "zhuyin": "ㄉㄚˋ" },
+           { "type": "char", "char": "家", "zhuyin": "ㄐㄧㄚ" },
+           { "type": "char", "char": "一", "zhuyin": "ㄧˋ" },
+           { "type": "char", "char": "起", "zhuyin": "ㄑㄧˇ" },
+           { "type": "char", "char": "開", "zhuyin": "ㄎㄞ" },
+           { "type": "char", "char": "心", "zhuyin": "ㄒㄧㄣ" },
+           { "type": "char", "char": "跳", "zhuyin": "ㄊㄧㄠˋ" },
+           { "type": "char", "char": "舞", "zhuyin": "ㄨˇ" },
+           { "type": "punctuation", "char": "。" }
+        ]
+      }
+    ],
+    "image": "https://picsum.photos/seed/page5/800/1000"
+  }
+]
