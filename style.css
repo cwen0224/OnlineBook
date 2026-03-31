@@ -214,7 +214,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    align-items: flex-start;
+    align-items: stretch;     /* CRITICAL: Force children to fill the full box width */
     padding: 22px 28px 18px;
     background: rgba(255, 248, 230, var(--box-opacity, 0.92)); 
     border-radius: var(--box-radius, 12px);
@@ -246,10 +246,10 @@ body {
 
 /* MODE: Adobe Full Justify (The Pro indesign look) */
 .text-line.is-adobe-justified {
-    display: flex;               /* Return to Flexbox */
+    display: flex;               /* Flexbox handles the spatial distribution */
     flex-wrap: wrap;
     justify-content: space-between;
-    width: 100%;
+    width: 100% !important;      /* FORCE FULL WIDTH */
     column-gap: var(--char-gap, 1.8em);
     row-gap: var(--line-gap, 10px);
 }
@@ -263,7 +263,7 @@ body {
 
 .text-line.is-adobe-justified::after {
     content: "";
-    flex: 10 1 auto;             /* Huge weight to ensure it takes ALL extra space on last row */
+    flex: 999 1 auto;            /* ULTIMATE STRETCHER: Takes ALL remaining space on last row */
     min-width: 0;
 }
 
