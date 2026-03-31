@@ -246,10 +246,11 @@ body {
 
 /* MODE: Adobe Full Justify (The Pro indesign look) */
 .text-line.is-adobe-justified {
-    display: flex;               /* Return to Flexbox for measuring offsetTop */
+    display: flex;
     flex-wrap: wrap;
-    justify-content: flex-start; /* Spacing will be handled by JS margin-right */
-    width: 100% !important;
+    justify-content: flex-start;
+    width: 100% !important;      /* RESTORED: Must be 100% to allow items to distribute */
+    box-sizing: border-box;      /* Important to keep width 100% safe */
     align-items: flex-end;
 }
 
@@ -343,9 +344,13 @@ body {
     flex-direction: column;
     justify-content: center;      /* Vertically center the tone mark relative to the whole zhuyin block */
     align-items: center;
-    align-self: stretch;          /* Stretch column to fill height so center alignment works */
-    font-size: 0.9em;             /* tone mark slightly smaller */
-    margin-left: -0.05em;         /* pull tone mark slightly closer to phonetic symbols */
+    align-self: stretch;          pageData.lines.forEach(line => {
+            let indent = line.indent ? (line.indent.level + 'em') : '0';
+            // V.2450: Use padding-left instead of margin-left to keep width: 100% safe
+            html += `<div class="${lineClass} ${line.role || 'body'}" style="padding-left: ${indent};">`;
+            
+            let tokens = line.tokens;
+lightly closer to phonetic symbols */
     padding-right: 0.6em;         /* Final Value to prevent wide tone marks from bleeding */
     min-width: 0.5em;
     flex-shrink: 0;               /* CRITICAL: Prevent the padding space from being squashed */

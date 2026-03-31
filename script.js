@@ -69,7 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render a zhuyin string as a proper two-column flex block:
     //   Left col:  consonant + medial + vowel stacked vertically (each as a <span>)
     //   Right col: tone mark at the top (always stays horizontal, never rotated)
-    let currentPuncEngine = 'sticky';
+    
+    // Initial State: Read from DOM or fallback
+    const puncSelector = document.getElementById('punc-engine');
+    let currentPuncEngine = puncSelector ? puncSelector.value : 'adobe';
 
     const renderZhuyin = (z) => {
         if (!z) return '';
@@ -465,14 +468,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Punctuation Engine Selector Logic (V.2300)
+    // Punctuation Engine Selector Logic (V.2450)
     const puncEngineSelector = document.getElementById('punc-engine');
     if (puncEngineSelector) {
+        // Sync engine choice on change
         puncEngineSelector.addEventListener('change', (e) => {
             currentPuncEngine = e.target.value;
-            // Immediate full re-render of the book to apply the new engine rules
-            buildBook();
             console.log("Punctuation Engine Switched to:", currentPuncEngine);
+            buildBook(); // Re-render triggers JS Justification
         });
+        
+        // Initial build trigger
+        currentPuncEngine = puncEngineSelector.value;
     }
 });
