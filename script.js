@@ -141,8 +141,66 @@ document.addEventListener('DOMContentLoaded', () => {
         return html;
     };
 
+    /**
+     * JS Adobe Master Engine (V.2410)
+     * Groups .char-block (and .sticky-pair) by their offsetTop and distributes 
+     * remaining line width evenly by adjusting margin-right.
+     */
+    function groupIntoRows(elements, tol = 4) {
+        const rows = [];
+        let cur = [], curTop = null;
+        elements.forEach(el => {
+            const top = el.offsetTop;
+            if (curTop === null || Math.abs(top - curTop) > tol) {
+                if (cur.length) rows.push(cur);
+                cur = []; curTop = top;
+            }
+            cur.push(el);
+        });
+        if (cur.length) rows.push(cur);
+        return rows;
+    }
+
+    function justifyBlocks(container) {
+        if (currentPuncEngine !== 'adobe') return;
+        const selectors = '.char-block, .sticky-pair';
+        const blocks = [...container.querySelectorAll(selectors)];
+        blocks.forEach(b => { 
+            b.style.marginRight = '0px'; 
+            b.style.transition = 'none'; // Disable transition during measurement
+        });
+
+        // Trigger reflow
+        container.offsetHeight;
+
+        const rows = groupIntoRows(blocks);
+        const containerWidth = container.clientWidth;
+
+        rows.forEach((row, i) => {
+            if (i === rows.length - 1 || row.length <= 1) {
+                row.forEach(b => b.style.marginRight = '0px');
+                return;
+            }
+            const totalW = row.reduce((sum, b) => sum + b.offsetWidth, 0);
+            const availableSpace = containerWidth - totalW;
+            const extra = availableSpace / (row.length - 1);
+            row.forEach((b, j) => {
+                b.style.marginRight = j < row.length - 1 ? `${extra}px` : '0px';
+            });
+        });
+    }
+
+    function applyAllJustification() {
+        if (currentPuncEngine !== 'adobe') {
+            document.querySelectorAll('.char-block, .sticky-pair').forEach(b => b.style.marginRight = '');
+            return;
+        }
+        document.querySelectorAll('.page-text-container').forEach(container => {
+            justifyBlocks(container);
+        });
+    }
+
     let mockDataJson = null;
-    // Add cache-busting to ensure mockData.json is always fresh
     fetch('mockData.json?v=' + Date.now())
         .then(res => res.json())
         .then(data => {
@@ -191,6 +249,9 @@ document.addEventListener('DOMContentLoaded', () => {
             leaves.push(leafObj);
             updateLeafTransform(leafObj, 0); 
         }
+        // Force JS Justification after DOM construction
+        setTimeout(applyAllJustification, 50);
+        window.addEventListener('resize', applyAllJustification);
     }
 
     function updateLeafTransform(leafObj, angle) {
@@ -311,6 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = e.target.value;
             sizeVal.textContent = val;
             document.documentElement.style.setProperty('--char-size', val + 'rem');
+            applyAllJustification();
         });
     }
 
@@ -319,6 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = e.target.value;
             gapVal.textContent = val;
             document.documentElement.style.setProperty('--char-gap', val + 'em');
+            applyAllJustification();
         });
     }
 
@@ -327,6 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = e.target.value;
             lineVal.textContent = val;
             document.documentElement.style.setProperty('--line-gap', val + 'px');
+            applyAllJustification();
         });
     }
 
@@ -335,6 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = e.target.value;
             widthVal.textContent = val;
             document.documentElement.style.setProperty('--box-width', val + '%');
+            setTimeout(applyAllJustification, 50);
         });
     }
 
