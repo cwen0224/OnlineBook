@@ -1,14 +1,14 @@
-## 🚀 Recent Critical Fixes (V.2000 - V.2100 FINAL)
+## 🚀 Recent Critical Fixes (V.2000 - V.2201)
 
-### 1. 💾 Cache-Busting Definitive Solution (V.2100)
-- **Status**: Production Ready.
+### 1. 💾 Cache-Busting Definitive Solution (V.2201)
+- **Status**: Production Ready with schema-fix for mockData.
 
-### 2. 📏 Zhuyin Typography Engine (Finalized V.2100)
-- **Approved Settings**: 
-    - **Font Size**: `2.2rem`
-    - **Char Gap**: `1.8em`
-    - **Tone Padding**: `0.6em` (Static)
-- **Architecture**: Pure Flexbox layout (no `writing-mode`). Tone marks are centered vertically in a dedicated `0.6em` column to prevent character overlap.
+### 2. 📏 Visual Atmosphere & Typography Master (V.2201)
+- **Visual Mastering Dashboard**: 
+    - **Typography**: Size and Gap.
+    - **Container Atmosphere**: Width, BG Opacity, Backdrop Blur, Border Radius.
+- **Stress-Testing Data**: `mockData.json` now includes diverse text lengths across 4 pages to test scalability.
+- **Flexbox Engine**: Pure Flexbox, 100% responsive within the page container.
 - **Cleanup**: Tuning sliders and debug variables have been removed.
 
 ### 3. 🌓 Shadow Rendering Bug
