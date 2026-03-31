@@ -96,11 +96,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         let wUnits = t.width_units ? `flex-basis: ${t.width_units}em; min-width: ${t.width_units}em;` : '';
                         html += `<div class="char-block" style="${wUnits}">`;
                         if (t.type === 'char') {
-                            html += `<div class="char-rt zhuyin">${t.zhuyin || ''}</div>`;
+                            // Pinyin sits above as a separate row
                             html += `<div class="char-rt pinyin">${t.pinyin || ''}</div>`;
+                            // char-row: [kanji] + [zhuyin vertical]
+                            html += `<div class="char-row">`;
                             html += `<div class="char-base ${t.polyphone || t.emphasis ? 'polyphone-warning' : ''}">${t.char}</div>`;
+                            html += `<div class="char-rt zhuyin">${t.zhuyin || ''}</div>`;
+                            html += `</div>`;
                         } else {
-                            html += `<div class="char-base">${t.char}</div>`;
+                            // Punctuation: just the character, no phonetics
+                            html += `<div class="char-row"><div class="char-base">${t.char}</div></div>`;
                         }
                         html += `</div>`;
                     } else if (t.type === 'space') {
@@ -179,11 +184,16 @@ document.addEventListener('DOMContentLoaded', () => {
         leafObj.el.style.zIndex = currentZ;
         leafObj.el.style.transform = `rotateY(${angle}deg) translateZ(${leafObj.baseZ}px)`;
         
+        // progress: 0 = flat/unflipped, 1 = fully flipped
+        // Shadow should peak at mid-flip (90°) and be 0 at both rest states
         const progress = Math.abs(angle) / 180;
+        const midShadow = Math.sin(Math.abs(angle) * Math.PI / 180).toFixed(2);
         const frontShadow = leafObj.el.querySelector('.front .shadow-overlay');
         const backShadow = leafObj.el.querySelector('.back .shadow-overlay');
-        frontShadow.style.opacity = progress.toFixed(2);
-        backShadow.style.opacity = (1 - progress).toFixed(2);
+        // Front face darkens as it lifts, clears as it lands
+        frontShadow.style.opacity = (progress * 0.5).toFixed(2);
+        // Back face: only show shadow while actively mid-flip
+        backShadow.style.opacity = (midShadow * 0.4).toFixed(2);
     }
 
     book.addEventListener('pointerdown', (e) => {

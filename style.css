@@ -233,25 +233,29 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
     margin-bottom: 25px; /* room between rows */
 }
 
-/* ── char-block: the outer flex cell for one character ── */
+/* ── char-block: wrapper for one character + its phonetics ── */
 .char-block {
     display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    /* No fixed width — let content determine it */
-    margin: 0 0.08em;
-    font-size: 2.2rem; /* master base size */
-    position: relative;   /* anchor for .char-rt absolute */
-    /* Reserve top-room for phonetics WITHOUT affecting layout width */
-    padding-top: 0.55em;
+    flex-direction: column;   /* pinyin stacks above the char-row */
+    align-items: flex-start;
+    margin: 0 0.05em;
+    font-size: 2.2rem;
+    vertical-align: bottom;
 }
 
-/* ── The actual Chinese character ── */
+/* ── char-row: horizontal pair of [kanji] [zhuyin column] ── */
+.char-row {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+/* ── The Chinese character ── */
 .char-base {
     font-weight: 700;
     color: #333;
     line-height: 1;
-    font-family: 'DFKai-sb', 'BiauKai', 'Heiti TC', sans-serif;
+    font-family: 'DFKai-sb', 'BiauKai', 'Heiti TC', serif;
     position: relative;
 }
 
@@ -260,7 +264,7 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
 .char-base.polyphone-warning::after {
     content: '';
     position: absolute;
-    bottom: -5px;
+    bottom: -4px;
     left: 50%;
     transform: translateX(-50%);
     width: 5px;
@@ -269,42 +273,41 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
     background: #d9423e;
 }
 
-/* ── Shared ruby row (zhuyin & pinyin both sit above the char) ── */
-.char-rt {
-    position: absolute;
-    top: 0;                /* flush to the padding-top space */
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end; /* bottom-align within ruby row */
-    line-height: 1;
-    pointer-events: none;
-    /* Clip overflow within the 0.55em slot — never pushes siblings */
-    height: 0.55em;
-    overflow: visible;
-}
-
-/* Zhuyin: fixed small size so longest annotation (3-4 chars) still fits above char */
+/* ── Zhuyin: vertical strip to the RIGHT of the character ──
+   writing-mode: vertical-rl renders bopomofo top-to-bottom
+   with tone mark at the bottom — exactly like Taiwan textbooks.
+   font-size 0.4em: 3 chars × line-height 1 = full char height       */
 .char-rt.zhuyin {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
     font-family: 'BiauKai', 'DFKai-sb', 'MingLiU', serif;
-    color: #555;
-    /* 0.4em means 3 chars × 0.4 = 1.2 em total — wider than char, but we use
-       scaleX trick if needed. For typical 2-3 char zhuyin this is close to ideal. */
-    font-size: 0.38em;
-    letter-spacing: 0.02em;
+    font-size: 0.4em;
+    line-height: 1;
+    color: #444;
+    margin-left: 1px;
+    letter-spacing: 0;
+    /* width is naturally 0.4em — one character wide */
 }
 
-/* Pinyin: latin, slightly smaller */
+/* ── Pinyin: sits ABOVE the char-row, hidden by default ── */
 .char-rt.pinyin {
     font-family: 'Arial', 'Helvetica', sans-serif;
+    font-size: 0.3em;
     color: #666;
-    font-size: 0.32em;
-    letter-spacing: 0.01em;
+    line-height: 1.2;
+    white-space: nowrap;
+    /* Center over the character width */
+    align-self: center;
+    margin-bottom: 1px;
 }
 
-/* ── word-group: keeps multi-char words together on same line ── */
+/* ── Phonetic visibility switcher ── */
+body[data-phonetic="zhuyin"] .char-rt.zhuyin { display: inline; }
+body[data-phonetic="zhuyin"] .char-rt.pinyin  { display: none; }
+body[data-phonetic="pinyin"]  .char-rt.pinyin  { display: block; }
+body[data-phonetic="pinyin"]  .char-rt.zhuyin  { display: none; }
+
+/* ── word-group: prevent line-breaking mid-word ── */
 .word-group {
     display: inline-flex;
     white-space: nowrap;
