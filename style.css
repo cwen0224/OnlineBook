@@ -228,7 +228,7 @@ body {
     flex-wrap: wrap;
     align-items: flex-end; /* all char bottoms snap to same baseline */
     margin-bottom: 10px;
-    gap: var(--char-gap, 1.5em);
+    gap: 1.8em;               /* Final User-Approved Value */
 }
 
 /* ── char-block: wrapper for one character + its phonetics ── */
@@ -237,7 +237,7 @@ body {
     flex-direction: column;   /* pinyin stacks above the char-row */
     align-items: flex-start;
     margin: 0;                /* Spacing is now handled by the parent's 'gap' property */
-    font-size: var(--char-size, 2.2rem);
+    font-size: 2.2rem;        /* Final User-Approved Value */
     vertical-align: bottom;
 }
 
@@ -303,9 +303,9 @@ body {
     align-self: stretch;          /* Stretch column to fill height so center alignment works */
     font-size: 0.9em;             /* tone mark slightly smaller */
     margin-left: -0.05em;         /* pull tone mark slightly closer to phonetic symbols */
-    padding-right: var(--tone-padding, 0.5em);         /* MASSIVE Space to prevent wide tone marks from bleeding */
-    min-width: 0.5em;             /* Reasonable min-width starting point */
-    flex-shrink: 0;               /* CRITICAL: Prevent the padding space from being squashed by flexbox constraints */
+    padding-right: 0.6em;         /* Final Value to prevent wide tone marks from bleeding */
+    min-width: 0.5em;
+    flex-shrink: 0;               /* CRITICAL: Prevent the padding space from being squashed */
 }
 
 /* Each individual phonetic glyph */
@@ -344,5 +344,5 @@ body[data-phonetic="pinyin"]  .char-rt.pinyin  { display: block !important; }
        share the same bottom baseline as the parent text-line. */
     align-items: flex-end;
     /* Ensure distance between characters within a word group too */
-    gap: var(--char-gap, 0.5em);
+    gap: 1.8em;               /* Final User-Approved Value */
 }

@@ -1,15 +1,15 @@
-## 🚀 Recent Critical Fixes (V.2000 - V.2050)
+## 🚀 Recent Critical Fixes (V.2000 - V.2100 FINAL)
 
-### 1. 💾 Cache-Busting Definitive Solution (V.2050)
-- **Status**: Stable. Uses `Date.now()` on fetch and JSON/JS/CSS versioning.
+### 1. 💾 Cache-Busting Definitive Solution (V.2100)
+- **Status**: Production Ready.
 
-### 2. 📏 Zhuyin Typography & Full Tuning Control (V.2050)
-- **Live Tuning Panel**: 
-    - **Font Size**: Control `--char-size` (1.5rem to 5rem).
-    - **Char Gap**: Control `--char-gap` (0em to 3em).
-    - **Tone Padding**: Control `--tone-padding` (0em to 2em).
-- **Flex-Shrink Fix**: Added `flex-shrink: 0` to `.zh-col-tone` to ensure tone padding isn't squashed by the browser's flexbox engine.
-- **Goal**: Find the perfect values in-app, then hard-code them into `style.css` later.
+### 2. 📏 Zhuyin Typography Engine (Finalized V.2100)
+- **Approved Settings**: 
+    - **Font Size**: `2.2rem`
+    - **Char Gap**: `1.8em`
+    - **Tone Padding**: `0.6em` (Static)
+- **Architecture**: Pure Flexbox layout (no `writing-mode`). Tone marks are centered vertically in a dedicated `0.6em` column to prevent character overlap.
+- **Cleanup**: Tuning sliders and debug variables have been removed.
 
 ### 3. 🌓 Shadow Rendering Bug
 - **Fixed**: Black semi-transparent overlays no longer stick on page rest.
