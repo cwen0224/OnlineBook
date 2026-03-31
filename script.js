@@ -142,16 +142,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * JS Adobe Master Engine (V.2430)
-     * Groups characters by offsetTop with dynamic tolerance and applies sub-pixel 
-     * alignment using getComputedStyle for stability in 3D environments.
+     * JS Adobe Master Engine (V.2440)
+     * Professional Picture Book Justification.
      */
     function groupIntoRows(elements) {
         const rows = [];
         let cur = [], curTop = null;
         elements.forEach(el => {
             const top = el.offsetTop;
-            const tol = el.offsetHeight * 0.3;
+            const tol = el.offsetHeight * 0.4; // 40% tolerance for vertical variations
             if (curTop === null || Math.abs(top - curTop) > tol) {
                 if (cur.length) rows.push(cur);
                 cur = [];
@@ -163,46 +162,47 @@ document.addEventListener('DOMContentLoaded', () => {
         return rows;
     }
 
-    function justifyBlocks(container) {
+    function justifyBlocks(lineDiv) {
         if (currentPuncEngine !== 'adobe') return;
         const selectors = '.char-block, .sticky-pair';
-        const blocks = [...container.querySelectorAll(selectors)];
+        const blocks = [...lineDiv.querySelectorAll(selectors)];
         
-        // 1. CLEAR (Strictly clear inline margin to allow fresh layout measurement)
+        // 1. Initial State: Clear any JS margins
         blocks.forEach(b => { 
             b.style.marginRight = ''; 
         });
 
-        // Force Layout Reflow
-        container.offsetHeight;
+        // Trigger Layout Refresh
+        lineDiv.offsetHeight;
 
-        // 2. GROUP
+        // 2. Identify Rows within the paragraph/line div
         const rows = groupIntoRows(blocks);
         
-        // 3. MEASURE Using Computed Styles (Ignores 3D Transform scaling)
-        const containerWidth = parseFloat(getComputedStyle(container).width);
+        // 3. Precise width via getComputedStyle (ignores 3D transform distortion)
+        const lineWidth = parseFloat(getComputedStyle(lineDiv).width);
 
         rows.forEach((row, i) => {
-            // Rule: Don't justify paragraph last lines or single-item rows
+            // Standard InDesign/Adobe Rule:
+            // Do NOT justify the last line of a paragraph OR single-item rows
             if (i === rows.length - 1 || row.length <= 1) {
                 row.forEach(b => b.style.marginRight = '');
                 return;
             }
             
-            // Measure total width of blocks in this row
-            const totalW = row.reduce((sum, b) => {
-                return sum + parseFloat(getComputedStyle(b).width);
-            }, 0);
+            // Total width of characters in this row
+            let totalW = 0;
+            row.forEach(b => {
+                totalW += parseFloat(getComputedStyle(b).width);
+            });
             
-            // Calculate and apply distribution
-            const availableSpace = containerWidth - totalW;
-            const extra = availableSpace / (row.length - 1);
+            // Calculate pixel gap to fill the remainder
+            const extra = (lineWidth - totalW) / (row.length - 1);
             
             row.forEach((b, j) => {
                 if (j < row.length - 1) {
                     b.style.marginRight = `${extra}px`;
                 } else {
-                    b.style.marginRight = ''; // Flush right
+                    b.style.marginRight = ''; // Line end is flushed right
                 }
             });
         });
@@ -213,8 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.char-block, .sticky-pair').forEach(b => b.style.marginRight = '');
             return;
         }
-        document.querySelectorAll('.page-text-container').forEach(container => {
-            justifyBlocks(container);
+        // Apply to each .text-line container specifically
+        document.querySelectorAll('.text-line').forEach(line => {
+            justifyBlocks(line);
         });
     }
 
