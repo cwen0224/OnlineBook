@@ -246,20 +246,22 @@ body {
 
 /* MODE: Adobe Full Justify (The Pro indesign look) */
 .text-line.is-adobe-justified {
-    display: block !important;  /* SWITCH TO NATIVE TEXT ENGINE */
-    text-align: justify;
-    text-align-last: left;       /* Prevents last line stretch */
+    display: block !important;  /* NATIVE BLOCK ENGINE */
     width: 100%;
-    word-spacing: var(--char-gap, 0); /* User-controlled BASE gap */
+    text-align: justify;
+    text-align-last: justify;    /* FORCE FULL ALIGNMENT ON EVERY ROW, EVEN SINGLE LINES */
+    text-justify: inter-character; /* THE CJK MAGIC: Distribute between every character */
+    letter-spacing: var(--char-gap, 0); /* User controlled base dispersion */
+    line-height: normal;
 }
 
-/* Ensure vertical spacing and correct baseline in block mode */
 .text-line.is-adobe-justified .char-block,
 .text-line.is-adobe-justified .sticky-pair {
-    display: inline-block;        /* Native inline units for justification */
+    display: inline-block;       /* Inline-block elements are the only items that follow inter-character rules perfectly */
     vertical-align: bottom;
     margin-bottom: var(--line-gap, 10px);
-    word-spacing: normal;         /* Reset inside character units */
+    letter-spacing: normal;      /* Reset inside to prevent ruby/base separation */
+    text-align: center;
 }
 
 /* MODE: Sticky (Atomic unit for Char + Punctuation) */
