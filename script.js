@@ -284,4 +284,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     book.addEventListener('pointerup', endDrag);
     book.addEventListener('pointercancel', endDrag);
+
+    // Tuning Slider Logic (V.2040)
+    const gapSlider = document.getElementById('gap-slider');
+    const gapVal = document.getElementById('gap-val');
+    const toneSlider = document.getElementById('tone-slider');
+    const toneVal = document.getElementById('tone-val');
+
+    if (gapSlider && gapVal) {
+        gapSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            gapVal.textContent = val;
+            document.documentElement.style.setProperty('--char-gap', val + 'em');
+        });
+    }
+
+    if (toneSlider && toneVal) {
+        toneSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            toneVal.textContent = val;
+            document.documentElement.style.setProperty('--tone-padding', val + 'em');
+        });
+    }
 });
