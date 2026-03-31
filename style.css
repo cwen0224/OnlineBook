@@ -278,7 +278,7 @@ body {
 .char-rt.zhuyin {
     display: inline-flex;
     flex-direction: row;          /* side-by-side: [main-col] [tone-col] */
-    align-items: flex-start;      /* both columns top-aligned */
+    align-items: center;          /* Vertically center the zhuyin symbols next to the kanji instead of top-aligning */
     font-family: 'BiauKai', 'DFKai-sb', 'MingLiU', serif;
     font-size: 0.35em;            /* Math: 0.35 * 3 symbols = ~1em (matches char height) */
     color: #333;
