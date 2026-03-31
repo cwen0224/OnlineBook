@@ -231,7 +231,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end; /* all char bottoms snap to same baseline */
-    margin-bottom: var(--line-gap, 10px);
+    margin-bottom: 0;         /* Spacing is now unified using line-height */
+    line-height: var(--line-height, 2.5); /* Massive line-height to accommodate Zhuyin and gaps */
     gap: 1.8em;               /* Final User-Approved Value */
 }
 

@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lineSlider.addEventListener('input', (e) => {
             const val = e.target.value;
             lineVal.textContent = val;
-            document.documentElement.style.setProperty('--line-gap', val + 'px');
+            document.documentElement.style.setProperty('--line-height', val);
         });
     }
 
