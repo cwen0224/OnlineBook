@@ -232,8 +232,9 @@ body {
     flex-wrap: wrap;
     align-items: flex-end; /* all char bottoms snap to same baseline */
     margin-bottom: var(--line-gap, 10px); /* Manual line break spacing */
-    row-gap: var(--line-gap, 10px);       /* Automatic wrapping spacing within one flex block */
-    gap: 1.8em;               /* Final User-Approved Value */
+    row-gap: var(--line-gap, 10px);       /* Automatic wrapping spacing */
+    column-gap: var(--char-gap, 1.8em);   /* FIXED: Now accurately reflects the slider! */
+    line-height: 1;                       /* REMOVE Extra browser spacing for perfect pixel sync */
 }
 
 /* ── char-block: wrapper for one character + its phonetics ── */
@@ -349,5 +350,5 @@ body[data-phonetic="pinyin"]  .char-rt.pinyin  { display: block !important; }
        share the same bottom baseline as the parent text-line. */
     align-items: flex-end;
     /* Ensure distance between characters within a word group too */
-    gap: 1.8em;               /* Final User-Approved Value */
+    column-gap: var(--char-gap, 1.8em);
 }
