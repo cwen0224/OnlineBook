@@ -233,8 +233,23 @@ body {
     align-items: flex-end; /* all char bottoms snap to same baseline */
     margin-bottom: var(--line-gap, 10px); /* Manual line break spacing */
     row-gap: var(--line-gap, 10px);       /* Automatic wrapping spacing */
-    column-gap: var(--char-gap, 1.8em);   /* FIXED: Now accurately reflects the slider! */
-    line-height: 1;                       /* REMOVE Extra browser spacing for perfect pixel sync */
+    column-gap: var(--char-gap, 1.8em);   
+    line-height: 1;                       
+}
+
+/* -- Punctuation Mastering Engine Modes -- */
+
+/* MODE: Justified */
+.text-line.is-justified {
+    justify-content: space-between;
+}
+
+/* MODE: Sticky (Atomic unit for Char + Punctuation) */
+.sticky-pair {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: flex-end;
+    white-space: nowrap; /* CRITICAL: Prevents punctuation from splitting from its char */
 }
 
 /* ── char-block: wrapper for one character + its phonetics ── */

@@ -7,13 +7,27 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>True 3D Page Flip Book</title>
-    <link rel="stylesheet" href="style.css?v=202603312250">
+    <link rel="stylesheet" href="style.css?v=202603312300">
 </head>
 <body>
 
     <!-- Tuning Panel -->
-    <div id="tuning-panel" style="position: fixed; top: 70px; right: 20px; background: rgba(0,0,0,0.85); color: white; padding: 15px; border-radius: 15px; z-index: 5000; font-family: sans-serif; font-size: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); width: 240px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); max-height: 85vh; overflow-y: auto;">
-        <div style="margin-bottom: 12px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; color: #ffcc00;">🎨 視覺氣氛中控台 (V.2200)</div>
+    <div id="tuning-panel" style="position: fixed; top: 70px; right: 20px; background: rgba(0,0,0,0.85); color: white; padding: 15px; border-radius: 15px; z-index: 5000; font-family: sans-serif; font-size: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); width: 250px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); max-height: 85vh; overflow-y: auto;">
+        <div style="margin-bottom: 12px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; color: #ffcc00; display: flex; justify-content: space-between; align-items: center;">
+            <span>🎨 繪本排版大師 (V.2300)</span>
+            <span style="font-size: 10px; opacity: 0.6;">FINAL MASTER</span>
+        </div>
+
+        <!-- Punctuation Engine Section -->
+        <div style="margin-bottom:15px; background: rgba(255,165,0,0.1); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,165,0,0.2);">
+            <div style="font-weight:bold; margin-bottom:8px; color: #ffa500;">✨ 標點引擎 (Punctuation)</div>
+            <select id="punc-engine" style="width: 100%; background: #333; color: white; border: 1px solid #555; border-radius: 5px; padding: 5px; font-size: 11px;">
+                <option value="normal">模式 A：一般模式 (原始排版)</option>
+                <option value="sticky" selected>模式 B：粘滯模式 (防行首)</option>
+                <option value="justified">模式 C：智慧智慧對齊 (兩端對齊)</option>
+            </select>
+            <div style="margin-top: 8px; font-size: 10px; opacity: 0.7; line-height: 1.4;">* 此模式能有效防止標點符號出現在行首。</div>
+        </div>
         
         <!-- Typography Section -->
         <div style="margin-bottom:15px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px;">
@@ -56,8 +70,8 @@
 
     <!-- Version banner that drops down on load -->
     <!-- Version banner with more visible styling: Bright Amber background -->
-    <div id="version-banner" style="position: fixed; top: -50px; left: 50%; transform: translateX(-50%); background: #ffcc00; padding: 5px 20px; border-radius: 0 0 10px 10px; color: #000; font-family: monospace; font-weight: bold; font-size: 1rem; z-index: 3000; backdrop-filter: blur(5px); transition: top 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 2px solid #fff; border-top: none;">V.202603312250</div>
+    <div id="version-banner" style="position: fixed; top: -50px; left: 50%; transform: translateX(-50%); background: #ffcc00; padding: 5px 20px; border-radius: 0 0 10px 10px; color: #000; font-family: monospace; font-weight: bold; font-size: 1rem; z-index: 3000; backdrop-filter: blur(5px); transition: top 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 2px solid #fff; border-top: none;">V.202603312300</div>
 
-    <script src="script.js?v=202603312250"></script>
+    <script src="script.js?v=202603312300"></script>
 </body>
 </html>

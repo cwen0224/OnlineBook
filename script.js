@@ -69,6 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render a zhuyin string as a proper two-column flex block:
     //   Left col:  consonant + medial + vowel stacked vertically (each as a <span>)
     //   Right col: tone mark at the top (always stays horizontal, never rotated)
+    let currentPuncEngine = 'sticky';
+
     const renderZhuyin = (z) => {
         if (!z) return '';
         const chars = [...z]; // spread to handle full Unicode
@@ -79,58 +81,57 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<div class="zh-col-main">${bodyHtml}</div>${toneHtml}`;
     };
 
+    const renderToken = (t) => {
+        if (t.type === 'char' || t.type === 'punctuation') {
+            let wUnits = t.width_units ? `flex-basis: ${t.width_units}em; min-width: ${t.width_units}em;` : '';
+            let html = `<div class="char-block" style="${wUnits}">`;
+            if (t.type === 'char') {
+                html += `<div class="char-rt pinyin">${t.pinyin || ''}</div>`;
+                html += `<div class="char-row">`;
+                html += `<div class="char-base ${t.polyphone || t.emphasis ? 'polyphone-warning' : ''}">${t.char}</div>`;
+                html += `<div class="char-rt zhuyin">${renderZhuyin(t.zhuyin)}</div>`;
+                html += `</div>`;
+            } else {
+                html += `<div class="char-row"><div class="char-base">${t.char}</div></div>`;
+            }
+            html += `</div>`;
+            return html;
+        } else if (t.type === 'space') {
+            return `<div class="char-block space" style="min-width: 0.5em;"></div>`;
+        }
+        return '';
+    };
+
     const generateHTMLFromJson = (pageData) => {
         if (!pageData || !pageData.lines) return '';
         let scale = pageData.ruby_scale || 0.5;
+        let lineClass = currentPuncEngine === 'justified' ? 'text-line is-justified' : 'text-line';
         let html = `<div class="page-text-container" style="--ruby-scale: ${scale};">`;
+        
         pageData.lines.forEach(line => {
             let indent = line.indent ? (line.indent.level + 'em') : '0';
-            html += `<div class="text-line ${line.role || 'body'}" style="margin-left: ${indent};">`;
+            html += `<div class="${lineClass} ${line.role || 'body'}" style="margin-left: ${indent};">`;
             
+            // Group tokens into word groups as before
             let currentGroup = [];
-            let groups = [];
-            
-            for (let i = 0; i < line.tokens.length; i++) {
-                let t = line.tokens[i];
-                if (t.type === 'word_boundary') continue; // Bound marker
-                
-                if (i > 0 && line.tokens[i-1].type !== 'word_boundary') {
-                    // Separate unless previous was boundary
-                    if (currentGroup.length > 0) {
-                        groups.push(currentGroup);
-                        currentGroup = [];
-                    }
+            let tokens = line.tokens;
+
+            for (let i = 0; i < tokens.length; i++) {
+                let t = tokens[i];
+                if (t.type === 'word_boundary') continue;
+
+                // LOGIC: Punctuation Sticky Hook
+                if (currentPuncEngine !== 'normal' && t.type === 'char' && i + 1 < tokens.length && tokens[i+1].type === 'punctuation') {
+                    // Wrap Char + Punctuation in a sticky pair
+                    html += `<div class="sticky-pair">`;
+                    html += renderToken(t);
+                    html += renderToken(tokens[i+1]);
+                    html += `</div>`;
+                    i++; // skip the punctuation token
+                } else {
+                    html += renderToken(t);
                 }
-                currentGroup.push(t);
             }
-            if (currentGroup.length > 0) groups.push(currentGroup);
-
-            groups.forEach(grp => {
-                if (grp.length > 1) html += `<div class="word-group">`;
-                grp.forEach(t => {
-                    if (t.type === 'char' || t.type === 'punctuation') {
-                        let wUnits = t.width_units ? `flex-basis: ${t.width_units}em; min-width: ${t.width_units}em;` : '';
-                        html += `<div class="char-block" style="${wUnits}">`;
-                        if (t.type === 'char') {
-                            // Pinyin sits above as a separate row (hidden by default)
-                            html += `<div class="char-rt pinyin">${t.pinyin || ''}</div>`;
-                            // char-row: [kanji] + [zhuyin two-column block]
-                            html += `<div class="char-row">`;
-                            html += `<div class="char-base ${t.polyphone || t.emphasis ? 'polyphone-warning' : ''}">${t.char}</div>`;
-                            html += `<div class="char-rt zhuyin">${renderZhuyin(t.zhuyin)}</div>`;
-                            html += `</div>`;
-                        } else {
-                            html += `<div class="char-row"><div class="char-base">${t.char}</div></div>`;
-                        }
-                        html += `</div>`;
-                    } else if (t.type === 'space') {
-                        // Using a generic block for space parsing
-                        html += `<div class="char-block space" style="min-width: 0.5em;"></div>`;
-                    }
-                });
-                if (grp.length > 1) html += `</div>`;
-            });
-
             html += `</div>`;
         });
         html += `</div>`;
@@ -355,6 +356,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = e.target.value;
             radiusVal.textContent = val;
             document.documentElement.style.setProperty('--box-radius', val + 'px');
+        });
+    }
+
+    // Punctuation Engine Selector Logic (V.2300)
+    const puncEngineSelector = document.getElementById('punc-engine');
+    if (puncEngineSelector) {
+        puncEngineSelector.addEventListener('change', (e) => {
+            currentPuncEngine = e.target.value;
+            // Immediate full re-render of the book to apply the new engine rules
+            buildBook();
+            console.log("Punctuation Engine Switched to:", currentPuncEngine);
         });
     }
 });
