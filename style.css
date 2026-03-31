@@ -228,7 +228,10 @@ body {
     flex-wrap: wrap;
     align-items: flex-end; /* all char bottoms snap to same baseline */
     margin-bottom: 10px;
-    gap: 0;
+    /* Use gap to strictly enforce distance between character groups.
+       Flexbox gap is measured from the edges of the bounding boxes,
+       so it automatically accounts for the width of zhuyin symbols. */
+    gap: 0.8em;
 }
 
 /* ── char-block: wrapper for one character + its phonetics ── */
@@ -282,7 +285,7 @@ body {
     font-family: 'BiauKai', 'DFKai-sb', 'MingLiU', serif;
     font-size: 0.35em;            /* Math: 0.35 * 3 symbols = ~1em (matches char height) */
     color: #333;
-    margin-left: 0.1em;           /* Tight spacing to its own kanji */
+    margin-left: 0.25em;          /* Increased spacing from own kanji to ensure clarity */
     line-height: 1;
     align-self: stretch;
 }
@@ -342,5 +345,5 @@ body[data-phonetic="pinyin"]  .char-rt.pinyin  { display: block !important; }
        share the same bottom baseline as the parent text-line. */
     align-items: flex-end;
     /* Ensure distance between characters within a word group too */
-    gap: 0.5em;
+    gap: 0.8em;
 }
