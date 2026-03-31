@@ -175,9 +175,7 @@ body {
     50% { transform: translateX(-15px); }
 }
 
-/* Ruby Text Toggle Core Logic */
-body[data-phonetic="zhuyin"] .char-rt.pinyin { display: none !important; }
-body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
+/* Ruby Text Toggle — managed by body[data-phonetic] rules at bottom of file */
 
 /* Phonetic UI and Ruby Block Structures */
 #phonetic-toggle-btn {
@@ -247,7 +245,10 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
 .char-row {
     display: inline-flex;
     flex-direction: row;
-    align-items: center;
+    /* flex-end: bottoms of char-base and zhuyin-col align at same line.
+       This ensures ALL characters sit on the same baseline regardless
+       of how many phonetic symbols they have above them.            */
+    align-items: flex-end;
 }
 
 /* ── The Chinese character ── */

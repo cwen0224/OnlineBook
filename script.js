@@ -199,16 +199,14 @@ document.addEventListener('DOMContentLoaded', () => {
         leafObj.el.style.zIndex = currentZ;
         leafObj.el.style.transform = `rotateY(${angle}deg) translateZ(${leafObj.baseZ}px)`;
         
-        // progress: 0 = flat/unflipped, 1 = fully flipped
-        // Shadow should peak at mid-flip (90°) and be 0 at both rest states
-        const progress = Math.abs(angle) / 180;
-        const midShadow = Math.sin(Math.abs(angle) * Math.PI / 180).toFixed(2);
-        const frontShadow = leafObj.el.querySelector('.front .shadow-overlay');
-        const backShadow = leafObj.el.querySelector('.back .shadow-overlay');
-        // Front face darkens as it lifts, clears as it lands
-        frontShadow.style.opacity = (progress * 0.5).toFixed(2);
-        // Back face: only show shadow while actively mid-flip
-        backShadow.style.opacity = (midShadow * 0.4).toFixed(2);
+        // Shadow: ONLY active during mid-flip. Explicitly 0 at both rest positions.
+        const absAngle = Math.abs(angle);
+        // At exactly 0° or 180°, shadow is always strictly 0 (no floating point risk)
+        const shadowVal = (absAngle === 0 || absAngle === 180)
+            ? '0'
+            : (Math.sin(absAngle * Math.PI / 180) * 0.25).toFixed(2);
+        leafObj.el.querySelector('.front .shadow-overlay').style.opacity = shadowVal;
+        leafObj.el.querySelector('.back .shadow-overlay').style.opacity = shadowVal;
     }
 
     book.addEventListener('pointerdown', (e) => {
