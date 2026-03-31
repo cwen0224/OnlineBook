@@ -209,28 +209,28 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
 /* Text Container */
 .page-text-container {
     position: absolute;
-    width: 60%;
-    bottom: 20%;
-    left: 20%; /* Keep it centered loosely */
+    width: 65%;
+    bottom: 15%;
+    left: 17.5%;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     align-items: flex-start;
-    padding: 20px 30px;
-    background: rgba(255, 255, 255, 0.85);
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    border: 1px solid rgba(255,255,255,0.5);
-    pointer-events: none; /* Text shouldn't block pointer drags */
+    padding: 22px 28px 18px;
+    background: rgba(255, 248, 230, 0.92); /* warm cream, highly opaque */
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.7);
+    pointer-events: none;
 }
 
-/* Fix width scaling issues for absolute text blocks inside the 3d face */
 .text-line {
     display: flex;
-    flex-wrap: wrap; /* ensures row layout wrapping perfectly */
-    align-items: flex-end;
-    margin-bottom: 25px; /* room between rows */
+    flex-wrap: wrap;
+    align-items: center; /* vertically center chars+zhuyin column */
+    margin-bottom: 10px;
+    gap: 0; /* spacing handled by char-block margin */
 }
 
 /* ── char-block: wrapper for one character + its phonetics ── */
@@ -281,24 +281,24 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
     writing-mode: vertical-rl;
     text-orientation: mixed;
     font-family: 'BiauKai', 'DFKai-sb', 'MingLiU', serif;
-    font-size: 0.4em;
+    font-size: 0.45em;  /* slightly larger for readability */
     line-height: 1;
-    color: #444;
-    margin-left: 1px;
+    color: #333;
+    margin-left: 2px;
     letter-spacing: 0;
-    /* width is naturally 0.4em — one character wide */
+    /* Align to top so short phonetics stay near the character top */
+    align-self: flex-start;
 }
 
-/* ── Pinyin: sits ABOVE the char-row, hidden by default ── */
+/* Pinyin: sits ABOVE the char-row, hidden by default */
 .char-rt.pinyin {
     font-family: 'Arial', 'Helvetica', sans-serif;
-    font-size: 0.3em;
-    color: #666;
-    line-height: 1.2;
+    font-size: 0.32em;
+    color: #555;
+    line-height: 1.3;
     white-space: nowrap;
-    /* Center over the character width */
     align-self: center;
-    margin-bottom: 1px;
+    margin-bottom: 2px;
 }
 
 /* ── Phonetic visibility switcher ── */
