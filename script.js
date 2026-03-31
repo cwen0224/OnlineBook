@@ -168,9 +168,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function justifyBlocks(lineDiv) {
         if (currentPuncEngine !== 'adobe') return;
-        const selectors = '.char-block, .sticky-pair';
-        const blocks = [...lineDiv.querySelectorAll(selectors)];
         
+        // V.2480 Fix: ONLY target top-level children to avoid double-counting 
+        // nested .char-blocks inside .sticky-pairs.
+        const blocks = [...lineDiv.children].filter(el => 
+            el.classList.contains('char-block') || el.classList.contains('sticky-pair')
+        );
+        
+        if (blocks.length === 0) return;
+
         // 1. Initial State: Clear any JS margins
         blocks.forEach(b => { 
             b.style.marginRight = ''; 
@@ -182,38 +188,33 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Identify Rows within the paragraph/line div
         const rows = groupIntoRows(blocks);
         
-        // 3. Precise width via getComputedStyle (ignores 3D transform distortion)
+        // 3. Precise width via getComputedStyle
         const lineWidth = parseFloat(getComputedStyle(lineDiv).width);
 
         rows.forEach((row, i) => {
-            // Rule: Don't justify paragraph last lines or single-item rows
             if (i === rows.length - 1 || row.length <= 1) {
                 row.forEach(b => b.style.marginRight = '');
                 return;
             }
             
-            // Total width of characters in this row
             let totalW = 0;
             row.forEach(b => {
                 totalW += parseFloat(getComputedStyle(b).width);
             });
             
-            // V.2470: Balanced Threshold Rule
-            // Only skip justification if the row is extremely sparse (less than 30% width).
-            // This ensures meaningful rows are stretched as requested.
+            // Threshold: Only stretch if row is reasonably full (V.2470 balance)
             if (totalW < lineWidth * 0.3) {
                 row.forEach(b => b.style.marginRight = '');
                 return;
             }
             
-            // Calculate pixel gap to fill the remainder
             const extra = (lineWidth - totalW) / (row.length - 1);
             
             row.forEach((b, j) => {
                 if (j < row.length - 1) {
                     b.style.marginRight = `${extra}px`;
                 } else {
-                    b.style.marginRight = ''; // Line end is flushed right
+                    b.style.marginRight = ''; 
                 }
             });
         });
