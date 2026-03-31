@@ -182,18 +182,17 @@ body {
     position: fixed;
     top: 20px;
     right: 20px;
-    z-index: 5000;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    border: 1px solid rgba(255,255,255,0.2);
     padding: 10px 20px;
-    border-radius: 20px;
-    font-size: 1.1rem;
-    font-weight: bold;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 30px;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    z-index: 2000;
+    font-family: 'Heiti TC', sans-serif;
+    font-size: 14px;
     backdrop-filter: blur(5px);
-    transition: transform 0.1s, background 0.2s;
+    transition: all 0.3s ease;
 }
 
 #phonetic-toggle-btn:hover {
@@ -345,5 +344,6 @@ body[data-phonetic="pinyin"]  .char-rt.pinyin  { display: block !important; }
        share the same bottom baseline as the parent text-line. */
     align-items: flex-end;
     /* Ensure distance between characters within a word group too */
-    gap: 0.8em;
+    /* Ensure distance between characters within a word group too */
+    gap: 1.2em;
 }

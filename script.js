@@ -138,7 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let mockDataJson = null;
-    fetch('mockData.json')
+    // Add cache-busting to ensure mockData.json is always fresh
+    fetch('mockData.json?v=' + Date.now())
         .then(res => res.json())
         .then(data => {
             mockDataJson = data;
