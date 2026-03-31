@@ -305,7 +305,8 @@ body {
     align-self: stretch;          /* Stretch column to fill height so center alignment works */
     font-size: 0.9em;             /* tone mark slightly smaller */
     margin-left: -0.05em;         /* pull tone mark slightly closer to phonetic symbols */
-    padding-right: 0.15em;        /* prevent wide tone fonts like BiauKai from bleeding into the next char */
+    padding-right: 0.4em;         /* CRITICAL: Extra space to prevent wide tone marks (like ˇ) from bleeding into next char */
+    min-width: 0.8em;             /* Force a minimum box width even if the font says it's narrow */
 }
 
 /* Each individual phonetic glyph */
