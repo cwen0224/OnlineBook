@@ -246,15 +246,19 @@ body {
 
 /* MODE: Adobe Full Justify (The Pro indesign look) */
 .text-line.is-adobe-justified {
-    display: block;              /* Override flex to allow text-align justify to work on inline-blocks */
+    display: block;              /* Override flex */
     text-align: justify;
-    text-align-last: left;       /* Prevents the last line from being stretched unnaturally */
+    text-align-last: left;       /* Prevents last line stretch */
     width: 100%;
+    word-spacing: var(--char-gap, 0); /* Horizontal gap adjustment via space expansion */
 }
 
+/* Ensure vertical spacing in block mode */
 .text-line.is-adobe-justified .char-block,
 .text-line.is-adobe-justified .sticky-pair {
-    display: inline-flex;        /* Keep internal structure but allow them to be justified as inline items */
+    display: inline-flex;
+    margin-bottom: var(--line-gap, 10px); /* Physics-synced vertical spacing */
+    word-spacing: normal;                 /* Reset inside units */
 }
 
 /* MODE: Sticky (Atomic unit for Char + Punctuation) */

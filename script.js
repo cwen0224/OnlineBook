@@ -129,10 +129,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     html += `<div class="sticky-pair">`;
                     html += renderToken(t);
                     html += renderToken(tokens[i+1]);
-                    html += `</div>`;
+                    html += `</div> `; // SPACE Added
                     i++; // skip the punctuation token
                 } else {
-                    html += renderToken(t);
+                    html += renderToken(t) + ' '; // SPACE Added
                 }
             }
             html += `</div>`;
