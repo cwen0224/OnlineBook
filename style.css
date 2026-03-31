@@ -231,7 +231,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end; /* all char bottoms snap to same baseline */
-    margin-bottom: 10px;
+    margin-bottom: var(--line-gap, 10px);
     gap: 1.8em;               /* Final User-Approved Value */
 }
 

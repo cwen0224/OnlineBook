@@ -285,11 +285,13 @@ document.addEventListener('DOMContentLoaded', () => {
     book.addEventListener('pointerup', endDrag);
     book.addEventListener('pointercancel', endDrag);
 
-    // Tuning Slider Logic (V.2200)
+    // Tuning Slider Logic (V.2220)
     const sizeSlider = document.getElementById('size-slider');
     const sizeVal = document.getElementById('size-val');
     const gapSlider = document.getElementById('gap-slider');
     const gapVal = document.getElementById('gap-val');
+    const lineSlider = document.getElementById('line-slider');
+    const lineVal = document.getElementById('line-val');
     
     const widthSlider = document.getElementById('width-slider');
     const widthVal = document.getElementById('width-val');
@@ -313,6 +315,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = e.target.value;
             gapVal.textContent = val;
             document.documentElement.style.setProperty('--char-gap', val + 'em');
+        });
+    }
+
+    if (lineSlider && lineVal) {
+        lineSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            lineVal.textContent = val;
+            document.documentElement.style.setProperty('--line-gap', val + 'px');
         });
     }
 
