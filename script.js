@@ -142,19 +142,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * JS Adobe Master Engine (V.2420)
+     * JS Adobe Master Engine (V.2430)
      * Groups characters by offsetTop with dynamic tolerance and applies sub-pixel 
-     * alignment using getBoundingClientRect.
+     * alignment using getComputedStyle for stability in 3D environments.
      */
     function groupIntoRows(elements) {
         const rows = [];
         let cur = [], curTop = null;
-
         elements.forEach(el => {
             const top = el.offsetTop;
-            // Dynamic tolerance: 30% of element height to handle bopomofo variations
             const tol = el.offsetHeight * 0.3;
-
             if (curTop === null || Math.abs(top - curTop) > tol) {
                 if (cur.length) rows.push(cur);
                 cur = [];
@@ -162,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             cur.push(el);
         });
-
         if (cur.length) rows.push(cur);
         return rows;
     }
@@ -172,40 +168,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectors = '.char-block, .sticky-pair';
         const blocks = [...container.querySelectorAll(selectors)];
         
-        // 1. RESET (Strict order: reset -> measure -> apply)
+        // 1. CLEAR (Strictly clear inline margin to allow fresh layout measurement)
         blocks.forEach(b => { 
-            b.style.marginRight = '0px'; 
-            b.style.transition = 'none'; 
+            b.style.marginRight = ''; 
         });
 
-        // Force reflow
+        // Force Layout Reflow
         container.offsetHeight;
 
         // 2. GROUP
         const rows = groupIntoRows(blocks);
         
-        // 3. MEASURE Using Sub-pixel Precision
-        const containerRect = container.getBoundingClientRect();
-        const containerWidth = containerRect.width;
+        // 3. MEASURE Using Computed Styles (Ignores 3D Transform scaling)
+        const containerWidth = parseFloat(getComputedStyle(container).width);
 
         rows.forEach((row, i) => {
-            // Standard Adobe Rule: Don't justify paragraph last lines or single items
+            // Rule: Don't justify paragraph last lines or single-item rows
             if (i === rows.length - 1 || row.length <= 1) {
-                row.forEach(b => b.style.marginRight = '0px');
+                row.forEach(b => b.style.marginRight = '');
                 return;
             }
             
-            // Sum up widths using sub-pixel getBoundingClientRect
+            // Measure total width of blocks in this row
             const totalW = row.reduce((sum, b) => {
-                return sum + b.getBoundingClientRect().width;
+                return sum + parseFloat(getComputedStyle(b).width);
             }, 0);
             
-            // Calculate extra space per gap
-            const extra = (containerWidth - totalW) / (row.length - 1);
+            // Calculate and apply distribution
+            const availableSpace = containerWidth - totalW;
+            const extra = availableSpace / (row.length - 1);
             
             row.forEach((b, j) => {
-                // Last item in row should have 0 margin to stay flushed right
-                b.style.marginRight = j < row.length - 1 ? `${extra}px` : '0px';
+                if (j < row.length - 1) {
+                    b.style.marginRight = `${extra}px`;
+                } else {
+                    b.style.marginRight = ''; // Flush right
+                }
             });
         });
     }
@@ -268,9 +266,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const leafObj = { el: leaf, index: i, baseZ: TOTAL_LEAVES - i, angle: 0, isAnimating: false, timer: null };
             leaves.push(leafObj);
             updateLeafTransform(leafObj, 0); 
+            
+            // Listen for 3D flip animation end to re-justify
+            leaf.addEventListener('transitionend', (e) => {
+                if (e.propertyName === 'transform' && e.target === leaf) {
+                    applyAllJustification();
+                }
+            });
         }
-        // Force JS Justification after DOM construction
-        setTimeout(applyAllJustification, 50);
+        
+        // Initial Justification with Double RAF and Font Readiness
+        if (document.fonts) {
+            document.fonts.ready.then(() => {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        applyAllJustification();
+                    });
+                });
+            });
+        } else {
+            setTimeout(applyAllJustification, 300);
+        }
+        
         window.addEventListener('resize', applyAllJustification);
     }
 
