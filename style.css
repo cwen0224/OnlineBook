@@ -280,7 +280,7 @@ body {
     flex-direction: row;          /* side-by-side: [main-col] [tone-col] */
     align-items: flex-start;      /* both columns top-aligned */
     font-family: 'BiauKai', 'DFKai-sb', 'MingLiU', serif;
-    font-size: 0.42em;            /* ~1/3 of char height per symbol */
+    font-size: 0.35em;            /* Math: 0.35 * 3 symbols = ~1em (matches char height) */
     color: #333;
     margin-left: 0.1em;           /* Tight spacing to its own kanji */
     line-height: 1;
@@ -309,7 +309,7 @@ body {
 .zh-c {
     display: block;
     text-align: center;
-    line-height: 1.05;
+    line-height: 0.9;             /* Reduced vertical spacing so 3 symbols pack tightly into the char height */
     /* NO writing-mode — every glyph stays in its natural orientation */
 }
 
