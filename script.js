@@ -186,8 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const lineWidth = parseFloat(getComputedStyle(lineDiv).width);
 
         rows.forEach((row, i) => {
-            // Standard InDesign/Adobe Rule:
-            // Do NOT justify the last line of a paragraph OR single-item rows
+            // Rule: Don't justify paragraph last lines or single-item rows
             if (i === rows.length - 1 || row.length <= 1) {
                 row.forEach(b => b.style.marginRight = '');
                 return;
@@ -198,6 +197,14 @@ document.addEventListener('DOMContentLoaded', () => {
             row.forEach(b => {
                 totalW += parseFloat(getComputedStyle(b).width);
             });
+            
+            // V.2460: Fill Threshold Rule
+            // If the row is too "empty" (less than 75% of available width),
+            // don't stretch it excessively. Keep it naturally spaced.
+            if (totalW < lineWidth * 0.75) {
+                row.forEach(b => b.style.marginRight = '');
+                return;
+            }
             
             // Calculate pixel gap to fill the remainder
             const extra = (lineWidth - totalW) / (row.length - 1);
@@ -213,6 +220,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applyAllJustification() {
+        // V.2460 Security: Don't run logic while user is interacting with 3D elements
+        // This prevents the "jumping" effect during page flip or dragging.
+        if (isDragging) return;
+        
         if (currentPuncEngine !== 'adobe') {
             document.querySelectorAll('.char-block, .sticky-pair').forEach(b => b.style.marginRight = '');
             return;
