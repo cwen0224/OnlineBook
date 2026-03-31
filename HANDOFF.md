@@ -1,12 +1,12 @@
-## 🚀 Recent Critical Fixes (V.2000 - V.2230 FINAL MASTER)
+## 🚀 Recent Critical Fixes (V.2000 - V.2240 DUAL-GAP MASTER)
 
-### 1. 💾 Cache-Busting Definitive Solution (V.2230)
+### 1. 💾 Cache-Busting Definitive Solution (V.2240)
 - **Status**: Production Ready.
 
-### 2. 📏 Visual Atmosphere & Typography Master (V.2230)
-- **Unified Line Spacing**: Fixed the "Manual vs Auto" line gap discrepancy by switching to a pure CSS `line-height` model. 
+### 2. 📏 Visual Atmosphere & Typography Master (V.2240)
+- **Dual-Gap Sync**: Fixed the "Manual vs Auto" line gap discrepancy by using a unified `--line-gap` variable that drives both CSS `row-gap` (for auto-wrap) and `margin-bottom` (for manual lines).
 - **Visual Mastering Dashboard**: 
-    - **Typography**: Size, Char Gap, **Line Height (Multiplier)**.
+    - **Typography**: Size (rem), Char Gap (em), **Line Gap (px)**.
     - **Container Atmosphere**: Width, BG Opacity, Backdrop Blur, Border Radius.
 - **Stress-Testing Data**: `mockData.json` updated with correct schema and diverse text lengths.
 - **Flexbox Engine**: Pure Flexbox, 100% responsive within the page container.
