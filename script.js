@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //   Left col:  consonant + medial + vowel stacked vertically (each as a <span>)
     //   Right col: tone mark at the top (always stays horizontal, never rotated)
     
-    // Initial State: Read from DOM or fallback
+    // Initial State: Read from DOM or fallback (V.2450)
     const puncSelector = document.getElementById('punc-engine');
     let currentPuncEngine = puncSelector ? puncSelector.value : 'adobe';
 
@@ -118,7 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         pageData.lines.forEach(line => {
             let indent = line.indent ? (line.indent.level + 'em') : '0';
-            html += `<div class="${lineClass} ${line.role || 'body'}" style="margin-left: ${indent};">`;
+            // V.2450: Use padding-left instead of margin-left to keep width: 100% safe
+            html += `<div class="${lineClass} ${line.role || 'body'}" style="padding-left: ${indent};">`;
             
             let tokens = line.tokens;
 
