@@ -198,10 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalW += parseFloat(getComputedStyle(b).width);
             });
             
-            // V.2460: Fill Threshold Rule
-            // If the row is too "empty" (less than 75% of available width),
-            // don't stretch it excessively. Keep it naturally spaced.
-            if (totalW < lineWidth * 0.75) {
+            // V.2470: Balanced Threshold Rule
+            // Only skip justification if the row is extremely sparse (less than 30% width).
+            // This ensures meaningful rows are stretched as requested.
+            if (totalW < lineWidth * 0.3) {
                 row.forEach(b => b.style.marginRight = '');
                 return;
             }
@@ -393,6 +393,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         updateLeafTransform(leafObj, snapAngle);
         
+        // V.2470: Trigger immediate justification for the target position
+        setTimeout(applyAllJustification, 50);
+
         leafObj.isAnimating = true;
         leafObj.timer = setTimeout(() => {
             leafObj.isAnimating = false;
