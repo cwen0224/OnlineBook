@@ -63,12 +63,20 @@ document.addEventListener('DOMContentLoaded', () => {
     book.innerHTML = ''; 
 
     // ---- JSON Layout Parse Engine ----
-    // Split bopomofo into phonetic body + tone mark
-    const splitZhuyin = (z) => {
-        if (!z) return { body: '', tone: '' };
-        // Tone marks: ˊ(2nd) ˇ(3rd) ˋ(4th) ˙(neutral) — always at end of string
-        const m = z.match(/^([^ˊˇˋ˙]*?)([ˊˇˋ˙]?)$/);
-        return m ? { body: m[1], tone: m[2] } : { body: z, tone: '' };
+    // Tone marks: ˊ ˇ ˋ ˙ (U+02CA, U+02C7, U+02CB, U+02D9)
+    const TONE_MARKS = new Set(['ˊ','ˇ','ˋ','˙']);
+
+    // Render a zhuyin string as a proper two-column flex block:
+    //   Left col:  consonant + medial + vowel stacked vertically (each as a <span>)
+    //   Right col: tone mark at the top (always stays horizontal, never rotated)
+    const renderZhuyin = (z) => {
+        if (!z) return '';
+        const chars = [...z]; // spread to handle full Unicode
+        const body = chars.filter(c => !TONE_MARKS.has(c));
+        const tone = chars.find(c => TONE_MARKS.has(c)) || '';
+        const bodyHtml = body.map(c => `<span class="zh-c">${c}</span>`).join('');
+        const toneHtml = tone ? `<div class="zh-col-tone"><span class="zh-c">${tone}</span></div>` : '';
+        return `<div class="zh-col-main">${bodyHtml}</div>${toneHtml}`;
     };
 
     const generateHTMLFromJson = (pageData) => {
@@ -104,17 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         let wUnits = t.width_units ? `flex-basis: ${t.width_units}em; min-width: ${t.width_units}em;` : '';
                         html += `<div class="char-block" style="${wUnits}">`;
                         if (t.type === 'char') {
-                            // Pinyin sits above as a separate row
+                            // Pinyin sits above as a separate row (hidden by default)
                             html += `<div class="char-rt pinyin">${t.pinyin || ''}</div>`;
-                            // char-row: [kanji] + [zhuyin group]
+                            // char-row: [kanji] + [zhuyin two-column block]
                             html += `<div class="char-row">`;
                             html += `<div class="char-base ${t.polyphone || t.emphasis ? 'polyphone-warning' : ''}">${t.char}</div>`;
-                            // Zhuyin: body (vertical) + tone (horizontal, top-right)
-                            const zh = splitZhuyin(t.zhuyin);
-                            html += `<div class="char-rt zhuyin">`;
-                            html += `<div class="zhuyin-body">${zh.body}</div>`;
-                            if (zh.tone) html += `<div class="zhuyin-tone">${zh.tone}</div>`;
-                            html += `</div>`;
+                            html += `<div class="char-rt zhuyin">${renderZhuyin(t.zhuyin)}</div>`;
                             html += `</div>`;
                         } else {
                             html += `<div class="char-row"><div class="char-base">${t.char}</div></div>`;
