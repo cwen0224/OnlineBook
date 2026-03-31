@@ -236,7 +236,7 @@ body {
     display: inline-flex;
     flex-direction: column;   /* pinyin stacks above the char-row */
     align-items: flex-start;
-    margin: 0 0.25em;         /* IMPORTANT: Large margin so each kanji+zhuyin group is distinct from the next */
+    margin: 0 0.4em 0 0;      /* Enforce strict right-only spacing so the border between groups is exact */
     font-size: 2.2rem;
     vertical-align: bottom;
 }
@@ -303,6 +303,7 @@ body {
     align-self: stretch;          /* Stretch column to fill height so center alignment works */
     font-size: 0.9em;             /* tone mark slightly smaller */
     margin-left: -0.05em;         /* pull tone mark slightly closer to phonetic symbols */
+    padding-right: 0.15em;        /* prevent wide tone fonts like BiauKai from bleeding into the next char */
 }
 
 /* Each individual phonetic glyph */
