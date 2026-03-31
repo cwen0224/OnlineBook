@@ -246,19 +246,25 @@ body {
 
 /* MODE: Adobe Full Justify (The Pro indesign look) */
 .text-line.is-adobe-justified {
-    display: block;              /* Override flex */
-    text-align: justify;
-    text-align-last: left;       /* Prevents last line stretch */
+    display: flex;               /* Return to Flexbox */
+    flex-wrap: wrap;
+    justify-content: space-between;
     width: 100%;
-    word-spacing: var(--char-gap, 0); /* Horizontal gap adjustment via space expansion */
+    column-gap: var(--char-gap, 1.8em);
+    row-gap: var(--line-gap, 10px);
 }
 
-/* Ensure vertical spacing in block mode */
-.text-line.is-adobe-justified .char-block,
-.text-line.is-adobe-justified .sticky-pair {
-    display: inline-flex;
-    margin-bottom: var(--line-gap, 10px); /* Physics-synced vertical spacing */
-    word-spacing: normal;                 /* Reset inside units */
+/* The Ghost Stretcher: Sucks up extra space ONLY on the last row */
+.flex-stretcher {
+    flex: 1 1 auto;              /* Grow to fill remaining space */
+    min-width: 0;
+    pointer-events: none;        /* Don't interfere with interaction */
+}
+
+.text-line.is-adobe-justified::after {
+    content: "";
+    flex: 10 1 auto;             /* Huge weight to ensure it takes ALL extra space on last row */
+    min-width: 0;
 }
 
 /* MODE: Sticky (Atomic unit for Char + Punctuation) */
