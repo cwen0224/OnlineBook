@@ -246,22 +246,31 @@ body {
 
 /* MODE: Adobe Full Justify (The Pro indesign look) */
 .text-line.is-adobe-justified {
-    display: block !important;  /* NATIVE BLOCK ENGINE */
-    width: 100%;
-    text-align: justify;
-    text-align-last: justify;    /* FORCE FULL ALIGNMENT ON EVERY ROW, EVEN SINGLE LINES */
-    text-justify: inter-character; /* THE CJK MAGIC: Distribute between every character */
-    letter-spacing: var(--char-gap, 0); /* User controlled base dispersion */
-    line-height: normal;
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: flex-start; /* Spacing is handled by the springs, not justify-content */
+    width: 100% !important;
+    align-items: flex-end;
+}
+
+/* The Springs: Distribute the space perfectly and evenly */
+.text-line.is-adobe-justified .char-spring {
+    flex: 1 1 0px;               /* Allow equal expansion */
+    min-width: var(--char-gap, 0); /* User controlled minimum gap */
+    height: 1px;
+    pointer-events: none;
+}
+
+/* The Super Ghost: Sucks up ALL space only on the last row of the flex container */
+.text-line.is-adobe-justified .super-ghost {
+    flex: 9999 1 0px;            /* Extreme weight to dominate the last row */
+    min-width: 0;
+    pointer-events: none;
 }
 
 .text-line.is-adobe-justified .char-block,
 .text-line.is-adobe-justified .sticky-pair {
-    display: inline-block;       /* Inline-block elements are the only items that follow inter-character rules perfectly */
-    vertical-align: bottom;
-    margin-bottom: var(--line-gap, 10px);
-    letter-spacing: normal;      /* Reset inside to prevent ruby/base separation */
-    text-align: center;
+    flex: 0 0 auto;              /* Don't stretch the characters themselves */
 }
 
 /* MODE: Sticky (Atomic unit for Char + Punctuation) */
