@@ -285,6 +285,66 @@ document.addEventListener('DOMContentLoaded', () => {
     book.addEventListener('pointerup', endDrag);
     book.addEventListener('pointercancel', endDrag);
 
-    book.addEventListener('pointerup', endDrag);
-    book.addEventListener('pointercancel', endDrag);
+    // Tuning Slider Logic (V.2200)
+    const sizeSlider = document.getElementById('size-slider');
+    const sizeVal = document.getElementById('size-val');
+    const gapSlider = document.getElementById('gap-slider');
+    const gapVal = document.getElementById('gap-val');
+    
+    const widthSlider = document.getElementById('width-slider');
+    const widthVal = document.getElementById('width-val');
+    const opacitySlider = document.getElementById('opacity-slider');
+    const opacityVal = document.getElementById('opacity-val');
+    const blurSlider = document.getElementById('blur-slider');
+    const blurVal = document.getElementById('blur-val');
+    const radiusSlider = document.getElementById('radius-slider');
+    const radiusVal = document.getElementById('radius-val');
+
+    if (sizeSlider && sizeVal) {
+        sizeSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            sizeVal.textContent = val;
+            document.documentElement.style.setProperty('--char-size', val + 'rem');
+        });
+    }
+
+    if (gapSlider && gapVal) {
+        gapSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            gapVal.textContent = val;
+            document.documentElement.style.setProperty('--char-gap', val + 'em');
+        });
+    }
+
+    if (widthSlider && widthVal) {
+        widthSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            widthVal.textContent = val;
+            document.documentElement.style.setProperty('--box-width', val + '%');
+        });
+    }
+
+    if (opacitySlider && opacityVal) {
+        opacitySlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            opacityVal.textContent = val;
+            document.documentElement.style.setProperty('--box-opacity', val);
+        });
+    }
+
+    if (blurSlider && blurVal) {
+        blurSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            blurVal.textContent = val;
+            document.documentElement.style.setProperty('--box-blur', val + 'px');
+        });
+    }
+
+    if (radiusSlider && radiusVal) {
+        radiusSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            radiusVal.textContent = val;
+            document.documentElement.style.setProperty('--box-radius', val + 'px');
+        });
+    }
 });

@@ -207,21 +207,25 @@ body {
 /* Text Container */
 .page-text-container {
     position: absolute;
-    width: 65%;
+    width: var(--box-width, 65%);
     bottom: 15%;
-    left: 17.5%;
+    left: 50%;
+    transform: translateX(-50%); /* Center the container based on its width */
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     align-items: flex-start;
     padding: 22px 28px 18px;
-    background: rgba(255, 248, 230, 0.92); /* warm cream, highly opaque */
-    border-radius: 12px;
-    backdrop-filter: blur(12px);
+    background: rgba(255, 248, 230, var(--box-opacity, 0.92)); 
+    border-radius: var(--box-radius, 12px);
+    backdrop-filter: blur(var(--box-blur, 12px));
     box-shadow: 0 8px 30px rgba(0,0,0,0.25);
     border: 1px solid rgba(255,255,255,0.7);
     pointer-events: none;
+    transition: width 0.1s ease, background 0.1s ease;
 }
+
+
 
 .text-line {
     display: flex;

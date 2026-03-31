@@ -7,11 +7,42 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>True 3D Page Flip Book</title>
-    <link rel="stylesheet" href="style.css?v=202603312100">
+    <link rel="stylesheet" href="style.css?v=202603312200">
 </head>
 <body>
 
     <!-- Tuning Panel -->
+    <div id="tuning-panel" style="position: fixed; top: 70px; right: 20px; background: rgba(0,0,0,0.85); color: white; padding: 15px; border-radius: 15px; z-index: 5000; font-family: sans-serif; font-size: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); width: 240px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); max-height: 85vh; overflow-y: auto;">
+        <div style="margin-bottom: 12px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; color: #ffcc00;">🎨 視覺氣氛中控台 (V.2200)</div>
+        
+        <!-- Typography Section -->
+        <div style="margin-bottom:15px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px;">
+            <div style="font-weight:bold; margin-bottom:8px; opacity:0.8;">【文字排版】</div>
+            <label style="display:block; margin-bottom:5px;">大小 (Size): <span id="size-val">2.2</span>rem</label>
+            <input type="range" id="size-slider" min="1.5" max="5" step="0.1" value="2.2" style="width:100%;">
+            
+            <label style="display:block; margin-top:10px; margin-bottom:5px;">間距 (Gap): <span id="gap-val">1.8</span>em</label>
+            <input type="range" id="gap-slider" min="0" max="3" step="0.1" value="1.8" style="width:100%;">
+        </div>
+
+        <!-- Box Section -->
+        <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px;">
+            <div style="font-weight:bold; margin-bottom:8px; opacity:0.8;">【容器背景】</div>
+            <label style="display:block; margin-bottom:5px;">寬度 (Width): <span id="width-val">65</span>%</label>
+            <input type="range" id="width-slider" min="30" max="95" step="1" value="65" style="width:100%;">
+            
+            <label style="display:block; margin-top:10px; margin-bottom:5px;">透明度 (Opacity): <span id="opacity-val">0.92</span></label>
+            <input type="range" id="opacity-slider" min="0" max="1" step="0.01" value="0.92" style="width:100%;">
+            
+            <label style="display:block; margin-top:10px; margin-bottom:5px;">羽化 (Blur): <span id="blur-val">12</span>px</label>
+            <input type="range" id="blur-slider" min="0" max="40" step="1" value="12" style="width:100%;">
+            
+            <label style="display:block; margin-top:10px; margin-bottom:5px;">圓角 (Radius): <span id="radius-val">12</span>px</label>
+            <input type="range" id="radius-slider" min="0" max="100" step="1" value="12" style="width:100%;">
+        </div>
+        
+        <div style="margin-top:12px; font-size: 11px; opacity: 0.7;">* 調好後請截圖回覆數值</div>
+    </div>
 
     <div id="book" class="book">
         <!-- Leaves dynamically injected here -->
@@ -22,8 +53,8 @@
 
     <!-- Version banner that drops down on load -->
     <!-- Version banner with more visible styling: Bright Amber background -->
-    <div id="version-banner" style="position: fixed; top: -50px; left: 50%; transform: translateX(-50%); background: #ffcc00; padding: 5px 20px; border-radius: 0 0 10px 10px; color: #000; font-family: monospace; font-weight: bold; font-size: 1rem; z-index: 3000; backdrop-filter: blur(5px); transition: top 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 2px solid #fff; border-top: none;">V.202603312100</div>
+    <div id="version-banner" style="position: fixed; top: -50px; left: 50%; transform: translateX(-50%); background: #ffcc00; padding: 5px 20px; border-radius: 0 0 10px 10px; color: #000; font-family: monospace; font-weight: bold; font-size: 1rem; z-index: 3000; backdrop-filter: blur(5px); transition: top 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 2px solid #fff; border-top: none;">V.202603312200</div>
 
-    <script src="script.js?v=202603312100"></script>
+    <script src="script.js?v=202603312200"></script>
 </body>
 </html>

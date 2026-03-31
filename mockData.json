@@ -1,34 +1,29 @@
-[
-  {
-    "page": 1,
-    "layout": "text_bottom",
-    "text_direction": "ltr",
-    "ruby_scale": 0.5,
-    "lines": [
-      {
-        "line_id": "p1-l1",
-        "role": "body",
-        "indent": { "level": 0, "unit": "char" },
-        "ruby_scale": null,
-        "tokens": [
-          { "type": "char", "char": "小", "zhuyin": "ㄒㄧㄠˇ", "zhuyin_parts": { "initial": "ㄒ", "final": "ㄧㄠ", "tone_mark": "ˇ", "tone_number": 3, "tone_position": "after" }, "pinyin": "xiǎo", "pinyin_parts": { "initial": "x", "final": "iǎo", "tone_number": 3 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "char", "char": "兔", "zhuyin": "ㄊㄨˋ", "zhuyin_parts": { "initial": "ㄊ", "final": "ㄨ", "tone_mark": "ˋ", "tone_number": 4, "tone_position": "after" }, "pinyin": "tù", "pinyin_parts": { "initial": "t", "final": "ù", "tone_number": 4 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "char", "char": "子", "zhuyin": "ㄗˇ", "zhuyin_parts": { "initial": "ㄗ", "final": "", "tone_mark": "ˇ", "tone_number": 3, "tone_position": "after" }, "pinyin": "zǐ", "pinyin_parts": { "initial": "z", "final": "ǐ", "tone_number": 3 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "punctuation", "char": "，", "zhuyin": "", "line_break_rule": "no_start" },
-          { "type": "char", "char": "跑", "zhuyin": "ㄆㄠˇ", "zhuyin_parts": { "initial": "ㄆ", "final": "ㄠ", "tone_mark": "ˇ", "tone_number": 3, "tone_position": "after" }, "pinyin": "pǎo", "pinyin_parts": { "initial": "p", "final": "ǎo", "tone_number": 3 }, "emphasis": true, "width_units": 1, "polyphone": false },
-          { "type": "char", "char": "得", "zhuyin": "ㄉㄜ˙", "zhuyin_parts": { "initial": "ㄉ", "final": "ㄜ", "tone_mark": "˙", "tone_number": 5, "tone_position": "top" }, "pinyin": "de", "pinyin_parts": { "initial": "d", "final": "e", "tone_number": 5 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "char", "char": "快", "zhuyin": "ㄎㄨㄞˋ", "zhuyin_parts": { "initial": "ㄎ", "final": "ㄨㄞ", "tone_mark": "ˋ", "tone_number": 4, "tone_position": "after" }, "pinyin": "kuài", "pinyin_parts": { "initial": "k", "final": "uài", "tone_number": 4 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "punctuation", "char": "，", "zhuyin": "", "line_break_rule": "no_start" },
-          { "type": "char", "char": "今", "zhuyin": "ㄐㄧㄣ", "zhuyin_parts": { "initial": "ㄐ", "final": "ㄧㄣ", "tone_mark": "", "tone_number": 1, "tone_position": "none" }, "pinyin": "jīn", "pinyin_parts": { "initial": "j", "final": "īn", "tone_number": 1 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "char", "char": "天", "zhuyin": "ㄊㄧㄢ", "zhuyin_parts": { "initial": "ㄊ", "final": "ㄧㄢ", "tone_mark": "", "tone_number": 1, "tone_position": "none" }, "pinyin": "tiān", "pinyin_parts": { "initial": "t", "final": "iān", "tone_number": 1 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "char", "char": "天", "zhuyin": "ㄊㄧㄢ", "zhuyin_parts": { "initial": "ㄊ", "final": "ㄧㄢ", "tone_mark": "", "tone_number": 1, "tone_position": "none" }, "pinyin": "tiān", "pinyin_parts": { "initial": "t", "final": "iān", "tone_number": 1 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "char", "char": "氣", "zhuyin": "ㄑㄧˋ", "zhuyin_parts": { "initial": "ㄑ", "final": "ㄧ", "tone_mark": "ˋ", "tone_number": 4, "tone_position": "after" }, "pinyin": "qì", "pinyin_parts": { "initial": "q", "final": "ì", "tone_number": 4 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "char", "char": "非", "zhuyin": "ㄈㄟ", "zhuyin_parts": { "initial": "ㄈ", "final": "ㄟ", "tone_mark": "", "tone_number": 1, "tone_position": "none" }, "pinyin": "fēi", "pinyin_parts": { "initial": "f", "final": "ēi", "tone_number": 1 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "char", "char": "常", "zhuyin": "ㄔㄤˊ", "zhuyin_parts": { "initial": "ㄔ", "final": "ㄤ", "tone_mark": "ˊ", "tone_number": 2, "tone_position": "after" }, "pinyin": "cháng", "pinyin_parts": { "initial": "ch", "final": "áng", "tone_number": 2 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "char", "char": "好", "zhuyin": "ㄏㄠˇ", "zhuyin_parts": { "initial": "ㄏ", "final": "ㄠ", "tone_mark": "ˇ", "tone_number": 3, "tone_position": "after" }, "pinyin": "hǎo", "pinyin_parts": { "initial": "h", "final": "ǎo", "tone_number": 3 }, "emphasis": false, "width_units": 1, "polyphone": false },
-          { "type": "punctuation", "char": "！", "zhuyin": "", "line_break_rule": "no_start" }
-        ]
-      }
-    ]
-  }
-]
+{
+  "bookTitle": "3D 繪本調教測試",
+  "pages": [
+    {
+      "pageNumber": 1,
+      "text": "小",
+      "phoneticType": "zhuyin",
+      "image": "https://picsum.photos/seed/page1/800/1000"
+    },
+    {
+      "pageNumber": 2,
+      "text": "小兔子，跑得快。",
+      "phoneticType": "zhuyin",
+      "image": "https://picsum.photos/seed/page2/800/1000"
+    },
+    {
+      "pageNumber": 3,
+      "text": "今天天氣非常好，我們一起去郊遊！",
+      "phoneticType": "zhuyin",
+      "image": "https://picsum.photos/seed/page3/800/1000"
+    },
+    {
+      "pageNumber": 4,
+      "text": "森林裡有很多好朋友，大家一起開心地跳舞唱歌，度過一個美妙的下午。",
+      "phoneticType": "zhuyin",
+      "image": "https://picsum.photos/seed/page4/800/1000"
+    }
+  ]
+}
