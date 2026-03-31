@@ -335,4 +335,10 @@ body[data-phonetic="pinyin"]  .char-rt.pinyin  { display: block !important; }
 .word-group {
     display: inline-flex;
     white-space: nowrap;
+    /* CRITICAL: must also use flex-end so chars inside the group
+       share the same bottom baseline as the parent text-line.
+       Without this, characters in a group align by their tops
+       (default stretch/start), making tall-zhuyin chars sit lower
+       than short-zhuyin chars within the same word.               */
+    align-items: flex-end;
 }
