@@ -236,7 +236,7 @@ body {
     display: inline-flex;
     flex-direction: column;   /* pinyin stacks above the char-row */
     align-items: flex-start;
-    margin: 0 0.4em 0 0;      /* Enforce strict right-only spacing so the border between groups is exact */
+    margin: 0;                /* Spacing is now handled by the parent's 'gap' property */
     font-size: 2.2rem;
     vertical-align: bottom;
 }
@@ -339,9 +339,8 @@ body[data-phonetic="pinyin"]  .char-rt.pinyin  { display: block !important; }
     display: inline-flex;
     white-space: nowrap;
     /* CRITICAL: must also use flex-end so chars inside the group
-       share the same bottom baseline as the parent text-line.
-       Without this, characters in a group align by their tops
-       (default stretch/start), making tall-zhuyin chars sit lower
-       than short-zhuyin chars within the same word.               */
+       share the same bottom baseline as the parent text-line. */
     align-items: flex-end;
+    /* Ensure distance between characters within a word group too */
+    gap: 0.5em;
 }
