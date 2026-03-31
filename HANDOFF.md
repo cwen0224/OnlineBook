@@ -1,16 +1,15 @@
-## 🚀 Recent Critical Fixes (V.2000 - V.2040)
+## 🚀 Recent Critical Fixes (V.2000 - V.2050)
 
-### 1. 💾 Cache-Busting Definitive Solution (V.2010)
-- **Problem**: Browser cached `mockData.json`.
-- **Solution**: Added `Date.now()` timestamp to fetch and Amber Version Banner.
+### 1. 💾 Cache-Busting Definitive Solution (V.2050)
+- **Status**: Stable. Uses `Date.now()` on fetch and JSON/JS/CSS versioning.
 
-### 2. 📏 Zhuyin Typography & Live Tuning (V.2040)
-- **Live Control Panel**: Added a UI Panel (top-right) with sliders for **Char Gap** and **Tone Padding**.
-- **CSS Variables**: Layout now uses `--char-gap` and `--tone-padding` for real-time adjustments.
-- **Extreme Overlap Fix**: Forced `.zh-col-tone` to have a physical buffer.
-- **Architecture**: Flexbox engine (no `writing-mode`).
-- **Baseline Fix**: `align-items: flex-end`.
-- **Final Target**: Once the user finds the perfect slider values, they can be hard-coded into `style.css`.
+### 2. 📏 Zhuyin Typography & Full Tuning Control (V.2050)
+- **Live Tuning Panel**: 
+    - **Font Size**: Control `--char-size` (1.5rem to 5rem).
+    - **Char Gap**: Control `--char-gap` (0em to 3em).
+    - **Tone Padding**: Control `--tone-padding` (0em to 2em).
+- **Flex-Shrink Fix**: Added `flex-shrink: 0` to `.zh-col-tone` to ensure tone padding isn't squashed by the browser's flexbox engine.
+- **Goal**: Find the perfect values in-app, then hard-code them into `style.css` later.
 
 ### 3. 🌓 Shadow Rendering Bug
 - **Fixed**: Black semi-transparent overlays no longer stick on page rest.
