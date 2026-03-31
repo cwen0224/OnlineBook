@@ -63,6 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
     book.innerHTML = ''; 
 
     // ---- JSON Layout Parse Engine ----
+    // Split bopomofo into phonetic body + tone mark
+    const splitZhuyin = (z) => {
+        if (!z) return { body: '', tone: '' };
+        // Tone marks: ˊ(2nd) ˇ(3rd) ˋ(4th) ˙(neutral) — always at end of string
+        const m = z.match(/^([^ˊˇˋ˙]*?)([ˊˇˋ˙]?)$/);
+        return m ? { body: m[1], tone: m[2] } : { body: z, tone: '' };
+    };
+
     const generateHTMLFromJson = (pageData) => {
         if (!pageData || !pageData.lines) return '';
         let scale = pageData.ruby_scale || 0.5;
@@ -98,13 +106,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (t.type === 'char') {
                             // Pinyin sits above as a separate row
                             html += `<div class="char-rt pinyin">${t.pinyin || ''}</div>`;
-                            // char-row: [kanji] + [zhuyin vertical]
+                            // char-row: [kanji] + [zhuyin group]
                             html += `<div class="char-row">`;
                             html += `<div class="char-base ${t.polyphone || t.emphasis ? 'polyphone-warning' : ''}">${t.char}</div>`;
-                            html += `<div class="char-rt zhuyin">${t.zhuyin || ''}</div>`;
+                            // Zhuyin: body (vertical) + tone (horizontal, top-right)
+                            const zh = splitZhuyin(t.zhuyin);
+                            html += `<div class="char-rt zhuyin">`;
+                            html += `<div class="zhuyin-body">${zh.body}</div>`;
+                            if (zh.tone) html += `<div class="zhuyin-tone">${zh.tone}</div>`;
+                            html += `</div>`;
                             html += `</div>`;
                         } else {
-                            // Punctuation: just the character, no phonetics
                             html += `<div class="char-row"><div class="char-base">${t.char}</div></div>`;
                         }
                         html += `</div>`;

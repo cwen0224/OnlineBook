@@ -228,9 +228,9 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
 .text-line {
     display: flex;
     flex-wrap: wrap;
-    align-items: center; /* vertically center chars+zhuyin column */
+    align-items: flex-end; /* all char bottoms snap to same baseline */
     margin-bottom: 10px;
-    gap: 0; /* spacing handled by char-block margin */
+    gap: 0;
 }
 
 /* ── char-block: wrapper for one character + its phonetics ── */
@@ -277,28 +277,32 @@ body[data-phonetic="pinyin"] .char-rt.zhuyin { display: none !important; }
    writing-mode: vertical-rl renders bopomofo top-to-bottom
    with tone mark at the bottom — exactly like Taiwan textbooks.
    font-size 0.4em: 3 chars × line-height 1 = full char height       */
+/* ── Zhuyin: two-column group [body vertical | tone top-right] ── */
 .char-rt.zhuyin {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: stretch;     /* body and tone column share full height */
     font-family: 'BiauKai', 'DFKai-sb', 'MingLiU', serif;
-    font-size: 0.45em;  /* slightly larger for readability */
-    line-height: 1;
+    font-size: 0.45em;
     color: #333;
     margin-left: 2px;
-    letter-spacing: 0;
-    /* Align to top so short phonetics stay near the character top */
-    align-self: flex-start;
+    align-self: stretch;      /* fill full height of char-row */
 }
 
-/* Pinyin: sits ABOVE the char-row, hidden by default */
-.char-rt.pinyin {
-    font-family: 'Arial', 'Helvetica', sans-serif;
-    font-size: 0.32em;
-    color: #555;
-    line-height: 1.3;
-    white-space: nowrap;
-    align-self: center;
-    margin-bottom: 2px;
+/* Phonetic consonant + vowel — rendered top-to-bottom vertically */
+.zhuyin-body {
+    writing-mode: vertical-rl;
+    text-orientation: upright;  /* keep each glyph upright, no rotation */
+    line-height: 1;
+    letter-spacing: 0;
+}
+
+/* Tone mark — stays horizontal, pinned to top-right of the group */
+.zhuyin-tone {
+    align-self: flex-start;   /* top-aligned within the zhuyin group */
+    line-height: 1;
+    font-size: 0.85em;        /* slightly smaller than body glyphs */
+    /* no writing-mode: renders as normal horizontal glyph */
 }
 
 /* ── Phonetic visibility switcher ── */
