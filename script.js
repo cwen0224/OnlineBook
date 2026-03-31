@@ -142,21 +142,27 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * JS Adobe Master Engine (V.2410)
-     * Groups .char-block (and .sticky-pair) by their offsetTop and distributes 
-     * remaining line width evenly by adjusting margin-right.
+     * JS Adobe Master Engine (V.2420)
+     * Groups characters by offsetTop with dynamic tolerance and applies sub-pixel 
+     * alignment using getBoundingClientRect.
      */
-    function groupIntoRows(elements, tol = 4) {
+    function groupIntoRows(elements) {
         const rows = [];
         let cur = [], curTop = null;
+
         elements.forEach(el => {
             const top = el.offsetTop;
+            // Dynamic tolerance: 30% of element height to handle bopomofo variations
+            const tol = el.offsetHeight * 0.3;
+
             if (curTop === null || Math.abs(top - curTop) > tol) {
                 if (cur.length) rows.push(cur);
-                cur = []; curTop = top;
+                cur = [];
+                curTop = top;
             }
             cur.push(el);
         });
+
         if (cur.length) rows.push(cur);
         return rows;
     }
@@ -165,26 +171,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentPuncEngine !== 'adobe') return;
         const selectors = '.char-block, .sticky-pair';
         const blocks = [...container.querySelectorAll(selectors)];
+        
+        // 1. RESET (Strict order: reset -> measure -> apply)
         blocks.forEach(b => { 
             b.style.marginRight = '0px'; 
-            b.style.transition = 'none'; // Disable transition during measurement
+            b.style.transition = 'none'; 
         });
 
-        // Trigger reflow
+        // Force reflow
         container.offsetHeight;
 
+        // 2. GROUP
         const rows = groupIntoRows(blocks);
-        const containerWidth = container.clientWidth;
+        
+        // 3. MEASURE Using Sub-pixel Precision
+        const containerRect = container.getBoundingClientRect();
+        const containerWidth = containerRect.width;
 
         rows.forEach((row, i) => {
+            // Standard Adobe Rule: Don't justify paragraph last lines or single items
             if (i === rows.length - 1 || row.length <= 1) {
                 row.forEach(b => b.style.marginRight = '0px');
                 return;
             }
-            const totalW = row.reduce((sum, b) => sum + b.offsetWidth, 0);
-            const availableSpace = containerWidth - totalW;
-            const extra = availableSpace / (row.length - 1);
+            
+            // Sum up widths using sub-pixel getBoundingClientRect
+            const totalW = row.reduce((sum, b) => {
+                return sum + b.getBoundingClientRect().width;
+            }, 0);
+            
+            // Calculate extra space per gap
+            const extra = (containerWidth - totalW) / (row.length - 1);
+            
             row.forEach((b, j) => {
+                // Last item in row should have 0 margin to stay flushed right
                 b.style.marginRight = j < row.length - 1 ? `${extra}px` : '0px';
             });
         });
