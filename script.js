@@ -105,22 +105,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const generateHTMLFromJson = (pageData) => {
         if (!pageData || !pageData.lines) return '';
         let scale = pageData.ruby_scale || 0.5;
-        let lineClass = currentPuncEngine === 'justified' ? 'text-line is-justified' : 'text-line';
+        
+        // Mode detection
+        let lineClass = 'text-line';
+        if (currentPuncEngine === 'justified') lineClass += ' is-justified';
+        if (currentPuncEngine === 'adobe') lineClass += ' is-adobe-justified';
+        
         let html = `<div class="page-text-container" style="--ruby-scale: ${scale};">`;
         
         pageData.lines.forEach(line => {
             let indent = line.indent ? (line.indent.level + 'em') : '0';
             html += `<div class="${lineClass} ${line.role || 'body'}" style="margin-left: ${indent};">`;
             
-            // Group tokens into word groups as before
-            let currentGroup = [];
             let tokens = line.tokens;
 
             for (let i = 0; i < tokens.length; i++) {
                 let t = tokens[i];
                 if (t.type === 'word_boundary') continue;
 
-                // LOGIC: Punctuation Sticky Hook
+                // LOGIC: Punctuation Sticky Hook (Supported in Sticky, Justified, and Adobe modes)
                 if (currentPuncEngine !== 'normal' && t.type === 'char' && i + 1 < tokens.length && tokens[i+1].type === 'punctuation') {
                     // Wrap Char + Punctuation in a sticky pair
                     html += `<div class="sticky-pair">`;

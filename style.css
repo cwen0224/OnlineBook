@@ -244,6 +244,19 @@ body {
     justify-content: space-between;
 }
 
+/* MODE: Adobe Full Justify (The Pro indesign look) */
+.text-line.is-adobe-justified {
+    display: block;              /* Override flex to allow text-align justify to work on inline-blocks */
+    text-align: justify;
+    text-align-last: left;       /* Prevents the last line from being stretched unnaturally */
+    width: 100%;
+}
+
+.text-line.is-adobe-justified .char-block,
+.text-line.is-adobe-justified .sticky-pair {
+    display: inline-flex;        /* Keep internal structure but allow them to be justified as inline items */
+}
+
 /* MODE: Sticky (Atomic unit for Char + Punctuation) */
 .sticky-pair {
     display: inline-flex;
@@ -258,7 +271,7 @@ body {
     flex-direction: column;   /* pinyin stacks above the char-row */
     align-items: flex-start;
     margin: 0;                /* Spacing is now handled by the parent's 'gap' property */
-    font-size: 2.2rem;        /* Final User-Approved Value */
+    font-size: var(--char-size, 2.2rem); /* RESTORED: Now follows the slider! */
     vertical-align: bottom;
 }
 

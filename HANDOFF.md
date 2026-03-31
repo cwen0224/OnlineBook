@@ -1,13 +1,12 @@
-## 🚀 Recent Critical Fixes (V.2000 - V.2240 DUAL-GAP MASTER)
+## 🚀 Recent Critical Fixes (V.2000 - V.2310 ADOBE MASTER)
 
-### 1. 💾 Cache-Busting Definitive Solution (V.2240)
+### 1. 💾 Cache-Busting Definitive Solution (V.2310)
 - **Status**: Production Ready.
 
-### 2. 📏 Visual Atmosphere & Typography Master (V.2240)
-- **Dual-Gap Sync**: Fixed the "Manual vs Auto" line gap discrepancy by using a unified `--line-gap` variable that drives both CSS `row-gap` (for auto-wrap) and `margin-bottom` (for manual lines).
-- **Visual Mastering Dashboard**: 
-    - **Typography**: Size (rem), Char Gap (em), **Line Gap (px)**.
-    - **Container Atmosphere**: Width, BG Opacity, Backdrop Blur, Border Radius.
+### 2. 📏 Visual Atmosphere & Typography Master (V.2310)
+- **Adobe Full Justify Mode**: New typesetting engine that mimics Adobe InDesign. Forces lines to fill the container width while keeping the last line of paragraphs left-aligned.
+- **Punctuation Mastering**: Choice of 4 engines (Normal, Sticky, Justified, Adobe).
+- **Slider Restoration**: Fixed the hard-coded `font-size` bug that disabled the Size slider.
 - **Stress-Testing Data**: `mockData.json` updated with correct schema and diverse text lengths.
 - **Flexbox Engine**: Pure Flexbox, 100% responsive within the page container.
 - **Cleanup**: Tuning sliders and debug variables have been removed.
