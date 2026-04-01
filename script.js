@@ -531,13 +531,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateLeafTransform(leafObj, angle) {
         angle = Math.max(-180, Math.min(0, angle));
         leafObj.angle = angle;
+
+        const flipProgress = Math.min(1, Math.abs(angle) / 180);
+        const pageScale = 1 - (0.045 * Math.sin(flipProgress * Math.PI));
         
         let currentZ = (TOTAL_LEAVES - leafObj.index); 
         if (angle <= -90) currentZ = leafObj.index; 
         if (angle < 0 && angle > -180) currentZ += 50; 
         
         leafObj.el.style.zIndex = currentZ;
-        leafObj.el.style.transform = `rotateY(${angle}deg) translateZ(${leafObj.baseZ}px)`;
+        leafObj.el.style.transform = `rotateY(${angle}deg) translateZ(${leafObj.baseZ}px) scale3d(${pageScale}, ${pageScale}, 1)`;
         
         // Shadow: ONLY active during mid-flip. Explicitly 0 at both rest positions.
         const absAngle = Math.abs(angle);
