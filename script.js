@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const leaves = [];
     book.innerHTML = ''; 
     let aiLayoutCache = new WeakMap();
+    let aiMeasureHost = null;
 
     function cssLengthToPx(value, referenceEl = document.documentElement) {
         if (!value) return 0;
@@ -100,6 +101,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function invalidateAiLayoutCache() {
         aiLayoutCache = new WeakMap();
+    }
+
+    function getAiMeasureHost() {
+        if (!aiMeasureHost) {
+            aiMeasureHost = document.createElement('div');
+            aiMeasureHost.id = 'ai-measure-host';
+            Object.assign(aiMeasureHost.style, {
+                position: 'fixed',
+                left: '-10000px',
+                top: '0',
+                width: '0',
+                height: '0',
+                overflow: 'hidden',
+                visibility: 'hidden',
+                pointerEvents: 'none',
+                contain: 'layout style paint'
+            });
+            document.body.appendChild(aiMeasureHost);
+        }
+        return aiMeasureHost;
     }
 
     function resolveAiGapAfter(line, tokens, idx) {
@@ -321,20 +342,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function measureAiLayout(lineDiv) {
-        const blocks = [...lineDiv.children].filter(el =>
+        const lineWidth = lineDiv.clientWidth || lineDiv.offsetWidth || 0;
+        if (lineWidth <= 0) return [];
+
+        const host = getAiMeasureHost();
+        const probe = lineDiv.cloneNode(true);
+        probe.classList.remove('is-ai-layout');
+        Object.assign(probe.style, {
+            position: 'relative',
+            left: '0',
+            top: '0',
+            margin: '0',
+            width: `${lineWidth}px`,
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'flex-start',
+            alignItems: 'flex-end',
+            boxSizing: 'border-box',
+            columnGap: '0',
+            rowGap: '0',
+            visibility: 'hidden'
+        });
+
+        probe.querySelectorAll('.char-block, .sticky-pair').forEach(el => {
+            el.style.marginRight = '';
+        });
+
+        host.appendChild(probe);
+
+        const blocks = [...probe.children].filter(el =>
             el.classList.contains('char-block') || el.classList.contains('sticky-pair')
         );
 
-        if (blocks.length === 0) return [];
-
-        blocks.forEach(b => {
-            b.style.marginRight = '';
-        });
+        if (blocks.length === 0) {
+            host.removeChild(probe);
+            return [];
+        }
 
         const gapCount = blocks.length - 1;
-        if (gapCount <= 0) return [];
+        if (gapCount <= 0) {
+            host.removeChild(probe);
+            return [];
+        }
 
-        const lineWidth = lineDiv.clientWidth || lineDiv.offsetWidth || 0;
         const tokenWidth = blocks.reduce((sum, b) => sum + (b.offsetWidth || 0), 0);
         const desiredGaps = blocks.slice(0, -1).map((unit, idx) => {
             const raw = unit.dataset.aiGapAfter;
@@ -356,11 +406,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (desiredGapTotal <= 0) {
             const equal = gapCount > 0 ? availableGap / gapCount : 0;
-            return new Array(gapCount).fill(Math.max(0, equal));
+            const result = new Array(gapCount).fill(Math.max(0, equal));
+            host.removeChild(probe);
+            return result;
         }
 
         const scale = availableGap / desiredGapTotal;
-        return desiredGaps.map(gap => Math.max(0, gap * scale));
+        const result = desiredGaps.map(gap => Math.max(0, gap * scale));
+        host.removeChild(probe);
+        return result;
     }
 
     function cacheAiLayout(lineDiv) {
