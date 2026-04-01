@@ -252,6 +252,7 @@ body {
     width: 100% !important;      /* RESTORED: Must be 100% to allow items to distribute */
     box-sizing: border-box;      /* Important to keep width 100% safe */
     align-items: flex-end;
+    column-gap: 0 !important;
 }
 
 /* Base unit for one character + its phonetics */

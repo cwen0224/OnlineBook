@@ -62,6 +62,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const leaves = [];
     book.innerHTML = ''; 
 
+    function cssLengthToPx(value, referenceEl = document.documentElement) {
+        if (!value) return 0;
+        const raw = String(value).trim();
+        const numeric = parseFloat(raw);
+        if (Number.isNaN(numeric)) return 0;
+
+        if (raw.endsWith('px')) return numeric;
+        if (raw.endsWith('rem') || raw.endsWith('em')) {
+            const refSize = parseFloat(getComputedStyle(referenceEl).fontSize) || 16;
+            return numeric * refSize;
+        }
+        return numeric;
+    }
+
+    function getAdobeBaseGapPx(referenceEl) {
+        const gapValue = getComputedStyle(document.documentElement).getPropertyValue('--char-gap').trim() || '1.8em';
+        return cssLengthToPx(gapValue, referenceEl);
+    }
+
+    function getAdobeGapWeight(unit) {
+        if (!unit) return 1;
+        const kind = unit.dataset.tokenKind || '';
+        if (kind === 'space') return 2.75;
+        if (kind === 'punctuation') return 0.35;
+        if (kind === 'sticky-pair') return 0.9;
+        return 1;
+    }
+
     // ---- JSON Layout Parse Engine ----
     // Tone marks: ˊ ˇ ˋ ˙ (U+02CA, U+02C7, U+02CB, U+02D9)
     const TONE_MARKS = new Set(['ˊ','ˇ','ˋ','˙']);
@@ -87,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderToken = (t) => {
         if (t.type === 'char' || t.type === 'punctuation') {
             let wUnits = t.width_units ? `flex-basis: ${t.width_units}em; min-width: ${t.width_units}em;` : '';
-            let html = `<div class="char-block" style="${wUnits}">`;
+            let html = `<div class="char-block ${t.type === 'punctuation' ? 'punctuation' : ''}" data-token-kind="${t.type}" style="${wUnits}">`;
             if (t.type === 'char') {
                 html += `<div class="char-rt pinyin">${t.pinyin || ''}</div>`;
                 html += `<div class="char-row">`;
@@ -100,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `</div>`;
             return html;
         } else if (t.type === 'space') {
-            return `<div class="char-block space" style="min-width: 0.5em;"></div>`;
+            return `<div class="char-block space" data-token-kind="space" style="min-width: 0.5em;"></div>`;
         }
         return '';
     };
@@ -130,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // LOGIC: Punctuation Sticky Hook (Supported in Sticky, Justified, and Adobe modes)
                 if (currentPuncEngine !== 'normal' && t.type === 'char' && i + 1 < tokens.length && tokens[i+1].type === 'punctuation') {
                     // Wrap Char + Punctuation in a sticky pair
-                    html += `<div class="sticky-pair">`;
+                    html += `<div class="sticky-pair" data-token-kind="sticky-pair">`;
                     html += renderToken(t);
                     html += renderToken(tokens[i+1]);
                     html += `</div>`;
@@ -187,35 +215,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 2. Identify Rows within the paragraph/line div
         const rows = groupIntoRows(blocks);
-        
-        // 3. Precise width via getComputedStyle
         const lineWidth = parseFloat(getComputedStyle(lineDiv).width);
+        const baseGapPx = getAdobeBaseGapPx(lineDiv);
 
         rows.forEach((row, i) => {
             if (i === rows.length - 1 || row.length <= 1) {
                 row.forEach(b => b.style.marginRight = '');
                 return;
             }
-            
-            let totalW = 0;
-            row.forEach(b => {
-                totalW += parseFloat(getComputedStyle(b).width);
-            });
-            
-            // Threshold: Only stretch if row is reasonably full (V.2470 balance)
-            if (totalW < lineWidth * 0.3) {
-                row.forEach(b => b.style.marginRight = '');
+
+            const gapCount = row.length - 1;
+            const totalW = row.reduce((sum, b) => sum + b.getBoundingClientRect().width, 0);
+            const freeSpace = lineWidth - totalW;
+
+            if (freeSpace <= 0) {
+                row.forEach((b, j) => {
+                    b.style.marginRight = j < gapCount ? '0px' : '';
+                });
                 return;
             }
-            
-            const extra = (lineWidth - totalW) / (row.length - 1);
-            
-            row.forEach((b, j) => {
-                if (j < row.length - 1) {
-                    b.style.marginRight = `${extra}px`;
-                } else {
-                    b.style.marginRight = ''; 
+
+            if (freeSpace <= baseGapPx * gapCount) {
+                const compressedGap = freeSpace / gapCount;
+                row.forEach((b, j) => {
+                    b.style.marginRight = j < gapCount ? `${Math.max(0, compressedGap)}px` : '';
+                });
+                return;
+            }
+
+            const extra = freeSpace - (baseGapPx * gapCount);
+            const weights = row.slice(0, -1).map((unit, idx) => {
+                const next = row[idx + 1];
+                const leftKind = unit.dataset.tokenKind || '';
+                const rightKind = next.dataset.tokenKind || '';
+                if (leftKind === 'space' || rightKind === 'space') return Math.max(getAdobeGapWeight(unit), getAdobeGapWeight(next));
+                if (leftKind === 'punctuation' || rightKind === 'punctuation') return Math.min(getAdobeGapWeight(unit), getAdobeGapWeight(next));
+                if (leftKind === 'sticky-pair' || rightKind === 'sticky-pair') return Math.max(getAdobeGapWeight(unit), getAdobeGapWeight(next));
+                return (getAdobeGapWeight(unit) + getAdobeGapWeight(next)) / 2;
+            });
+
+            const weightTotal = weights.reduce((sum, w) => sum + w, 0) || gapCount;
+            const perWeight = extra / weightTotal;
+
+            row.forEach((unit, idx) => {
+                if (idx === gapCount) {
+                    unit.style.marginRight = '';
+                    return;
                 }
+                const gap = baseGapPx + (perWeight * weights[idx]);
+                unit.style.marginRight = `${Math.max(0, gap)}px`;
             });
         });
     }
