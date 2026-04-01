@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const TOTAL_LEAVES = 5; 
     const leaves = [];
     book.innerHTML = ''; 
+    let aiLayoutCache = new WeakMap();
 
     function cssLengthToPx(value, referenceEl = document.documentElement) {
         if (!value) return 0;
@@ -88,6 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (kind === 'punctuation') return 0.35;
         if (kind === 'sticky-pair') return 0.9;
         return 1;
+    }
+
+    function invalidateAiLayoutCache() {
+        aiLayoutCache = new WeakMap();
     }
 
     function resolveAiGapAfter(line, tokens, idx) {
@@ -134,10 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<div class="zh-col-main">${bodyHtml}</div>${toneHtml}`;
     };
 
-    const renderToken = (t, gapAfter = null) => {
+    const renderToken = (t, gapAfter = null, useAiSpacing = false) => {
         if (t.type === 'char' || t.type === 'punctuation') {
             let wUnits = t.width_units ? `flex-basis: ${t.width_units}em; min-width: ${t.width_units}em;` : '';
-            const gapStyle = gapAfter !== null && gapAfter !== undefined ? ` margin-right: ${gapAfter}em;` : '';
+            const gapStyle = !useAiSpacing && gapAfter !== null && gapAfter !== undefined ? ` margin-right: ${gapAfter}em;` : '';
             let html = `<div class="char-block ${t.type === 'punctuation' ? 'punctuation' : ''}" data-token-kind="${t.type}" data-ai-gap-after="${gapAfter !== null && gapAfter !== undefined ? gapAfter : ''}" style="${wUnits}${gapStyle}">`;
             if (t.type === 'char') {
                 html += `<div class="char-rt pinyin">${t.pinyin || ''}</div>`;
@@ -151,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `</div>`;
             return html;
         } else if (t.type === 'space') {
-            const gapStyle = gapAfter !== null && gapAfter !== undefined ? ` margin-right: ${gapAfter}em;` : '';
+            const gapStyle = !useAiSpacing && gapAfter !== null && gapAfter !== undefined ? ` margin-right: ${gapAfter}em;` : '';
             return `<div class="char-block space" data-token-kind="space" data-ai-gap-after="${gapAfter !== null && gapAfter !== undefined ? gapAfter : ''}" style="min-width: 0.5em;${gapStyle}"></div>`;
         }
         return '';
@@ -183,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (t.type === 'word_boundary') continue;
 
                 if (isAiMode) {
-                    html += renderToken(t, resolveAiGapAfter(line, tokens, i));
+                    html += renderToken(t, resolveAiGapAfter(line, tokens, i), true);
                     continue;
                 }
 
@@ -300,61 +305,98 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function applyAiLayout() {
+    function measureAiLayout(lineDiv) {
+        const blocks = [...lineDiv.children].filter(el =>
+            el.classList.contains('char-block') || el.classList.contains('sticky-pair')
+        );
+
+        if (blocks.length === 0) return [];
+
+        blocks.forEach(b => {
+            b.style.marginRight = '';
+        });
+
+        const gapCount = blocks.length - 1;
+        if (gapCount <= 0) return [];
+
+        const lineWidth = lineDiv.clientWidth || lineDiv.offsetWidth || 0;
+        const tokenWidth = blocks.reduce((sum, b) => sum + (b.offsetWidth || 0), 0);
+        const desiredGaps = blocks.slice(0, -1).map((unit, idx) => {
+            const raw = unit.dataset.aiGapAfter;
+            if (raw !== undefined && raw !== null && raw !== '') {
+                const parsed = Number(raw);
+                if (Number.isFinite(parsed)) return parsed;
+            }
+            const fallback = blocks[idx + 1];
+            const leftKind = unit.dataset.tokenKind || '';
+            const rightKind = fallback?.dataset.tokenKind || '';
+            if (leftKind === 'space' || rightKind === 'space') return 0.45;
+            if (leftKind === 'punctuation' || rightKind === 'punctuation') return 0.10;
+            if (leftKind === 'sticky-pair' || rightKind === 'sticky-pair') return 0.16;
+            return 0.18;
+        });
+
+        const desiredGapTotal = desiredGaps.reduce((sum, gap) => sum + gap, 0);
+        const availableGap = Math.max(0, lineWidth - tokenWidth);
+
+        if (desiredGapTotal <= 0) {
+            const equal = gapCount > 0 ? availableGap / gapCount : 0;
+            return new Array(gapCount).fill(Math.max(0, equal));
+        }
+
+        const scale = availableGap / desiredGapTotal;
+        return desiredGaps.map(gap => Math.max(0, gap * scale));
+    }
+
+    function cacheAiLayout(lineDiv) {
+        const cached = measureAiLayout(lineDiv);
+        aiLayoutCache.set(lineDiv, cached);
+        lineDiv.dataset.aiLayoutCached = '1';
+        return cached;
+    }
+
+    function applyAiLayout(scope = document) {
         if (isDragging) return;
 
-        document.querySelectorAll('.text-line.is-ai-layout').forEach(lineDiv => {
-            const blocks = [...lineDiv.children].filter(el => 
+        scope.querySelectorAll('.text-line.is-ai-layout').forEach(lineDiv => {
+            const blocks = [...lineDiv.children].filter(el =>
                 el.classList.contains('char-block') || el.classList.contains('sticky-pair')
             );
 
             if (blocks.length === 0) return;
 
-            blocks.forEach(b => {
-                b.style.marginRight = '';
-            });
-
-            lineDiv.offsetHeight;
-
-            const gapCount = blocks.length - 1;
-            if (gapCount <= 0) return;
-
-            const lineWidth = lineDiv.getBoundingClientRect().width;
-            const tokenWidth = blocks.reduce((sum, b) => sum + b.getBoundingClientRect().width, 0);
-            const desiredGaps = blocks.slice(0, -1).map((unit, idx) => {
-                const raw = unit.dataset.aiGapAfter;
-                if (raw !== undefined && raw !== null && raw !== '') {
-                    const parsed = Number(raw);
-                    if (Number.isFinite(parsed)) return parsed;
-                }
-                const fallback = blocks[idx + 1];
-                const leftKind = unit.dataset.tokenKind || '';
-                const rightKind = fallback?.dataset.tokenKind || '';
-                if (leftKind === 'space' || rightKind === 'space') return 0.45;
-                if (leftKind === 'punctuation' || rightKind === 'punctuation') return 0.10;
-                if (leftKind === 'sticky-pair' || rightKind === 'sticky-pair') return 0.16;
-                return 0.18;
-            });
-
-            const desiredGapTotal = desiredGaps.reduce((sum, gap) => sum + gap, 0);
-            const availableGap = Math.max(0, lineWidth - tokenWidth);
-
-            let finalGaps;
-            if (desiredGapTotal > 0) {
-                const scale = availableGap / desiredGapTotal;
-                finalGaps = desiredGaps.map(gap => Math.max(0, gap * scale));
-            } else {
-                const equal = gapCount > 0 ? availableGap / gapCount : 0;
-                finalGaps = new Array(gapCount).fill(Math.max(0, equal));
+            let finalGaps = aiLayoutCache.get(lineDiv);
+            if (!finalGaps || finalGaps.length !== Math.max(0, blocks.length - 1)) {
+                finalGaps = cacheAiLayout(lineDiv);
             }
 
             blocks.forEach((unit, idx) => {
-                if (idx < gapCount) {
+                if (idx < finalGaps.length) {
                     unit.style.marginRight = `${finalGaps[idx]}px`;
                 } else {
                     unit.style.marginRight = '';
                 }
             });
+        });
+    }
+
+    function precomputeAiLayouts(scope = document) {
+        if (isDragging) return;
+        scope.querySelectorAll('.text-line.is-ai-layout').forEach(lineDiv => {
+            cacheAiLayout(lineDiv);
+        });
+    }
+
+    function refreshAiLayouts(scope = document) {
+        invalidateAiLayoutCache();
+        precomputeAiLayouts(scope);
+        applyAiLayout(scope);
+    }
+
+    function primeAiLayoutsForLeaf(leafEl) {
+        if (!leafEl) return;
+        leafEl.querySelectorAll('.text-line.is-ai-layout').forEach(lineDiv => {
+            cacheAiLayout(lineDiv);
         });
     }
 
@@ -430,7 +472,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Listen for 3D flip animation end to re-justify
             leaf.addEventListener('transitionend', (e) => {
                 if (e.propertyName === 'transform' && e.target === leaf) {
-                    applyAllJustification();
+                    if (currentPuncEngine === 'ai' || document.querySelector('.text-line.is-ai-layout')) {
+                        applyAiLayout(leaf);
+                    } else {
+                        applyAllJustification();
+                    }
                 }
             });
         }
@@ -440,15 +486,31 @@ document.addEventListener('DOMContentLoaded', () => {
             document.fonts.ready.then(() => {
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
-                        applyAllJustification();
+                        if (currentPuncEngine === 'ai' || document.querySelector('.text-line.is-ai-layout')) {
+                            refreshAiLayouts();
+                        } else {
+                            applyAllJustification();
+                        }
                     });
                 });
             });
         } else {
-            setTimeout(applyAllJustification, 300);
+            setTimeout(() => {
+                if (currentPuncEngine === 'ai' || document.querySelector('.text-line.is-ai-layout')) {
+                    refreshAiLayouts();
+                } else {
+                    applyAllJustification();
+                }
+            }, 300);
         }
         
-        window.addEventListener('resize', applyAllJustification);
+        window.addEventListener('resize', () => {
+            if (currentPuncEngine === 'ai' || document.querySelector('.text-line.is-ai-layout')) {
+                refreshAiLayouts();
+            } else {
+                applyAllJustification();
+            }
+        });
     }
 
     function updateLeafTransform(leafObj, angle) {
@@ -490,6 +552,15 @@ document.addEventListener('DOMContentLoaded', () => {
         lastClientX = e.clientX;
         startAngle = leafObj.angle;
         bookRect = book.getBoundingClientRect();
+
+        if (currentPuncEngine === 'ai' || leafEl.querySelector('.text-line.is-ai-layout')) {
+            primeAiLayoutsForLeaf(leafEl);
+            const nextLeaf = leaves[leafIndex + 1]?.el;
+            const prevLeaf = leaves[leafIndex - 1]?.el;
+            if (nextLeaf) primeAiLayoutsForLeaf(nextLeaf);
+            if (prevLeaf) primeAiLayoutsForLeaf(prevLeaf);
+            applyAiLayout(leafEl);
+        }
         
         book.setPointerCapture(e.pointerId);
     });
@@ -537,13 +608,21 @@ document.addEventListener('DOMContentLoaded', () => {
         
         updateLeafTransform(leafObj, snapAngle);
         
-        // V.2470: Trigger immediate justification for the target position
-        setTimeout(applyAllJustification, 50);
+        // Precompute/refresh layout before the flip settles so the next page does not jump.
+        if (currentPuncEngine === 'ai' || document.querySelector('.text-line.is-ai-layout')) {
+            primeAiLayoutsForLeaf(leafObj.el);
+            requestAnimationFrame(() => applyAiLayout(leafObj.el));
+        } else {
+            setTimeout(applyAllJustification, 50);
+        }
 
         leafObj.isAnimating = true;
         leafObj.timer = setTimeout(() => {
             leafObj.isAnimating = false;
-            updateLeafTransform(leafObj, snapAngle); 
+            updateLeafTransform(leafObj, snapAngle);
+            if (currentPuncEngine === 'ai' || document.querySelector('.text-line.is-ai-layout')) {
+                applyAiLayout(leafObj.el);
+            }
         }, 400); 
     };
 
