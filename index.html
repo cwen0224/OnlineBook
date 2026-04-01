@@ -7,14 +7,14 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>True 3D Page Flip Book</title>
-    <link rel="stylesheet" href="style.css?v=202604011036">
+    <link rel="stylesheet" href="style.css?v=202604011102">
 </head>
 <body>
 
     <!-- Tuning Panel -->
     <div id="tuning-panel" style="position: fixed; top: 70px; right: 20px; background: rgba(0,0,0,0.85); color: white; padding: 15px; border-radius: 15px; z-index: 5000; font-family: sans-serif; font-size: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); width: 250px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); max-height: 85vh; overflow-y: auto;">
         <div style="margin-bottom: 12px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; color: #ffcc00; display: flex; justify-content: space-between; align-items: center;">
-            <span>🎨 繪本排版大師 (V.202604011036)</span>
+            <span>🎨 繪本排版大師 (V.202604011102)</span>
             <span style="font-size: 10px; opacity: 0.6;">STRUCTURAL RECTIFICATION MASTER</span>
         </div>
 
@@ -25,9 +25,10 @@
                 <option value="normal">模式 A：一般模式 (原始排版)</option>
                 <option value="sticky">模式 B：粘滯模式 (防行首)</option>
                 <option value="justified">模式 C：智慧對齊 (兩端對齊)</option>
-                <option value="adobe" selected>模式 D：Adobe 智慧滿行 (Full Justify)</option>
+                <option value="adobe">模式 D：Adobe 智慧滿行 (Legacy)</option>
+                <option value="ai" selected>模式 E：JSON 微調 (AI Layout)</option>
             </select>
-            <div style="margin-top: 8px; font-size: 10px; opacity: 0.7; line-height: 1.4;">* 模式 D 完全模擬專業出版軟體，自動撐開字距填滿容器。</div>
+            <div style="margin-top: 8px; font-size: 10px; opacity: 0.7; line-height: 1.4;">* 模式 E 由 JSON 提供字距權重，可讓 AI 微調每個 gap。</div>
         </div>
         
         <!-- Typography Section -->
@@ -35,12 +36,10 @@
             <div style="font-weight:bold; margin-bottom:8px; opacity:0.8;">【文字排版】</div>
             <label style="display:block; margin-bottom:5px;">大小 (Size): <span id="size-val">2.2</span>rem</label>
             <input type="range" id="size-slider" min="1.5" max="5" step="0.1" value="2.2" style="width:100%;">
-            
-            <label style="display:block; margin-top:10px; margin-bottom:5px;">字距 (Gap): <span id="gap-val">1.8</span>em</label>
-            <input type="range" id="gap-slider" min="0" max="3" step="0.1" value="1.8" style="width:100%;">
 
             <label style="display:block; margin-top:10px; margin-bottom:5px;">行距 (Line Gap): <span id="line-val">10</span>px</label>
             <input type="range" id="line-slider" min="0" max="100" step="1" value="10" style="width:100%;">
+            <div style="margin-top: 10px; font-size: 10px; opacity: 0.7; line-height: 1.4;">* 字距改由 JSON / AI 輸出，不再用滑桿調整。</div>
         </div>
 
         <!-- Box Section -->
@@ -71,8 +70,8 @@
 
     <!-- Version banner that drops down on load -->
     <!-- Version banner with more visible styling: Bright Amber background -->
-    <div id="version-banner" style="position: fixed; top: -50px; left: 50%; transform: translateX(-50%); background: #ffcc00; padding: 5px 20px; border-radius: 0 0 10px 10px; color: #000; font-family: monospace; font-weight: bold; font-size: 1rem; z-index: 3000; backdrop-filter: blur(5px); transition: top 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 2px solid #fff; border-top: none;">V.202604011036</div>
+    <div id="version-banner" style="position: fixed; top: -50px; left: 50%; transform: translateX(-50%); background: #ffcc00; padding: 5px 20px; border-radius: 0 0 10px 10px; color: #000; font-family: monospace; font-weight: bold; font-size: 1rem; z-index: 3000; backdrop-filter: blur(5px); transition: top 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 5px 15px rgba(0,0,0,0.5); border: 2px solid #fff; border-top: none;">V.202604011102</div>
 
-    <script src="script.js?v=202604011036"></script>
+    <script src="script.js?v=202604011102"></script>
 </body>
 </html>

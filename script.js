@@ -90,6 +90,28 @@ document.addEventListener('DOMContentLoaded', () => {
         return 1;
     }
 
+    function resolveAiGapAfter(line, tokens, idx) {
+        const token = tokens[idx];
+        const next = tokens[idx + 1];
+
+        if (line && Array.isArray(line.gaps) && Number.isFinite(Number(line.gaps[idx]))) {
+            return Number(line.gaps[idx]);
+        }
+
+        if (token && Number.isFinite(Number(token.kern_after))) {
+            return Number(token.kern_after);
+        }
+
+        if (token && Number.isFinite(Number(token.kernAfter))) {
+            return Number(token.kernAfter);
+        }
+
+        if (token?.type === 'space') return 0.45;
+        if (token?.type === 'punctuation') return 0.10;
+        if (next?.type === 'punctuation') return 0.06;
+        return 0.18;
+    }
+
     // ---- JSON Layout Parse Engine ----
     // Tone marks: ˊ ˇ ˋ ˙ (U+02CA, U+02C7, U+02CB, U+02D9)
     const TONE_MARKS = new Set(['ˊ','ˇ','ˋ','˙']);
@@ -100,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initial State: Read from DOM or fallback (V.2450)
     const puncSelector = document.getElementById('punc-engine');
-    let currentPuncEngine = puncSelector ? puncSelector.value : 'adobe';
+    let currentPuncEngine = puncSelector ? puncSelector.value : 'ai';
 
     const renderZhuyin = (z) => {
         if (!z) return '';
@@ -112,10 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<div class="zh-col-main">${bodyHtml}</div>${toneHtml}`;
     };
 
-    const renderToken = (t) => {
+    const renderToken = (t, gapAfter = null) => {
         if (t.type === 'char' || t.type === 'punctuation') {
             let wUnits = t.width_units ? `flex-basis: ${t.width_units}em; min-width: ${t.width_units}em;` : '';
-            let html = `<div class="char-block ${t.type === 'punctuation' ? 'punctuation' : ''}" data-token-kind="${t.type}" style="${wUnits}">`;
+            const gapStyle = gapAfter !== null && gapAfter !== undefined ? ` margin-right: ${gapAfter}em;` : '';
+            let html = `<div class="char-block ${t.type === 'punctuation' ? 'punctuation' : ''}" data-token-kind="${t.type}" data-ai-gap-after="${gapAfter !== null && gapAfter !== undefined ? gapAfter : ''}" style="${wUnits}${gapStyle}">`;
             if (t.type === 'char') {
                 html += `<div class="char-rt pinyin">${t.pinyin || ''}</div>`;
                 html += `<div class="char-row">`;
@@ -128,7 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `</div>`;
             return html;
         } else if (t.type === 'space') {
-            return `<div class="char-block space" data-token-kind="space" style="min-width: 0.5em;"></div>`;
+            const gapStyle = gapAfter !== null && gapAfter !== undefined ? ` margin-right: ${gapAfter}em;` : '';
+            return `<div class="char-block space" data-token-kind="space" data-ai-gap-after="${gapAfter !== null && gapAfter !== undefined ? gapAfter : ''}" style="min-width: 0.5em;${gapStyle}"></div>`;
         }
         return '';
     };
@@ -136,24 +160,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const generateHTMLFromJson = (pageData) => {
         if (!pageData || !pageData.lines) return '';
         let scale = pageData.ruby_scale || 0.5;
+        const pageLayoutMode = pageData.layout?.mode || currentPuncEngine;
         
         // Mode detection
         let lineClass = 'text-line';
-        if (currentPuncEngine === 'justified') lineClass += ' is-justified';
-        if (currentPuncEngine === 'adobe') lineClass += ' is-adobe-justified';
+        if (pageLayoutMode === 'justified') lineClass += ' is-justified';
+        if (pageLayoutMode === 'adobe') lineClass += ' is-adobe-justified';
+        if (pageLayoutMode === 'ai') lineClass += ' is-ai-layout';
         
         let html = `<div class="page-text-container" style="--ruby-scale: ${scale};">`;
         
         pageData.lines.forEach(line => {
             let indent = line.indent ? (line.indent.level + 'em') : '0';
+            const tokens = line.tokens || [];
+            const isAiMode = pageLayoutMode === 'ai';
+
             // V.2450: Use padding-left instead of margin-left to keep width: 100% safe
             html += `<div class="${lineClass} ${line.role || 'body'}" style="padding-left: ${indent};">`;
-            
-            let tokens = line.tokens;
 
             for (let i = 0; i < tokens.length; i++) {
-                let t = tokens[i];
+                const t = tokens[i];
                 if (t.type === 'word_boundary') continue;
+
+                if (isAiMode) {
+                    html += renderToken(t, resolveAiGapAfter(line, tokens, i));
+                    continue;
+                }
 
                 // LOGIC: Punctuation Sticky Hook (Supported in Sticky, Justified, and Adobe modes)
                 if (currentPuncEngine !== 'normal' && t.type === 'char' && i + 1 < tokens.length && tokens[i+1].type === 'punctuation') {
@@ -268,10 +300,73 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function applyAiLayout() {
+        if (isDragging) return;
+
+        document.querySelectorAll('.text-line.is-ai-layout').forEach(lineDiv => {
+            const blocks = [...lineDiv.children].filter(el => 
+                el.classList.contains('char-block') || el.classList.contains('sticky-pair')
+            );
+
+            if (blocks.length === 0) return;
+
+            blocks.forEach(b => {
+                b.style.marginRight = '';
+            });
+
+            lineDiv.offsetHeight;
+
+            const gapCount = blocks.length - 1;
+            if (gapCount <= 0) return;
+
+            const lineWidth = lineDiv.getBoundingClientRect().width;
+            const tokenWidth = blocks.reduce((sum, b) => sum + b.getBoundingClientRect().width, 0);
+            const desiredGaps = blocks.slice(0, -1).map((unit, idx) => {
+                const raw = unit.dataset.aiGapAfter;
+                if (raw !== undefined && raw !== null && raw !== '') {
+                    const parsed = Number(raw);
+                    if (Number.isFinite(parsed)) return parsed;
+                }
+                const fallback = blocks[idx + 1];
+                const leftKind = unit.dataset.tokenKind || '';
+                const rightKind = fallback?.dataset.tokenKind || '';
+                if (leftKind === 'space' || rightKind === 'space') return 0.45;
+                if (leftKind === 'punctuation' || rightKind === 'punctuation') return 0.10;
+                if (leftKind === 'sticky-pair' || rightKind === 'sticky-pair') return 0.16;
+                return 0.18;
+            });
+
+            const desiredGapTotal = desiredGaps.reduce((sum, gap) => sum + gap, 0);
+            const availableGap = Math.max(0, lineWidth - tokenWidth);
+
+            let finalGaps;
+            if (desiredGapTotal > 0) {
+                const scale = availableGap / desiredGapTotal;
+                finalGaps = desiredGaps.map(gap => Math.max(0, gap * scale));
+            } else {
+                const equal = gapCount > 0 ? availableGap / gapCount : 0;
+                finalGaps = new Array(gapCount).fill(Math.max(0, equal));
+            }
+
+            blocks.forEach((unit, idx) => {
+                if (idx < gapCount) {
+                    unit.style.marginRight = `${finalGaps[idx]}px`;
+                } else {
+                    unit.style.marginRight = '';
+                }
+            });
+        });
+    }
+
     function applyAllJustification() {
         // V.2460 Security: Don't run logic while user is interacting with 3D elements
         // This prevents the "jumping" effect during page flip or dragging.
         if (isDragging) return;
+
+        if (currentPuncEngine === 'ai' || document.querySelector('.text-line.is-ai-layout')) {
+            applyAiLayout();
+            return;
+        }
         
         if (currentPuncEngine !== 'adobe') {
             document.querySelectorAll('.char-block, .sticky-pair').forEach(b => b.style.marginRight = '');
@@ -458,8 +553,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tuning Slider Logic (V.2220)
     const sizeSlider = document.getElementById('size-slider');
     const sizeVal = document.getElementById('size-val');
-    const gapSlider = document.getElementById('gap-slider');
-    const gapVal = document.getElementById('gap-val');
     const lineSlider = document.getElementById('line-slider');
     const lineVal = document.getElementById('line-val');
     
@@ -477,15 +570,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const val = e.target.value;
             sizeVal.textContent = val;
             document.documentElement.style.setProperty('--char-size', val + 'rem');
-            applyAllJustification();
-        });
-    }
-
-    if (gapSlider && gapVal) {
-        gapSlider.addEventListener('input', (e) => {
-            const val = e.target.value;
-            gapVal.textContent = val;
-            document.documentElement.style.setProperty('--char-gap', val + 'em');
             applyAllJustification();
         });
     }

@@ -245,7 +245,8 @@ body {
 }
 
 /* MODE: Adobe Full Justify (The Pro indesign look) */
-.text-line.is-adobe-justified {
+.text-line.is-adobe-justified,
+.text-line.is-ai-layout {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
@@ -253,6 +254,10 @@ body {
     box-sizing: border-box;      /* Important to keep width 100% safe */
     align-items: flex-end;
     column-gap: 0 !important;
+}
+
+.text-line.is-ai-layout {
+    flex-wrap: nowrap;
 }
 
 /* Base unit for one character + its phonetics */

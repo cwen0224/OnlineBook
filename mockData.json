@@ -12,8 +12,10 @@
   },
   {
     "page": 2,
+    "layout": { "mode": "ai" },
     "lines": [
       {
+        "gaps": [0.22, 0.16, 0.38, 0.12, 0.18, 0.22, 0.08],
         "tokens": [
           { "type": "char", "char": "小", "zhuyin": "ㄒㄧㄠˇ" },
           { "type": "char", "char": "兔", "zhuyin": "ㄊㄨˋ" },
@@ -30,8 +32,10 @@
   },
   {
     "page": 3,
+    "layout": { "mode": "ai" },
     "lines": [
       {
+        "gaps": [0.18, 0.22, 0.24, 0.30, 0.16, 0.20, 0.08],
         "tokens": [
           { "type": "char", "char": "今", "zhuyin": "ㄐㄧㄣ" },
           { "type": "char", "char": "天", "zhuyin": "ㄊㄧㄢ" },
@@ -48,8 +52,10 @@
   },
   {
     "page": 4,
+    "layout": { "mode": "ai" },
     "lines": [
       {
+        "gaps": [0.20, 0.18, 0.42, 0.24, 0.18, 0.20, 0.16, 0.08],
         "tokens": [
           { "type": "char", "char": "森", "zhuyin": "ㄙㄣ" },
           { "type": "char", "char": "林", "zhuyin": "ㄌㄧㄣˊ" },
@@ -63,6 +69,7 @@
         ]
       },
       {
+        "gaps": [0.18, 0.22, 0.18, 0.24, 0.18, 0.22, 0.16, 0.08],
         "tokens": [
            { "type": "char", "char": "大", "zhuyin": "ㄉㄚˋ" },
            { "type": "char", "char": "家", "zhuyin": "ㄐㄧㄚ" },
