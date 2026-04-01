@@ -257,7 +257,7 @@ body {
 }
 
 .text-line.is-ai-layout {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
 }
 
 /* Base unit for one character + its phonetics */

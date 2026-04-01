@@ -48,6 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.dataset.phonetic = 'zhuyin';
                 toggleBtn.textContent = '切換拼音';
             }
+            requestAnimationFrame(() => {
+                if (document.querySelector('.text-line.is-ai-layout')) {
+                    refreshAiLayouts();
+                } else {
+                    applyAllJustification();
+                }
+            });
         });
     }
 
@@ -188,7 +195,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (t.type === 'word_boundary') continue;
 
                 if (isAiMode) {
-                    html += renderToken(t, resolveAiGapAfter(line, tokens, i), true);
+                    if (t.type === 'char' && i + 1 < tokens.length && tokens[i + 1].type === 'punctuation') {
+                        html += `<div class="sticky-pair" data-token-kind="sticky-pair" data-ai-gap-after="${resolveAiGapAfter(line, tokens, i + 1)}">`;
+                        html += renderToken(t, null, true);
+                        html += renderToken(tokens[i + 1], null, true);
+                        html += `</div>`;
+                        i++;
+                    } else {
+                        html += renderToken(t, resolveAiGapAfter(line, tokens, i), true);
+                    }
                     continue;
                 }
 
