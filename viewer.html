@@ -140,7 +140,7 @@
             position: absolute;
             top: 0; left: 0;
             background: #fff;
-            /* filled by the BACK face of the topmost flipped leaf */
+            visibility: hidden; /* Default hidden to avoid "page zero" glitch */
         }
 
         /* ── Bottom Controls ── */
@@ -249,15 +249,16 @@
         return;
     }
 
+    // ── Compute page aspect ratio from JSON data ──
+    const firstPage = pagesData[0];
+    const PAGE_RATIO = (firstPage && firstPage.width && firstPage.height)
+        ? (firstPage.height / firstPage.width) 
+        : 1.414;
+
+    console.log("Detecting Book Ratio:", PAGE_RATIO, "isLandscape:", PAGE_RATIO < 1);
+
     const TOTAL_PAGES  = pagesData.length;
     const TOTAL_LEAVES = Math.ceil(TOTAL_PAGES / 2);
-
-    // ── Compute page aspect ratio from JSON data (actual image dimensions) ──
-    // Prefer the width/height stored in JSON; fall back to A4 if not present.
-    const firstPage = pagesData.find(p => p.width && p.height);
-    const PAGE_RATIO = firstPage
-        ? firstPage.height / firstPage.width   // height / width
-        : 1.414;                               // A4 fallback
 
     // ── Compute book size ──
     // Each page is portrait. Two pages side-by-side = landscape spread.
