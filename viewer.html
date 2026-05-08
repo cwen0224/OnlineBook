@@ -252,17 +252,23 @@
     const TOTAL_PAGES  = pagesData.length;
     const TOTAL_LEAVES = Math.ceil(TOTAL_PAGES / 2);
 
+    // ── Compute page aspect ratio from JSON data (actual image dimensions) ──
+    // Prefer the width/height stored in JSON; fall back to A4 if not present.
+    const firstPage = pagesData.find(p => p.width && p.height);
+    const PAGE_RATIO = firstPage
+        ? firstPage.height / firstPage.width   // height / width
+        : 1.414;                               // A4 fallback
+
     // ── Compute book size ──
     // Each page is portrait. Two pages side-by-side = landscape spread.
     // We fit the spread into the available viewport area.
     function getSize() {
         const availW = window.innerWidth;
         const availH = window.innerHeight - 52 - 64;   // minus bars
-        const PAGE_RATIO = 1.414; // height / width (≈ A4)
 
         // Spread is 2 pages wide
         // Spread W / Spread H = 2 / PAGE_RATIO
-        const spreadRatio = 2 / PAGE_RATIO;  // ≈ 1.414
+        const spreadRatio = 2 / PAGE_RATIO;
 
         let spreadW, spreadH;
         if (availW / availH > spreadRatio) {
@@ -381,8 +387,9 @@
         document.getElementById('btn-prev').disabled = (flipped === 0);
         document.getElementById('btn-next').disabled = (flipped >= TOTAL_LEAVES);
 
-        // Update left-bg color based on whether there's a flipped leaf
-        leftBg.style.background = flipped > 0 ? '#fff' : '#1a1a2e';
+        // Update left-bg: hide it when the book is closed (on the cover)
+        leftBg.style.visibility = flipped > 0 ? 'visible' : 'hidden';
+        leftBg.style.background = '#fff';
     }
 
     // ── Flip ──
