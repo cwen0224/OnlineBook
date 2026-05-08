@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電子繪本閱讀器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: url('natural-wooden-background.jpg') center/cover fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* ── Top Bar ── */
+        #top-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 52px;
+            background: rgba(8, 8, 18, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 500;
+        }
+        #top-bar a {
+            color: rgba(255,255,255,0.55);
+            text-decoration: none;
+            font-size: 0.82rem;
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.22s ease;
+        }
+        #top-bar a:hover { background: rgba(255,255,255,0.07); color: white; }
+        #book-title { color: white; font-size: 0.95rem; font-weight: 600; letter-spacing: 2px; }
+        #page-indicator { color: rgba(255,255,255,0.4); font-size: 0.78rem; letter-spacing: 1px; min-width: 110px; text-align: right; }
+
+        /* ── Scene ── */
+        #scene {
+            position: fixed;
+            top: 52px; bottom: 64px;
+            left: 0; right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 3000px;
+            perspective-origin: 50% 50%;
+        }
+
+        /*
+         * #book = the full spread container (2 × page width)
+         * transform-style so children 3D-flip in correct context
+         */
+        #book {
+            position: relative;
+            transform-style: preserve-3d;
+            /* slight tilt for depth feel */
+            transform: rotateX(4deg);
+        }
+
+        /*
+         * Each .leaf sits on the RIGHT half of the book.
+         * transform-origin: left center  →  spins around the spine.
+         */
+        .leaf {
+            position: absolute;
+            top: 0;
+            transform-style: preserve-3d;
+            transform-origin: left center;
+            cursor: grab;
+            will-change: transform;
+        }
+        .leaf:active { cursor: grabbing; }
+
+        .face {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            overflow: hidden;
+            background: #fff;
+        }
+        .face.front { transform: rotateY(0deg); }
+        .face.back  { transform: rotateY(180deg); }
+
+        .face img {
+            width: 100%; height: 100%;
+            object-fit: contain;   /* ← show full page, no crop */
+            object-position: center;
+            display: block;
+            pointer-events: none;
+            background: #fff;
+        }
+
+        /* Subtle spine-edge shadow only — no overlay gradients */
+        .face.front::after,
+        .face.back::after {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 18px;
+            pointer-events: none;
+            opacity: 0;   /* hidden; only shown during flip via JS */
+            transition: opacity 0.3s;
+        }
+        .face.front::after { left: 0;  background: linear-gradient(to right, rgba(0,0,0,0.18), transparent); }
+        .face.back::after  { right: 0; background: linear-gradient(to left,  rgba(0,0,0,0.18), transparent); }
+
+        /* Page number badge */
+        .page-num {
+            position: absolute;
+            bottom: 10px;
+            font-size: 0.7rem;
+            color: rgba(0,0,0,0.35);
+            font-family: monospace;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.06);
+            pointer-events: none;
+        }
+        .face.front .page-num { right: 10px; }
+        .face.back  .page-num { left:  10px; }
+
+        /* Left-side static background (already-flipped pages rest here) */
+        #left-bg {
+            position: absolute;
+            top: 0; left: 0;
+            background: #fff;
+            /* filled by the BACK face of the topmost flipped leaf */
+        }
+
+        /* ── Bottom Controls ── */
+        #controls {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 64px;
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+            background: rgba(8, 8, 18, 0.92);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(255,255,255,0.07);
+            z-index: 500;
+        }
+        .ctrl-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 9px 26px;
+            border-radius: 22px;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            letter-spacing: 1px;
+        }
+        .ctrl-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.25);
+            transform: translateY(-1px);
+        }
+        .ctrl-btn:disabled { opacity: 0.22; cursor: not-allowed; }
+        #spread-info { color: rgba(255,255,255,0.4); font-size: 0.78rem; min-width: 90px; text-align: center; }
+
+        /* ── Loading ── */
+        #loading-screen {
+            position: fixed; inset: 0;
+            background: url('natural-wooden-background.jpg') center/cover;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(255,255,255,0.08);
+            border-top-color: rgba(120,160,255,0.8);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loading-text { margin-top: 16px; color: rgba(255,255,255,0.4); font-size: 0.85rem; letter-spacing: 2px; }
+
+        /* Hint */
+        #hint {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+            color: rgba(255,255,255,0.28); font-size: 0.72rem; letter-spacing: 1px;
+            pointer-events: none; white-space: nowrap;
+            animation: fadeHint 5s ease forwards;
+        }
+        @keyframes fadeHint { 0%,60%{opacity:1} 100%{opacity:0} }
+    </style>
+</head>
+<body>
+
+<div id="loading-screen">
+    <div class="spinner"></div>
+    <div id="loading-text">載入繪本中…</div>
+</div>
+
+<div id="top-bar">
+    <a href="index.html">&#8592; 返回書架</a>
+    <span id="book-title">電子繪本</span>
+    <span id="page-indicator">—</span>
+</div>
+
+<div id="scene">
+    <div id="book">
+        <div id="left-bg"></div>
+    </div>
+</div>
+
+<div id="hint">點擊或拖曳書頁翻頁・← → 鍵盤也可以</div>
+
+<div id="controls">
+    <button class="ctrl-btn" id="btn-prev">&#8592; 上一頁</button>
+    <span id="spread-info">— / —</span>
+    <button class="ctrl-btn" id="btn-next">下一頁 &#8594;</button>
+</div>
+
+<script>
+(async () => {
+    // ── Params ──
+    const params  = new URLSearchParams(location.search);
+    const bookKey = params.get('book') || 'zaojiao';
+    const titles  = { zaojiao: '社會系列・藻礁保衛戰', shigo: '親子系列・海客石滬' };
+    document.getElementById('book-title').textContent = titles[bookKey] || '電子繪本';
+    document.title = (titles[bookKey] || '電子繪本') + ' | 電子繪本';
+
+    // ── Load JSON ──
+    let pagesData = [];
+    try {
+        const res = await fetch(`book_${bookKey}.json?v=${Date.now()}`);
+        if (!res.ok) throw new Error(res.status);
+        pagesData = await res.json();
+    } catch(e) {
+        document.getElementById('loading-text').textContent = '無法載入繪本資料';
+        console.error(e);
+        return;
+    }
+
+    const TOTAL_PAGES  = pagesData.length;
+    const TOTAL_LEAVES = Math.ceil(TOTAL_PAGES / 2);
+
+    // ── Compute book size ──
+    // Each page is portrait. Two pages side-by-side = landscape spread.
+    // We fit the spread into the available viewport area.
+    function getSize() {
+        const availW = window.innerWidth;
+        const availH = window.innerHeight - 52 - 64;   // minus bars
+        const PAGE_RATIO = 1.414; // height / width (≈ A4)
+
+        // Spread is 2 pages wide
+        // Spread W / Spread H = 2 / PAGE_RATIO
+        const spreadRatio = 2 / PAGE_RATIO;  // ≈ 1.414
+
+        let spreadW, spreadH;
+        if (availW / availH > spreadRatio) {
+            // Height-constrained
+            spreadH = availH * 0.94;
+            spreadW = spreadH * spreadRatio;
+        } else {
+            // Width-constrained
+            spreadW = availW * 0.96;
+            spreadH = spreadW / spreadRatio;
+        }
+        const leafW = Math.floor(spreadW / 2);
+        const leafH = Math.floor(spreadH);
+        return { leafW, leafH, spreadW: leafW * 2, spreadH: leafH };
+    }
+
+    // ── State ──
+    const book    = document.getElementById('book');
+    const leftBg  = document.getElementById('left-bg');
+    const leaves  = [];
+    let isDragging = false, currentDragLeaf = null;
+    let startX = 0, lastX = 0, startAngle = 0;
+    let bookRect = {};
+
+    // ── Build ──
+    function buildBook() {
+        const { leafW, leafH, spreadW, spreadH } = getSize();
+
+        // Book container = full spread
+        book.style.width  = spreadW + 'px';
+        book.style.height = spreadH + 'px';
+
+        // Left background panel
+        leftBg.style.width  = leafW + 'px';
+        leftBg.style.height = leafH + 'px';
+        leftBg.style.left   = '0px';
+        leftBg.style.top    = '0px';
+
+        // Remove old leaves from DOM
+        book.querySelectorAll('.leaf').forEach(el => el.remove());
+        leaves.length = 0;
+
+        for (let i = 0; i < TOTAL_LEAVES; i++) {
+            const leaf = document.createElement('div');
+            leaf.className = 'leaf';
+            leaf.dataset.index = i;
+            leaf.style.width  = leafW + 'px';
+            leaf.style.height = leafH + 'px';
+            // Leaves sit on the RIGHT half (spine = left edge of leaf = center of book)
+            leaf.style.left = leafW + 'px';
+            leaf.style.top  = '0px';
+
+            const frontPage = pagesData[i * 2];
+            const backPage  = pagesData[i * 2 + 1];
+
+            const frontImg = frontPage
+                ? `<img src="${frontPage.image}" loading="${i < 3 ? 'eager' : 'lazy'}" alt="第${i*2+1}頁">`
+                : '<img style="background:#fff;">';
+            const backImg = backPage
+                ? `<img src="${backPage.image}"  loading="${i < 3 ? 'eager' : 'lazy'}" alt="第${i*2+2}頁">`
+                : '<img style="background:#fff;">';
+
+            leaf.innerHTML = `
+                <div class="face front">
+                    ${frontImg}
+                    <span class="page-num">${i*2+1}</span>
+                </div>
+                <div class="face back">
+                    ${backImg}
+                    ${backPage ? `<span class="page-num">${i*2+2}</span>` : ''}
+                </div>
+            `;
+
+            book.appendChild(leaf);
+            const obj = { el: leaf, index: i, angle: 0, w: leafW };
+            leaves.push(obj);
+            setTransform(obj, 0);
+        }
+
+        updateUI();
+        bookRect = book.getBoundingClientRect();
+    }
+
+    // ── Transform ──
+    function setTransform(obj, angle) {
+        angle = Math.max(-180, Math.min(0, angle));
+        obj.angle = angle;
+
+        // z-index: unflipped leaves stack front-to-back on right;
+        //          flipped leaves stack back-to-front on left
+        const base = TOTAL_LEAVES - obj.index;
+        let z = angle <= -90 ? obj.index + 1 : base + TOTAL_LEAVES;
+        if (angle !== 0 && angle !== -180) z += TOTAL_LEAVES * 2; // lift during flip
+
+        obj.el.style.zIndex   = z;
+        obj.el.style.transform = `rotateY(${angle}deg)`;
+    }
+
+    // ── UI ──
+    function updateUI() {
+        const flipped = leaves.filter(l => l.angle === -180).length;
+        const leftPage  = flipped === 0 ? 0 : flipped * 2 - 1;  // last flipped back page
+        const rightPage = flipped * 2 + 1;
+
+        let spreadText;
+        if (flipped === 0) {
+            spreadText = `封面 / 共 ${TOTAL_PAGES} 頁`;
+        } else {
+            const l = Math.min(leftPage, TOTAL_PAGES);
+            const r = Math.min(rightPage, TOTAL_PAGES);
+            spreadText = `第 ${l}–${r} 頁 / ${TOTAL_PAGES}`;
+        }
+
+        document.getElementById('page-indicator').textContent = spreadText;
+        document.getElementById('spread-info').textContent    = spreadText;
+        document.getElementById('btn-prev').disabled = (flipped === 0);
+        document.getElementById('btn-next').disabled = (flipped >= TOTAL_LEAVES);
+
+        // Update left-bg color based on whether there's a flipped leaf
+        leftBg.style.background = flipped > 0 ? '#fff' : '#1a1a2e';
+    }
+
+    // ── Flip ──
+    function flipTo(obj, targetAngle, dur = 440) {
+        obj.el.style.transition = `transform ${dur}ms cubic-bezier(0.25,0.8,0.25,1)`;
+        setTransform(obj, targetAngle);
+        setTimeout(() => {
+            obj.el.style.transition = '';
+            setTransform(obj, targetAngle); // commit
+            updateUI();
+        }, dur + 10);
+    }
+
+    document.getElementById('btn-next').addEventListener('click', () => {
+        const next = leaves.find(l => l.angle === 0);
+        if (next) flipTo(next, -180);
+    });
+    document.getElementById('btn-prev').addEventListener('click', () => {
+        const prev = [...leaves].reverse().find(l => l.angle === -180);
+        if (prev) flipTo(prev, 0);
+    });
+
+    // ── Drag ──
+    book.addEventListener('pointerdown', e => {
+        const leafEl = e.target.closest('.leaf');
+        if (!leafEl) return;
+        const obj = leaves[parseInt(leafEl.dataset.index)];
+        obj.el.style.transition = 'none';
+        isDragging = true;
+        currentDragLeaf = obj;
+        startX = e.clientX;
+        lastX  = e.clientX;
+        startAngle = obj.angle;
+        bookRect = book.getBoundingClientRect();
+        book.setPointerCapture(e.pointerId);
+    });
+
+    book.addEventListener('pointermove', e => {
+        if (!isDragging || !currentDragLeaf) return;
+        e.preventDefault();
+        lastX = e.clientX;
+        const leafW = currentDragLeaf.w;
+        const delta = e.clientX - startX;
+        const newAngle = startAngle + (delta / leafW) * 180;
+        setTransform(currentDragLeaf, newAngle);
+    });
+
+    const endDrag = () => {
+        if (!isDragging || !currentDragLeaf) return;
+        isDragging = false;
+        const obj = currentDragLeaf;
+        currentDragLeaf = null;
+
+        const delta = lastX - startX;
+        let snap;
+        if (Math.abs(delta) < 10) {
+            snap = startAngle === 0 ? -180 : 0;
+        } else {
+            snap = obj.angle < -90 ? -180 : 0;
+        }
+        flipTo(obj, snap, 400);
+    };
+
+    book.addEventListener('pointerup',     endDrag);
+    book.addEventListener('pointercancel', endDrag);
+
+    // ── Keyboard ──
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown') document.getElementById('btn-next').click();
+        if (e.key === 'ArrowLeft'  || e.key === 'PageUp')   document.getElementById('btn-prev').click();
+    });
+
+    // ── Resize ──
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            const angles = leaves.map(l => l.angle);
+            buildBook();
+            angles.forEach((a, i) => { if (leaves[i]) setTransform(leaves[i], a); });
+            updateUI();
+        }, 120);
+    });
+
+    // ── Init ──
+    buildBook();
+
+    // Hide loading
+    const ls = document.getElementById('loading-screen');
+    ls.style.opacity = '0';
+    setTimeout(() => ls.remove(), 550);
+
+    setTimeout(() => { const h = document.getElementById('hint'); if (h) h.remove(); }, 5500);
+})();
+</script>
+</body>
+</html>

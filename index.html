@@ -6,10 +6,56 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>True 3D Page Flip Book</title>
+    <title>線上電子繪本 | 互動繪本閱讀平台</title>
     <link rel="stylesheet" href="style.css?v=202604011534">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .book-btn:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+        }
+        #entrance-overlay {
+            animation: fadeIn 0.8s ease-out;
+            font-family: 'Inter', sans-serif;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .close-entrance-btn:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body>
+
+    <!-- Entrance Overlay -->
+    <div id="entrance-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <h1 style="color: white; font-size: 3.5rem; margin-bottom: 3rem; text-shadow: 0 10px 20px rgba(0,0,0,0.5); letter-spacing: 4px; font-weight: 800; text-align: center;">線上電子繪本</h1>
+        <div style="display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center; padding: 0 20px;">
+            <a href="viewer.html?book=zaojiao" style="text-decoration: none;">
+                <div class="book-btn" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem 4rem; border-radius: 24px; text-align: center; color: white; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; width: 280px;">
+                    <div style="font-size: 5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.3));">🌊</div>
+                    <h2 style="font-size: 1.8rem; margin: 0; font-weight: 600; letter-spacing: 1px;">藻礁保衛戰</h2>
+                    <p style="margin-top: 15px; font-size: 1rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">社會系列</p>
+                </div>
+            </a>
+            <a href="viewer.html?book=shigo" style="text-decoration: none;">
+                <div class="book-btn" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem 4rem; border-radius: 24px; text-align: center; color: white; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; width: 280px;">
+                    <div style="font-size: 5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.3));">🐟</div>
+                    <h2 style="font-size: 1.8rem; margin: 0; font-weight: 600; letter-spacing: 1px;">海客石滬</h2>
+                    <p style="margin-top: 15px; font-size: 1rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">親子系列</p>
+                </div>
+            </a>
+        </div>
+        <!-- Option to enter the 3D book testing area -->
+        <button class="close-entrance-btn" onclick="document.getElementById('entrance-overlay').style.display='none'" style="position: absolute; bottom: 3rem; background: transparent; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); padding: 12px 24px; border-radius: 30px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; letter-spacing: 1px;">
+            進入 3D 互動繪本測試 (開發區)
+        </button>
+    </div>
 
     <!-- Tuning Panel -->
     <div id="tuning-panel" style="position: fixed; top: 70px; right: 20px; background: rgba(0,0,0,0.85); color: white; padding: 15px; border-radius: 15px; z-index: 5000; font-family: sans-serif; font-size: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); width: 250px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); max-height: 85vh; overflow-y: auto;">
