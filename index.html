@@ -29,20 +29,39 @@
             background: rgba(255, 255, 255, 0.1) !important;
             transform: scale(1.05);
         }
+        .lang-switcher {
+            position: absolute;
+            top: 2rem; right: 2rem;
+            display: flex;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            padding: 4px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 10001;
+        }
         .lang-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 8px 24px;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            letter-spacing: 1px;
         }
         .lang-btn.active {
             background: white;
             color: #1a1a2e;
-            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .lang-btn:hover:not(.active) {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
         }
     </style>
 </head>
@@ -52,7 +71,7 @@
     <div id="entrance-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         
         <!-- Language Switcher -->
-        <div style="position: absolute; top: 2rem; right: 2rem; display: flex; gap: 1rem;">
+        <div class="lang-switcher">
             <button onclick="setLang('zh-TW')" class="lang-btn active" id="btn-zh">繁體中文</button>
             <button onclick="setLang('en')" class="lang-btn" id="btn-en">English</button>
         </div>
