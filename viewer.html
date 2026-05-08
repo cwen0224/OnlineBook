@@ -189,7 +189,8 @@
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        #loading-text { margin-top: 16px; color: rgba(255,255,255,0.4); font-size: 0.85rem; letter-spacing: 2px; }
+        #loading-text { margin-top: 16px; color: rgba(255,255,255,0.7); font-size: 0.85rem; letter-spacing: 2px; }
+        #loading-progress { margin-top: 8px; color: rgba(120,160,255,0.8); font-size: 0.75rem; font-family: monospace; }
 
         /* Hint */
         #hint {
@@ -205,7 +206,8 @@
 
 <div id="loading-screen">
     <div class="spinner"></div>
-    <div id="loading-text">載入繪本中…</div>
+    <div id="loading-text">正在準備繪本內容...</div>
+    <div id="loading-progress">0%</div>
 </div>
 
 <div id="top-bar">
@@ -475,15 +477,42 @@
         }, 120);
     });
 
+    // ── Preload Images ──
+    async function preloadImages() {
+        const progressEl = document.getElementById('loading-progress');
+        const urls = pagesData.map(p => p.image);
+        let loadedCount = 0;
+
+        const promises = urls.map(url => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = img.onerror = () => {
+                    loadedCount++;
+                    const percent = Math.round((loadedCount / urls.length) * 100);
+                    progressEl.textContent = `${percent}%`;
+                    resolve();
+                };
+                img.src = url;
+            });
+        });
+
+        await Promise.all(promises);
+    }
+
     // ── Init ──
     buildBook();
+    
+    // Wait for images
+    await preloadImages();
 
     // Hide loading
     const ls = document.getElementById('loading-screen');
     ls.style.opacity = '0';
-    setTimeout(() => ls.remove(), 550);
-
-    setTimeout(() => { const h = document.getElementById('hint'); if (h) h.remove(); }, 5500);
+    setTimeout(() => {
+        ls.remove();
+        // Optional: show a small hint after entering
+        setTimeout(() => { const h = document.getElementById('hint'); if (h) h.remove(); }, 5000);
+    }, 550);
 })();
 </script>
 </body>
