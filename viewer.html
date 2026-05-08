@@ -46,14 +46,6 @@
         }
         #top-bar a:hover { background: rgba(255,255,255,0.07); color: white; }
         #page-indicator { color: rgba(255,255,255,0.4); font-size: 0.78rem; letter-spacing: 1px; min-width: 110px; text-align: right; }
-        
-        #sound-toggle {
-            color: rgba(255,255,255,0.6);
-            background: none; border: none;
-            cursor: pointer; font-size: 1.1rem;
-            margin-right: 15px; transition: color 0.2s;
-        }
-        #sound-toggle:hover { color: white; }
 
         /* ── Scene ── */
         #scene {
@@ -219,10 +211,7 @@
 
 <div id="top-bar">
     <a href="index.html">&#8592; 返回書架</a>
-    <div style="display: flex; align-items: center;">
-        <button id="sound-toggle" title="切換音效">🔊</button>
-        <span id="book-title">電子繪本</span>
-    </div>
+    <span id="book-title">電子繪本</span>
     <span id="page-indicator">—</span>
 </div>
 
@@ -332,23 +321,6 @@
     let startX = 0, lastX = 0, startAngle = 0;
     let bookRect = {};
 
-    // ── Audio ──
-    let soundEnabled = true;
-    const flipSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2591/2591-preview.mp3');
-    flipSound.volume = 0.4;
-
-    const soundBtn = document.getElementById('sound-toggle');
-    soundBtn.addEventListener('click', () => {
-        soundEnabled = !soundEnabled;
-        soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-    });
-
-    function playFlipSound() {
-        if (!soundEnabled) return;
-        flipSound.currentTime = 0;
-        flipSound.play().catch(e => console.log("Audio play blocked"));
-    }
-
     // ── Build ──
     function buildBook() {
         const { leafW, leafH, spreadW, spreadH } = getSize();
@@ -450,7 +422,6 @@
 
     // ── Flip ──
     function flipTo(obj, targetAngle, dur = 440) {
-        if (obj.angle !== targetAngle) playFlipSound(); // Only play if moving
         obj.el.style.transition = `transform ${dur}ms cubic-bezier(0.25,0.8,0.25,1)`;
         setTransform(obj, targetAngle);
         setTimeout(() => {
