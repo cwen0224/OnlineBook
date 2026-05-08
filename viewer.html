@@ -242,21 +242,47 @@
 
 <script>
 (async () => {
-    // ── Params ──
+    // ── Params & Localization ──
     const params  = new URLSearchParams(location.search);
     const bookKey = params.get('book') || 'zaojiao';
-    const titles  = { zaojiao: '社會系列・藻礁保衛戰', shigo: '親子系列・海客石滬' };
-    document.getElementById('book-title').textContent = titles[bookKey] || '電子繪本';
-    document.title = (titles[bookKey] || '電子繪本') + ' | 電子繪本';
+    const lang    = params.get('lang') || 'zh-TW';
+
+    const i18n = {
+        'zh-TW': {
+            titles: { zaojiao: '社會系列・藻礁保衛戰', shigo: '親子系列・海客石滬' },
+            loading: '正在準備繪本內容...',
+            prev: '← 上一頁',
+            next: '下一頁 →',
+            back: '← 返回書架',
+            hint: '點擊或拖曳書頁翻頁・← → 鍵盤也可以'
+        },
+        'en': {
+            titles: { zaojiao: 'Social Series: Algal Reef Defense', shigo: 'Parenting Series: Shigo Stone Weir' },
+            loading: 'Preparing book content...',
+            prev: '← Prev',
+            next: 'Next →',
+            back: '← Library',
+            hint: 'Click or drag to flip • Arrow keys supported'
+        }
+    };
+
+    const t = i18n[lang] || i18n['zh-TW'];
+    document.getElementById('book-title').textContent = t.titles[bookKey] || 'E-Book';
+    document.title = (t.titles[bookKey] || 'E-Book') + ' | Reader';
+    document.getElementById('loading-text').textContent = t.loading;
+    document.getElementById('btn-prev').textContent = t.prev;
+    document.getElementById('btn-next').textContent = t.next;
+    document.querySelector('#top-bar a').textContent = t.back;
+    document.getElementById('hint').textContent = t.hint;
 
     // ── Load JSON ──
     let pagesData = [];
     try {
-        const res = await fetch(`book_${bookKey}.json?v=${Date.now()}`);
+        const res = await fetch(`book_${bookKey}_${lang}.json?v=${Date.now()}`);
         if (!res.ok) throw new Error(res.status);
         pagesData = await res.json();
     } catch(e) {
-        document.getElementById('loading-text').textContent = '無法載入繪本資料';
+        document.getElementById('loading-text').textContent = (lang === 'en') ? 'Failed to load book data' : '無法載入繪本資料';
         console.error(e);
         return;
     }
@@ -405,11 +431,11 @@
 
         let spreadText;
         if (flipped === 0) {
-            spreadText = `封面 / 共 ${TOTAL_PAGES} 頁`;
+            spreadText = (lang === 'en') ? `Cover / Total ${TOTAL_PAGES} Pages` : `封面 / 共 ${TOTAL_PAGES} 頁`;
         } else {
             const l = Math.min(leftPage, TOTAL_PAGES);
             const r = Math.min(rightPage, TOTAL_PAGES);
-            spreadText = `第 ${l}–${r} 頁 / ${TOTAL_PAGES}`;
+            spreadText = (lang === 'en') ? `Page ${l}–${r} / ${TOTAL_PAGES}` : `第 ${l}–${r} 頁 / ${TOTAL_PAGES}`;
         }
 
         document.getElementById('page-indicator').textContent = spreadText;

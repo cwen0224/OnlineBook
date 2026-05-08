@@ -29,26 +29,49 @@
             background: rgba(255, 255, 255, 0.1) !important;
             transform: scale(1.05);
         }
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        .lang-btn.active {
+            background: white;
+            color: #1a1a2e;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <!-- Entrance Overlay -->
     <div id="entrance-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <h1 style="color: white; font-size: 3.5rem; margin-bottom: 3rem; text-shadow: 0 10px 20px rgba(0,0,0,0.5); letter-spacing: 4px; font-weight: 800; text-align: center;">線上電子繪本</h1>
+        
+        <!-- Language Switcher -->
+        <div style="position: absolute; top: 2rem; right: 2rem; display: flex; gap: 1rem;">
+            <button onclick="setLang('zh-TW')" class="lang-btn active" id="btn-zh">繁體中文</button>
+            <button onclick="setLang('en')" class="lang-btn" id="btn-en">English</button>
+        </div>
+
+        <h1 id="main-title" style="color: white; font-size: 3.5rem; margin-bottom: 3rem; text-shadow: 0 10px 20px rgba(0,0,0,0.5); letter-spacing: 4px; font-weight: 800; text-align: center;">線上電子繪本</h1>
+        
         <div style="display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center; padding: 0 20px;">
-            <a href="viewer.html?book=zaojiao" style="text-decoration: none;">
+            <a href="viewer.html?book=zaojiao&lang=zh-TW" class="book-link" data-book="zaojiao" style="text-decoration: none;">
                 <div class="book-btn" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem 4rem; border-radius: 24px; text-align: center; color: white; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; width: 280px;">
                     <div style="font-size: 5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.3));">🌊</div>
-                    <h2 style="font-size: 1.8rem; margin: 0; font-weight: 600; letter-spacing: 1px;">藻礁保衛戰</h2>
-                    <p style="margin-top: 15px; font-size: 1rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">社會系列</p>
+                    <h2 class="b-title" style="font-size: 1.8rem; margin: 0; font-weight: 600; letter-spacing: 1px;">藻礁保衛戰</h2>
+                    <p class="b-cat" style="margin-top: 15px; font-size: 1rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">社會系列</p>
                 </div>
             </a>
-            <a href="viewer.html?book=shigo" style="text-decoration: none;">
+            <a href="viewer.html?book=shigo&lang=zh-TW" class="book-link" data-book="shigo" style="text-decoration: none;">
                 <div class="book-btn" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem 4rem; border-radius: 24px; text-align: center; color: white; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; width: 280px;">
                     <div style="font-size: 5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.3));">🐟</div>
-                    <h2 style="font-size: 1.8rem; margin: 0; font-weight: 600; letter-spacing: 1px;">海客石滬</h2>
-                    <p style="margin-top: 15px; font-size: 1rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">親子系列</p>
+                    <h2 class="b-title" style="font-size: 1.8rem; margin: 0; font-weight: 600; letter-spacing: 1px;">海客石滬</h2>
+                    <p class="b-cat" style="margin-top: 15px; font-size: 1rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">親子系列</p>
                 </div>
             </a>
         </div>
@@ -59,6 +82,47 @@
     </div>
 
     <script>
+        let currentLang = 'zh-TW';
+        const i18n = {
+            'zh-TW': {
+                title: '線上電子繪本',
+                dev: '進入 3D 互動繪本測試 (開發區)',
+                books: {
+                    zaojiao: { title: '藻礁保衛戰', cat: '社會系列' },
+                    shigo: { title: '海客石滬', cat: '親子系列' }
+                }
+            },
+            'en': {
+                title: 'Online E-Books',
+                dev: 'Enter 3D Interactive Test Area (Dev)',
+                books: {
+                    zaojiao: { title: 'Algal Reef Defense', cat: 'Social Series' },
+                    shigo: { title: 'Shigo Stone Weir', cat: 'Parenting Series' }
+                }
+            }
+        };
+
+        function setLang(lang) {
+            currentLang = lang;
+            const t = i18n[lang];
+            
+            // Update UI
+            document.getElementById('main-title').textContent = t.title;
+            document.querySelector('.close-entrance-btn').textContent = t.dev;
+            
+            // Update Books
+            document.querySelectorAll('.book-link').forEach(link => {
+                const key = link.dataset.book;
+                link.href = `viewer.html?book=${key}&lang=${lang}`;
+                link.querySelector('.b-title').textContent = t.books[key].title;
+                link.querySelector('.b-cat').textContent = t.books[key].cat;
+            });
+
+            // Update Buttons
+            document.getElementById('btn-zh').classList.toggle('active', lang === 'zh-TW');
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        }
+
         function enterDevMode() {
             document.getElementById('entrance-overlay').style.display = 'none';
             // 顯示所有被隱藏的開發工具
