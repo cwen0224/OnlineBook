@@ -10,23 +10,49 @@
     <link rel="stylesheet" href="style.css?v=202604011534">
     <style>
         body {
-            background: #1a1a2e; 
+            background: url('bg_optimized.webp') no-repeat center center fixed;
+            background-size: cover;
             margin: 0;
             overflow: hidden;
             font-family: 'Inter', sans-serif;
         }
         #entrance-overlay {
-            animation: fadeIn 0.6s ease-out;
+            background: rgba(0, 0, 0, 0.4); /* 加上半透明遮罩讓文字更清晰 */
+            backdrop-filter: blur(2px);
+            animation: fadeIn 0.8s ease-out;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .book-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            cursor: pointer;
+            width: 260px;
+            text-decoration: none;
+            display: block;
         }
-        .book-btn:hover {
-            transform: translateY(-10px);
-            background: rgba(255, 255, 255, 0.2) !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
-            border-color: rgba(255, 255, 255, 0.5) !important;
+        .book-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .cover-img {
+            width: 100%;
+            aspect-ratio: 1.414; /* A4 ratio roughly */
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            transition: transform 0.5s;
+        }
+        .book-card:hover .cover-img {
+            transform: rotate(-2deg);
         }
         /* 預設隱藏開發測試區內容 */
         #tuning-panel, #book, #phonetic-toggle-btn, #version-banner {
@@ -37,32 +63,30 @@
 <body>
 
     <!-- Entrance Overlay -->
-    <div id="entrance-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <div id="entrance-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         
         <!-- Language Switcher (使用行內樣式確保絕對生效) -->
         <div style="position: absolute; top: 2rem; right: 2rem; display: flex; gap: 12px; z-index: 10001;">
-            <button id="btn-zh" onclick="setLang('zh-TW')" style="background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 10px 24px; border-radius: 30px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; letter-spacing: 1px; font-weight: bold;">繁體中文</button>
-            <button id="btn-en" onclick="setLang('en')" style="background: transparent; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); padding: 10px 24px; border-radius: 30px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; letter-spacing: 1px;">English</button>
+            <button id="btn-zh" onclick="setLang('zh-TW')" style="background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 10px 24px; border-radius: 30px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; letter-spacing: 1px; font-weight: bold; backdrop-filter: blur(10px);">繁體中文</button>
+            <button id="btn-en" onclick="setLang('en')" style="background: transparent; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); padding: 10px 24px; border-radius: 30px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; letter-spacing: 1px; backdrop-filter: blur(10px);">English</button>
         </div>
 
-        <h1 id="main-title" style="color: white; font-size: 3.5rem; margin-bottom: 3rem; text-shadow: 0 10px 20px rgba(0,0,0,0.5); letter-spacing: 4px; font-weight: 800; text-align: center;">線上電子繪本</h1>
+        <h1 id="main-title" style="color: white; font-size: 3.8rem; margin-bottom: 4rem; text-shadow: 0 10px 30px rgba(0,0,0,0.8); letter-spacing: 6px; font-weight: 800; text-align: center;">線上電子繪本</h1>
         
-        <div style="display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center; padding: 0 20px;">
-            <a href="viewer.html?book=zaojiao&lang=zh-TW" class="book-link" data-book="zaojiao" style="text-decoration: none;">
-                <div class="book-btn" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem 4rem; border-radius: 24px; text-align: center; color: white; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; width: 280px;">
-                    <div style="font-size: 5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.3));">🌊</div>
-                    <h2 class="b-title" style="font-size: 1.8rem; margin: 0; font-weight: 600; letter-spacing: 1px;">藻礁保衛戰</h2>
-                    <p class="b-cat" style="margin-top: 15px; font-size: 1rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">社會系列</p>
-                </div>
+        <div style="display: flex; gap: 4rem; flex-wrap: wrap; justify-content: center; padding: 0 20px;">
+            <a href="viewer.html?book=zaojiao&lang=zh-TW" class="book-card book-link" data-book="zaojiao">
+                <img src="pages_zaojiao_tw/page_001.webp" class="cover-img" alt="Cover">
+                <h2 class="b-title" style="font-size: 1.6rem; margin: 0; font-weight: 600; letter-spacing: 1px;">藻礁保衛戰</h2>
+                <p class="b-cat" style="margin-top: 12px; font-size: 0.9rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">社會系列</p>
             </a>
-            <a href="viewer.html?book=shigo&lang=zh-TW" class="book-link" data-book="shigo" style="text-decoration: none;">
-                <div class="book-btn" style="background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 3rem 4rem; border-radius: 24px; text-align: center; color: white; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; width: 280px;">
-                    <div style="font-size: 5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.3));">🐟</div>
-                    <h2 class="b-title" style="font-size: 1.8rem; margin: 0; font-weight: 600; letter-spacing: 1px;">海客石滬</h2>
-                    <p class="b-cat" style="margin-top: 15px; font-size: 1rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">親子系列</p>
-                </div>
+            
+            <a href="viewer.html?book=shigo&lang=zh-TW" class="book-card book-link" data-book="shigo">
+                <img src="pages_shigo_tw/page_001.webp" class="cover-img" alt="Cover">
+                <h2 class="b-title" style="font-size: 1.6rem; margin: 0; font-weight: 600; letter-spacing: 1px;">海客石滬</h2>
+                <p class="b-cat" style="margin-top: 12px; font-size: 0.9rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">親子系列</p>
             </a>
         </div>
+    </div>
     </div>
 
     <script>

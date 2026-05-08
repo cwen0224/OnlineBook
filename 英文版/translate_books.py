@@ -394,7 +394,7 @@ BOOKS = {
                 "Xinnwu is the place in Taiwan with the most stone fish traps.",
                 "It used to be prosperous.",
                 "Now marine pollution is worsening and fish catches are declining...",
-                "The Hakka stone fish-trap culture has also become quiet and faded.",
+                "That culture has also faded.",
                 "Come and listen to Grandma Hakka tell the story",
                 "of the stone fish-trap fishing culture.",
             ],
