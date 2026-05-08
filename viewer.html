@@ -135,12 +135,7 @@
         .face.back  .page-num { left:  10px; }
 
         /* Left-side static background (already-flipped pages rest here) */
-        #left-bg {
-            position: absolute;
-            top: 0; left: 0;
-            background: #fff;
-            visibility: hidden; /* Default hidden to avoid "page zero" glitch */
-        }
+        /* No static left-bg needed anymore to avoid "page zero" glitch */
 
         /* ── Bottom Controls ── */
         #controls {
@@ -217,7 +212,7 @@
 
 <div id="scene">
     <div id="book">
-        <div id="left-bg"></div>
+        <!-- Leaves are stacked here -->
     </div>
 </div>
 
@@ -329,12 +324,6 @@
         book.style.width  = spreadW + 'px';
         book.style.height = spreadH + 'px';
 
-        // Left background panel
-        leftBg.style.width  = leafW + 'px';
-        leftBg.style.height = leafH + 'px';
-        leftBg.style.left   = '0px';
-        leftBg.style.top    = '0px';
-
         // Remove old leaves from DOM
         book.querySelectorAll('.leaf').forEach(el => el.remove());
         leaves.length = 0;
@@ -398,7 +387,7 @@
     // ── UI ──
     function updateUI() {
         const flipped = leaves.filter(l => l.angle === -180).length;
-        const leftPage  = flipped === 0 ? 0 : flipped * 2 - 1;  // last flipped back page
+        const leftPage  = flipped * 2;
         const rightPage = flipped * 2 + 1;
 
         let spreadText;
@@ -407,17 +396,18 @@
         } else {
             const l = Math.min(leftPage, TOTAL_PAGES);
             const r = Math.min(rightPage, TOTAL_PAGES);
-            spreadText = (lang === 'en') ? `Page ${l}–${r} / ${TOTAL_PAGES}` : `第 ${l}–${r} 頁 / ${TOTAL_PAGES}`;
+            
+            if (l === r) {
+                spreadText = (lang === 'en') ? `Page ${l} / ${TOTAL_PAGES}` : `第 ${l} 頁 / ${TOTAL_PAGES}`;
+            } else {
+                spreadText = (lang === 'en') ? `Page ${l}–${r} / ${TOTAL_PAGES}` : `第 ${l}–${r} 頁 / ${TOTAL_PAGES}`;
+            }
         }
 
         document.getElementById('page-indicator').textContent = spreadText;
         document.getElementById('spread-info').textContent    = spreadText;
         document.getElementById('btn-prev').disabled = (flipped === 0);
         document.getElementById('btn-next').disabled = (flipped >= TOTAL_LEAVES);
-
-        // Update left-bg: hide it when the book is closed (on the cover)
-        leftBg.style.visibility = flipped > 0 ? 'visible' : 'hidden';
-        leftBg.style.background = '#fff';
     }
 
     // ── Flip ──
