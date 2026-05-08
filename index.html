@@ -8,57 +8,29 @@
     <meta http-equiv="Expires" content="0">
     <title>線上電子繪本 | 互動繪本閱讀平台</title>
     <link rel="stylesheet" href="style.css?v=202604011534">
+    <style>
         body {
-            background: #1a1a2e; /* 與入口背景相近的深色，防止淡入時看到白色 */
+            background: #1a1a2e; 
             margin: 0;
             overflow: hidden;
+            font-family: 'Inter', sans-serif;
         }
         #entrance-overlay {
             animation: fadeIn 0.6s ease-out;
-            font-family: 'Inter', sans-serif;
         }
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        .book-btn:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+        }
         /* 預設隱藏開發測試區內容 */
         #tuning-panel, #book, #phonetic-toggle-btn, #version-banner {
             display: none !important;
-        }
-        .close-entrance-btn:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
-            transform: scale(1.05);
-        }
-        .lang-switcher {
-            position: absolute;
-            top: 2rem; right: 2rem;
-            display: flex;
-            gap: 10px;
-            z-index: 10001;
-        }
-        .lang-btn {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.3);
-            color: rgba(255,255,255,0.6);
-            padding: 8px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            font-family: 'Inter', sans-serif;
-        }
-        .lang-btn:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
-            color: white;
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: scale(1.05);
-        }
-        .lang-btn.active {
-            background: rgba(255, 255, 255, 0.2) !important;
-            color: white;
-            border-color: white;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -67,10 +39,10 @@
     <!-- Entrance Overlay -->
     <div id="entrance-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;">
         
-        <!-- Language Switcher -->
-        <div class="lang-switcher">
-            <button onclick="setLang('zh-TW')" class="lang-btn active" id="btn-zh">繁體中文</button>
-            <button onclick="setLang('en')" class="lang-btn" id="btn-en">English</button>
+        <!-- Language Switcher (使用行內樣式確保絕對生效) -->
+        <div style="position: absolute; top: 2rem; right: 2rem; display: flex; gap: 12px; z-index: 10001;">
+            <button id="btn-zh" onclick="setLang('zh-TW')" style="background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 10px 24px; border-radius: 30px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; letter-spacing: 1px; font-weight: bold;">繁體中文</button>
+            <button id="btn-en" onclick="setLang('en')" style="background: transparent; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); padding: 10px 24px; border-radius: 30px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; letter-spacing: 1px;">English</button>
         </div>
 
         <h1 id="main-title" style="color: white; font-size: 3.5rem; margin-bottom: 3rem; text-shadow: 0 10px 20px rgba(0,0,0,0.5); letter-spacing: 4px; font-weight: 800; text-align: center;">線上電子繪本</h1>
@@ -130,9 +102,31 @@
                 link.querySelector('.b-cat').textContent = t.books[key].cat;
             });
 
-            // Update Buttons
-            document.getElementById('btn-zh').classList.toggle('active', lang === 'zh-TW');
-            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            // Update Buttons (Inline Style Version)
+            const bZh = document.getElementById('btn-zh');
+            const bEn = document.getElementById('btn-en');
+            
+            if (lang === 'zh-TW') {
+                bZh.style.background = 'rgba(255,255,255,0.2)';
+                bZh.style.borderColor = 'white';
+                bZh.style.color = 'white';
+                bZh.style.fontWeight = 'bold';
+                
+                bEn.style.background = 'transparent';
+                bEn.style.borderColor = 'rgba(255,255,255,0.3)';
+                bEn.style.color = 'rgba(255,255,255,0.6)';
+                bEn.style.fontWeight = 'normal';
+            } else {
+                bEn.style.background = 'rgba(255,255,255,0.2)';
+                bEn.style.borderColor = 'white';
+                bEn.style.color = 'white';
+                bEn.style.fontWeight = 'bold';
+                
+                bZh.style.background = 'transparent';
+                bZh.style.borderColor = 'rgba(255,255,255,0.3)';
+                bZh.style.color = 'rgba(255,255,255,0.6)';
+                bZh.style.fontWeight = 'normal';
+            }
         }
 
         function enterDevMode() {
