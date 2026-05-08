@@ -44,11 +44,11 @@
         }
         .cover-img {
             width: 100%;
-            aspect-ratio: 1.414; /* A4 ratio roughly */
-            object-fit: cover;
+            height: auto; /* 不強制裁切，完整呈現 */
+            object-fit: contain;
             border-radius: 8px;
             margin-bottom: 1.5rem;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             transition: transform 0.5s;
         }
         .book-card:hover .cover-img {
