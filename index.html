@@ -33,35 +33,32 @@
             position: absolute;
             top: 2rem; right: 2rem;
             display: flex;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            padding: 4px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            gap: 10px;
             z-index: 10001;
         }
         .lang-btn {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.5);
-            padding: 8px 24px;
-            border-radius: 25px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.6);
+            padding: 8px 20px;
+            border-radius: 30px;
             cursor: pointer;
-            font-size: 0.88rem;
-            font-weight: 600;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
             letter-spacing: 1px;
+            font-family: 'Inter', sans-serif;
+        }
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: white;
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
         }
         .lang-btn.active {
-            background: white;
-            color: #1a1a2e;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        .lang-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.2) !important;
             color: white;
-            background: rgba(255, 255, 255, 0.05);
+            border-color: white;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -94,10 +91,6 @@
                 </div>
             </a>
         </div>
-        <!-- Option to enter the 3D book testing area -->
-        <button class="close-entrance-btn" onclick="enterDevMode()" style="position: absolute; bottom: 3rem; background: transparent; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); padding: 12px 24px; border-radius: 30px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; letter-spacing: 1px;">
-            進入 3D 互動繪本測試 (開發區)
-        </button>
     </div>
 
     <script>
