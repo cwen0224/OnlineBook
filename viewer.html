@@ -283,6 +283,8 @@
     const IMAGE_VERSION = '20261024-assets-v6';
     const imageUrl = (page) => `${page.image}?v=${IMAGE_VERSION}`;
     const TOTAL_LEAVES = Math.ceil(TOTAL_PAGES / 2);
+    // This book has no back cover after its final spread, so do not expose a blank page.
+    const MAX_FLIPPED_LEAVES = bookKey === 'zaojiao_story' ? TOTAL_LEAVES - 1 : TOTAL_LEAVES;
 
     // ── Compute book size ──
     // Each page is portrait. Two pages side-by-side = landscape spread.
@@ -409,7 +411,7 @@
         document.getElementById('page-indicator').textContent = spreadText;
         document.getElementById('spread-info').textContent    = spreadText;
         document.getElementById('btn-prev').disabled = (flipped === 0);
-        document.getElementById('btn-next').disabled = (flipped >= TOTAL_LEAVES);
+        document.getElementById('btn-next').disabled = (flipped >= MAX_FLIPPED_LEAVES);
     }
 
     // ── Flip ──
@@ -424,7 +426,7 @@
     }
 
     document.getElementById('btn-next').addEventListener('click', () => {
-        const next = leaves.find(l => l.angle === 0);
+        const next = leaves.find(l => l.angle === 0 && l.index < MAX_FLIPPED_LEAVES);
         if (next) flipTo(next, -180);
     });
     document.getElementById('btn-prev').addEventListener('click', () => {
@@ -437,6 +439,7 @@
         const leafEl = e.target.closest('.leaf');
         if (!leafEl) return;
         const obj = leaves[parseInt(leafEl.dataset.index)];
+        if (obj.angle === 0 && obj.index >= MAX_FLIPPED_LEAVES) return;
         obj.el.style.transition = 'none';
         isDragging = true;
         currentDragLeaf = obj;
