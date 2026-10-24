@@ -59,15 +59,26 @@
         #tuning-panel, #book, #phonetic-toggle-btn, #version-banner {
             display: none !important;
         }
-        /* Keep the library inside the visible viewport while preserving a scroll fallback. */
+        /* Keep the complete library, including cover thumbnails, inside a viewport-safe area. */
         #entrance-overlay {
             overflow-y: auto;
-            padding: clamp(86px, 9vh, 120px) 20px 28px;
-            justify-content: flex-start !important;
+            box-sizing: border-box;
+            padding: clamp(76px, 9vh, 96px) clamp(16px, 4vw, 64px) clamp(20px, 3vh, 32px);
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: auto minmax(0, 1fr);
+            justify-items: center;
+            align-items: stretch;
+            gap: clamp(16px, 3vh, 32px);
+        }
+        #main-title {
+            margin: 0 !important;
+            align-self: end;
+            font-size: clamp(2.1rem, 4.5vw, 3.8rem) !important;
         }
         #entrance-overlay > div:nth-of-type(2) {
             width: min(94vw, 1080px);
-            height: min(78vh, 860px);
+            height: 100%;
             min-height: 0;
             display: grid !important;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -84,20 +95,23 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: stretch;
             overflow: hidden;
         }
         .cover-img {
-            flex: 1 1 0;
+            display: block;
+            flex: 0 1 clamp(58px, 15vh, 180px);
+            width: min(100%, 230px);
+            height: clamp(58px, 15vh, 180px);
             min-height: 0;
-            height: 100%;
-            max-height: none;
+            max-height: 46%;
             object-fit: contain;
+            margin: 0 auto clamp(8px, 1.2vh, 16px);
         }
         @media (max-width: 700px) {
             #entrance-overlay { padding-inline: 12px; }
             #main-title {
                 font-size: clamp(1.8rem, 8vw, 3rem) !important;
-                margin-bottom: 1.5rem !important;
             }
             #entrance-overlay > div:nth-of-type(2) {
                 width: min(92vw, 420px);
