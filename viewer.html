@@ -374,7 +374,7 @@
     }
 
     // ── Transform ──
-    function setTransform(obj, angle) {
+    function setTransform(obj, angle, isTurning = false) {
         angle = Math.max(-180, Math.min(0, angle));
         obj.angle = angle;
 
@@ -382,7 +382,8 @@
         //          flipped leaves stack back-to-front on left
         const base = TOTAL_LEAVES - obj.index;
         let z = angle <= -90 ? obj.index + 1 : base + TOTAL_LEAVES;
-        if (angle !== 0 && angle !== -180) z += TOTAL_LEAVES * 2; // lift during flip
+        // Keep the whole sheet above every resting page until its CSS transition finishes.
+        if (isTurning || (angle !== 0 && angle !== -180)) z += TOTAL_LEAVES * 2;
 
         obj.el.style.zIndex   = z;
         obj.el.style.transform = `rotateY(${angle}deg)`;
@@ -417,7 +418,7 @@
     // ── Flip ──
     function flipTo(obj, targetAngle, dur = 440) {
         obj.el.style.transition = `transform ${dur}ms cubic-bezier(0.25,0.8,0.25,1)`;
-        setTransform(obj, targetAngle);
+        setTransform(obj, targetAngle, true);
         setTimeout(() => {
             obj.el.style.transition = '';
             setTransform(obj, targetAngle); // commit
