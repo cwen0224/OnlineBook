@@ -413,10 +413,14 @@
         document.getElementById('spread-info').textContent    = spreadText;
         document.getElementById('btn-prev').disabled = (flipped === 0);
         document.getElementById('btn-next').disabled = (flipped >= MAX_FLIPPED_LEAVES);
+        if (USE_INCREMENTAL_PRELOAD) preloadPageRange(flipped * 2, PRELOAD_AHEAD);
     }
 
     // ── Flip ──
     function flipTo(obj, targetAngle, dur = 440) {
+        if (USE_INCREMENTAL_PRELOAD && targetAngle === -180) {
+            preloadPageRange((obj.index + 1) * 2, PRELOAD_AHEAD);
+        }
         obj.el.style.transition = `transform ${dur}ms cubic-bezier(0.25,0.8,0.25,1)`;
         setTransform(obj, targetAngle, true);
         setTimeout(() => {
@@ -441,6 +445,9 @@
         if (!leafEl) return;
         const obj = leaves[parseInt(leafEl.dataset.index)];
         if (obj.angle === 0 && obj.index >= MAX_FLIPPED_LEAVES) return;
+        if (USE_INCREMENTAL_PRELOAD && obj.angle === 0) {
+            preloadPageRange((obj.index + 1) * 2, PRELOAD_AHEAD);
+        }
         obj.el.style.transition = 'none';
         isDragging = true;
         currentDragLeaf = obj;
@@ -498,33 +505,54 @@
         }, 120);
     });
 
-    // ── Preload Images ──
-    async function preloadImages() {
-        const progressEl = document.getElementById('loading-progress');
-        const urls = pagesData.map(imageUrl);
-        let loadedCount = 0;
+    // ── Image preload queue ──
+    // Keep a decoded window ahead of the reader instead of waiting for every page at startup.
+    const PRELOAD_AHEAD = 8;
+    const USE_INCREMENTAL_PRELOAD = bookKey === 'penghu_shihu';
+    const preloadedUrls = new Map();
 
-        const promises = urls.map(url => {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = img.onerror = () => {
-                    loadedCount++;
-                    const percent = Math.round((loadedCount / urls.length) * 100);
-                    progressEl.textContent = `${percent}%`;
-                    resolve();
-                };
-                img.src = url;
-            });
+    function preloadUrl(url) {
+        if (preloadedUrls.has(url)) return preloadedUrls.get(url);
+
+        const task = new Promise((resolve) => {
+            const img = new Image();
+            const finish = async () => {
+                try { await img.decode?.(); } catch (_) { /* already usable after load */ }
+                resolve();
+            };
+            img.onload = finish;
+            img.onerror = () => resolve(); // Keep navigation usable even if a source image fails.
+            img.src = url;
         });
+        preloadedUrls.set(url, task);
+        return task;
+    }
 
-        await Promise.all(promises);
+    function preloadPageRange(startIndex, count = PRELOAD_AHEAD) {
+        const urls = pagesData
+            .slice(Math.max(0, startIndex), Math.min(TOTAL_PAGES, startIndex + count))
+            .map(imageUrl);
+        return Promise.all(urls.map(preloadUrl));
+    }
+
+    async function preloadInitialImages() {
+        const progressEl = document.getElementById('loading-progress');
+        const initialCount = USE_INCREMENTAL_PRELOAD ? Math.min(PRELOAD_AHEAD, TOTAL_PAGES) : TOTAL_PAGES;
+        progressEl.textContent = `0/${initialCount}`;
+        const urls = pagesData.slice(0, initialCount).map(imageUrl);
+        let loadedCount = 0;
+        await Promise.all(urls.map(async (url) => {
+            await preloadUrl(url);
+            loadedCount++;
+            progressEl.textContent = `${loadedCount}/${urls.length}`;
+        }));
     }
 
     // ── Init ──
     buildBook();
     
     // Wait for images
-    await preloadImages();
+    await preloadInitialImages();
 
     // Hide loading
     const ls = document.getElementById('loading-screen');
