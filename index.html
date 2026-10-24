@@ -77,7 +77,8 @@
             font-size: clamp(2.1rem, 4.5vw, 3.8rem) !important;
         }
         #entrance-overlay > div:nth-of-type(2) {
-            width: min(94vw, 1080px);
+            width: min(92vw, 840px);
+            box-sizing: border-box;
             height: 100%;
             min-height: 0;
             display: grid !important;
@@ -100,11 +101,12 @@
         }
         .cover-img {
             display: block;
-            flex: 0 1 clamp(58px, 15vh, 180px);
-            width: min(100%, 230px);
-            height: clamp(58px, 15vh, 180px);
+            flex: 0 0 clamp(70px, 17vh, 160px);
+            width: auto;
+            height: clamp(70px, 17vh, 160px);
             min-height: 0;
-            max-height: 46%;
+            max-width: 100%;
+            max-height: none;
             object-fit: contain;
             margin: 0 auto clamp(8px, 1.2vh, 16px);
         }
