@@ -279,6 +279,9 @@
     console.log("Detecting Book Ratio:", PAGE_RATIO, "isLandscape:", PAGE_RATIO < 1);
 
     const TOTAL_PAGES  = pagesData.length;
+    // Bump this whenever page image assets are regenerated so visitors do not see stale scans.
+    const IMAGE_VERSION = '20261024-shihu-v3';
+    const imageUrl = (page) => `${page.image}?v=${IMAGE_VERSION}`;
     const TOTAL_LEAVES = Math.ceil(TOTAL_PAGES / 2);
 
     // ── Compute book size ──
@@ -341,10 +344,10 @@
             const backPage  = pagesData[i * 2 + 1];
 
             const frontImg = frontPage
-                ? `<img src="${frontPage.image}" loading="${i < 3 ? 'eager' : 'lazy'}" alt="第${i*2+1}頁">`
+                ? `<img src="${imageUrl(frontPage)}" loading="${i < 3 ? 'eager' : 'lazy'}" alt="第${i*2+1}頁">`
                 : '<img style="background:#fff;">';
             const backImg = backPage
-                ? `<img src="${backPage.image}"  loading="${i < 3 ? 'eager' : 'lazy'}" alt="第${i*2+2}頁">`
+                ? `<img src="${imageUrl(backPage)}"  loading="${i < 3 ? 'eager' : 'lazy'}" alt="第${i*2+2}頁">`
                 : '<img style="background:#fff;">';
 
             leaf.innerHTML = `
@@ -494,7 +497,7 @@
     // ── Preload Images ──
     async function preloadImages() {
         const progressEl = document.getElementById('loading-progress');
-        const urls = pagesData.map(p => p.image);
+        const urls = pagesData.map(imageUrl);
         let loadedCount = 0;
 
         const promises = urls.map(url => {
