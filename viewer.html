@@ -70,6 +70,10 @@
             perspective: 3000px;
             perspective-origin: 50% 50%;
         }
+        /* Reserve a reading column for the desktop translation panel. */
+        @media (min-width: 641px) {
+            body.translation-open #scene { right: min(426px, 44vw); }
+        }
 
         /*
          * #book = the full spread container (2 × page width)
@@ -377,17 +381,26 @@
         });
     }
 
+    function setTranslationOpen(isOpen) {
+        translationPanel.classList.toggle('is-open', isOpen);
+        document.body.classList.toggle('translation-open', isOpen);
+        translationToggle.setAttribute('aria-expanded', String(isOpen));
+        if (isOpen) updateTranslation();
+        requestAnimationFrame(rebuildBookForAvailableSpace);
+    }
+
     if (lang === 'en' && translationEntries.length) {
         translationToggle.style.display = 'inline-block';
         translationToggle.addEventListener('click', () => {
-            const isOpen = translationPanel.classList.toggle('is-open');
-            translationToggle.setAttribute('aria-expanded', String(isOpen));
-            if (isOpen) updateTranslation();
+            setTranslationOpen(!translationPanel.classList.contains('is-open'));
         });
         document.getElementById('translation-close').addEventListener('click', () => {
-            translationPanel.classList.remove('is-open');
-            translationToggle.setAttribute('aria-expanded', 'false');
+            setTranslationOpen(false);
         });
+        // English opens with its reading aid visible; desktop reserves space beside the spread.
+        translationPanel.classList.add('is-open');
+        document.body.classList.add('translation-open');
+        translationToggle.setAttribute('aria-expanded', 'true');
     }
 
     // ── Load JSON ──
@@ -422,7 +435,8 @@
     // Each page is portrait. Two pages side-by-side = landscape spread.
     // We fit the spread into the available viewport area.
     function getSize() {
-        const availW = window.innerWidth;
+        const sceneRect = document.getElementById('scene').getBoundingClientRect();
+        const availW = sceneRect.width;
         const availH = window.innerHeight - 52 - 64;   // minus bars
 
         // Spread is 2 pages wide
@@ -627,14 +641,18 @@
     });
 
     // ── Resize ──
+    function rebuildBookForAvailableSpace() {
+        const angles = leaves.map(l => l.angle);
+        buildBook();
+        angles.forEach((a, i) => { if (leaves[i]) setTransform(leaves[i], a); });
+        updateUI();
+    }
+
     let resizeTimer;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
-            const angles = leaves.map(l => l.angle);
-            buildBook();
-            angles.forEach((a, i) => { if (leaves[i]) setTransform(leaves[i], a); });
-            updateUI();
+            rebuildBookForAvailableSpace();
         }, 120);
     });
 
@@ -683,6 +701,7 @@
 
     // ── Init ──
     buildBook();
+    if (translationPanel.classList.contains('is-open')) updateTranslation();
     
     // Wait for images
     await preloadInitialImages();
