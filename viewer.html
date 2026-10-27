@@ -45,6 +45,19 @@
         }
         #top-bar a:hover { background: rgba(255,255,255,0.07); color: white; }
         #page-indicator { color: rgba(255,255,255,0.4); font-size: 0.78rem; letter-spacing: 1px; min-width: 110px; text-align: right; }
+        #reader-actions { display: flex; align-items: center; gap: 8px; min-width: 110px; justify-content: flex-end; }
+        .top-action {
+            display: none;
+            color: rgba(255,255,255,0.82);
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 18px;
+            padding: 7px 13px;
+            font: inherit;
+            font-size: 0.78rem;
+            cursor: pointer;
+        }
+        .top-action:hover { background: rgba(255,255,255,0.13); color: white; }
 
         /* ── Scene ── */
         #scene {
@@ -193,6 +206,56 @@
             animation: fadeHint 5s ease forwards;
         }
         @keyframes fadeHint { 0%,60%{opacity:1} 100%{opacity:0} }
+
+        /* English reading aid: overlays the scene instead of shrinking a spread. */
+        #translation-panel {
+            position: fixed;
+            top: 64px; right: 18px; bottom: 76px;
+            width: min(390px, calc(100vw - 36px));
+            display: none;
+            flex-direction: column;
+            background: rgba(18, 18, 29, 0.96);
+            color: rgba(255,255,255,0.9);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 18px;
+            box-shadow: 0 20px 48px rgba(0,0,0,0.42);
+            z-index: 800;
+            overflow: hidden;
+        }
+        #translation-panel.is-open { display: flex; }
+        #translation-panel header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 15px 17px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        #translation-panel h2 { font-size: 1rem; font-weight: 650; letter-spacing: 0.02em; }
+        #translation-page-label { color: rgba(255,255,255,0.45); font-size: 0.74rem; }
+        #translation-close {
+            appearance: none; border: 0; background: transparent; color: rgba(255,255,255,0.65);
+            font-size: 1.35rem; line-height: 1; cursor: pointer; padding: 2px 4px;
+        }
+        #translation-close:hover { color: white; }
+        #translation-content {
+            overflow-y: auto;
+            padding: 17px;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+        #translation-content .empty { color: rgba(255,255,255,0.55); }
+        @media (max-width: 640px) {
+            #top-bar { padding: 0 12px; }
+            #top-bar a { padding: 7px 10px; }
+            #book-title { display: none; }
+            #translation-panel {
+                top: auto; right: 10px; bottom: 72px; left: 10px;
+                width: auto; max-height: min(58vh, 500px);
+                border-radius: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -206,7 +269,10 @@
 <div id="top-bar">
     <a href="index.html">&#8592; 返回書架</a>
     <span id="book-title">電子繪本</span>
-    <span id="page-indicator">—</span>
+    <div id="reader-actions">
+        <button class="top-action" id="translation-toggle" type="button" aria-expanded="false">English text</button>
+        <span id="page-indicator">—</span>
+    </div>
 </div>
 
 <div id="scene">
@@ -217,12 +283,24 @@
 
 <div id="hint">點擊或拖曳書頁翻頁・← → 鍵盤也可以</div>
 
+<aside id="translation-panel" aria-label="English translation" aria-live="polite">
+    <header>
+        <div>
+            <h2>English translation</h2>
+            <span id="translation-page-label">—</span>
+        </div>
+        <button id="translation-close" type="button" aria-label="Close English translation">×</button>
+    </header>
+    <div id="translation-content"></div>
+</aside>
+
 <div id="controls">
     <button class="ctrl-btn" id="btn-prev">&#8592; 上一頁</button>
     <span id="spread-info">— / —</span>
     <button class="ctrl-btn" id="btn-next">下一頁 &#8594;</button>
 </div>
 
+<script src="translations.js"></script>
 <script>
 (async () => {
     // ── Params & Localization ──
@@ -257,6 +335,55 @@
     document.getElementById('btn-next').textContent = t.next;
     document.querySelector('#top-bar a').textContent = t.back;
     document.getElementById('hint').textContent = t.hint;
+
+    // ── English translation panel ──
+    const translationEntries = (window.bookTranslations && window.bookTranslations[bookKey]) || [];
+    const translationToggle = document.getElementById('translation-toggle');
+    const translationPanel = document.getElementById('translation-panel');
+    const translationContent = document.getElementById('translation-content');
+    const translationPageLabel = document.getElementById('translation-page-label');
+
+    function visiblePrintedPages() {
+        const flipped = leaves.filter(l => l.angle === -180).length;
+        if (flipped === 0) return [1, Math.min(2, TOTAL_PAGES)];
+        return [Math.min(flipped * 2, TOTAL_PAGES), Math.min(flipped * 2 + 1, TOTAL_PAGES)];
+    }
+
+    function updateTranslation() {
+        if (!translationEntries.length) return;
+        const [first, last] = visiblePrintedPages();
+        const activeEntries = translationEntries.filter(entry => entry.start <= last && entry.end >= first);
+        translationPageLabel.textContent = first === last ? `Picture-book page ${first}` : `Picture-book pages ${first}–${last}`;
+        translationContent.replaceChildren();
+
+        if (!activeEntries.length) {
+            const empty = document.createElement('p');
+            empty.className = 'empty';
+            empty.textContent = 'No English translation is available for this page.';
+            translationContent.append(empty);
+            return;
+        }
+
+        activeEntries.forEach((entry, index) => {
+            if (index) translationContent.append(document.createElement('hr'));
+            const text = document.createElement('p');
+            text.textContent = entry.text;
+            translationContent.append(text);
+        });
+    }
+
+    if (lang === 'en' && translationEntries.length) {
+        translationToggle.style.display = 'inline-block';
+        translationToggle.addEventListener('click', () => {
+            const isOpen = translationPanel.classList.toggle('is-open');
+            translationToggle.setAttribute('aria-expanded', String(isOpen));
+            if (isOpen) updateTranslation();
+        });
+        document.getElementById('translation-close').addEventListener('click', () => {
+            translationPanel.classList.remove('is-open');
+            translationToggle.setAttribute('aria-expanded', 'false');
+        });
+    }
 
     // ── Load JSON ──
     let pagesData = [];
@@ -413,6 +540,7 @@
         document.getElementById('spread-info').textContent    = spreadText;
         document.getElementById('btn-prev').disabled = (flipped === 0);
         document.getElementById('btn-next').disabled = (flipped >= MAX_FLIPPED_LEAVES);
+        if (translationPanel.classList.contains('is-open')) updateTranslation();
         if (USE_INCREMENTAL_PRELOAD) preloadPageRange(flipped * 2, PRELOAD_AHEAD);
     }
 
