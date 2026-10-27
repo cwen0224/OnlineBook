@@ -249,6 +249,7 @@
             line-height: 1.7;
             white-space: pre-line;
         }
+        #translation-content p + p { margin-top: 1.35rem; }
         #translation-content .empty { color: rgba(255,255,255,0.55); }
         @media (max-width: 640px) {
             #top-bar { padding: 0 12px; }
@@ -347,6 +348,8 @@
 
     // ── English translation panel ──
     const translationEntries = (window.bookTranslations && window.bookTranslations[bookKey]) || [];
+    // Both supplied translations start after four cover / front-matter scans.
+    const translationPageOffset = ['zaojiao', 'penghu_shihu'].includes(bookKey) ? 4 : 0;
     const translationToggle = document.getElementById('translation-toggle');
     const translationPanel = document.getElementById('translation-panel');
     const translationContent = document.getElementById('translation-content');
@@ -361,7 +364,9 @@
     function updateTranslation() {
         if (!translationEntries.length) return;
         const [first, last] = visiblePrintedPages();
-        const activeEntries = translationEntries.filter(entry => entry.start <= last && entry.end >= first);
+        const sourceFirst = first - translationPageOffset;
+        const sourceLast = last - translationPageOffset;
+        const activeEntries = translationEntries.filter(entry => entry.start <= sourceLast && entry.end >= sourceFirst);
         translationPageLabel.textContent = first === last ? `Picture-book page ${first}` : `Picture-book pages ${first}–${last}`;
         translationContent.replaceChildren();
 
@@ -373,8 +378,7 @@
             return;
         }
 
-        activeEntries.forEach((entry, index) => {
-            if (index) translationContent.append(document.createElement('hr'));
+        activeEntries.forEach((entry) => {
             const text = document.createElement('p');
             text.textContent = entry.text;
             translationContent.append(text);
