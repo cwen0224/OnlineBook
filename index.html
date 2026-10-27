@@ -191,6 +191,7 @@
     </div>
 
     <script>
+        const LANGUAGE_PREFERENCE_KEY = 'onlinebook.language';
         let currentLang = 'zh-TW';
         const i18n = {
             'zh-TW': {
@@ -217,6 +218,7 @@
 
         function setLang(lang) {
             currentLang = lang;
+            try { localStorage.setItem(LANGUAGE_PREFERENCE_KEY, lang); } catch (_) { /* Storage may be unavailable in private mode. */ }
             const t = i18n[lang];
             
             // Update UI
@@ -256,6 +258,13 @@
                 bZh.style.fontWeight = 'normal';
             }
         }
+
+        // Restore the reader's last language choice whenever the bookshelf opens.
+        try {
+            const savedLang = localStorage.getItem(LANGUAGE_PREFERENCE_KEY);
+            if (savedLang && i18n[savedLang]) currentLang = savedLang;
+        } catch (_) { /* Keep Traditional Chinese as the safe default. */ }
+        setLang(currentLang);
 
         function enterDevMode() {
             document.getElementById('entrance-overlay').style.display = 'none';

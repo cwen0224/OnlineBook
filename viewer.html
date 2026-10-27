@@ -306,7 +306,12 @@
     // ── Params & Localization ──
     const params  = new URLSearchParams(location.search);
     const bookKey = params.get('book') || 'zaojiao';
-    const lang    = params.get('lang') || 'zh-TW';
+    const LANGUAGE_PREFERENCE_KEY = 'onlinebook.language';
+    let savedLanguage = null;
+    try { savedLanguage = localStorage.getItem(LANGUAGE_PREFERENCE_KEY); } catch (_) { /* Keep the default below. */ }
+    // A language in the link is an intentional choice; otherwise restore the last choice.
+    const lang = params.get('lang') || savedLanguage || 'zh-TW';
+    try { localStorage.setItem(LANGUAGE_PREFERENCE_KEY, lang); } catch (_) { /* Storage may be unavailable in private mode. */ }
 
     const i18n = {
         'zh-TW': {
