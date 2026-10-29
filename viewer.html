@@ -70,10 +70,12 @@
             perspective: 3000px;
             perspective-origin: 50% 50%;
         }
-        /* Reserve a reading column for the desktop translation panel. */
+        /* Portrait books reserve a reading column for the translation panel. */
         @media (min-width: 641px) {
-            body.translation-open #scene { right: min(426px, 44vw); }
+            body.translation-side #scene { right: calc(min(390px, calc(100vw - 36px)) + 52px); }
         }
+        /* Landscape books keep their full width and place the translation below. */
+        body.translation-bottom #scene { bottom: calc(80px + min(30vh, 280px)); }
 
         /*
          * #book = the full spread container (2 × page width)
@@ -248,6 +250,27 @@
             font-size: 0.95rem;
             line-height: 1.7;
             white-space: pre-line;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.32) transparent;
+        }
+        #translation-content::-webkit-scrollbar { width: 8px; }
+        #translation-content::-webkit-scrollbar-track { background: transparent; }
+        #translation-content::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.28);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            border-radius: 999px;
+        }
+        #translation-content::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.45); }
+        #translation-content::-webkit-scrollbar-button { display: none; }
+        body.translation-bottom #translation-panel {
+            top: auto;
+            right: clamp(12px, 2vw, 28px);
+            bottom: 72px;
+            left: clamp(12px, 2vw, 28px);
+            width: auto;
+            height: min(30vh, 280px);
+            border-radius: 16px;
         }
         #translation-content p + p { margin-top: 1.35rem; }
         #translation-content .empty { color: rgba(255,255,255,0.55); }
@@ -260,6 +283,7 @@
                 width: auto; max-height: min(58vh, 500px);
                 border-radius: 16px;
             }
+            body.translation-bottom #translation-panel { height: min(30vh, 250px); }
         }
     </style>
 </head>
@@ -354,6 +378,7 @@
     const translationPanel = document.getElementById('translation-panel');
     const translationContent = document.getElementById('translation-content');
     const translationPageLabel = document.getElementById('translation-page-label');
+    let translationPlacement = 'side';
 
     function visiblePrintedPages() {
         const flipped = leaves.filter(l => l.angle === -180).length;
@@ -388,6 +413,8 @@
     function setTranslationOpen(isOpen) {
         translationPanel.classList.toggle('is-open', isOpen);
         document.body.classList.toggle('translation-open', isOpen);
+        document.body.classList.toggle('translation-side', isOpen && translationPlacement === 'side');
+        document.body.classList.toggle('translation-bottom', isOpen && translationPlacement === 'bottom');
         translationToggle.setAttribute('aria-expanded', String(isOpen));
         if (isOpen) updateTranslation();
         requestAnimationFrame(rebuildBookForAvailableSpace);
@@ -401,7 +428,7 @@
         document.getElementById('translation-close').addEventListener('click', () => {
             setTranslationOpen(false);
         });
-        // English opens with its reading aid visible; desktop reserves space beside the spread.
+        // English opens with its reading aid visible; placement is selected after the book ratio loads.
         translationPanel.classList.add('is-open');
         document.body.classList.add('translation-open');
         translationToggle.setAttribute('aria-expanded', 'true');
@@ -427,6 +454,13 @@
 
     console.log("Detecting Book Ratio:", PAGE_RATIO, "isLandscape:", PAGE_RATIO < 1);
 
+    // Portrait pages read best with a side column; a landscape spread keeps its width and uses a lower panel.
+    translationPlacement = PAGE_RATIO < 1 ? 'bottom' : 'side';
+    if (translationPanel.classList.contains('is-open')) {
+        document.body.classList.toggle('translation-side', translationPlacement === 'side');
+        document.body.classList.toggle('translation-bottom', translationPlacement === 'bottom');
+    }
+
     const TOTAL_PAGES  = pagesData.length;
     // Bump this whenever page image assets are regenerated so visitors do not see stale scans.
     const IMAGE_VERSION = '20261024-assets-v6';
@@ -441,7 +475,7 @@
     function getSize() {
         const sceneRect = document.getElementById('scene').getBoundingClientRect();
         const availW = sceneRect.width;
-        const availH = window.innerHeight - 52 - 64;   // minus bars
+        const availH = sceneRect.height;
 
         // Spread is 2 pages wide
         // Spread W / Spread H = 2 / PAGE_RATIO
