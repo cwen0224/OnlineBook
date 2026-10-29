@@ -329,7 +329,7 @@
     <button class="ctrl-btn" id="btn-next">下一頁 &#8594;</button>
 </div>
 
-<script src="translations.js"></script>
+<script src="translations.js?v=20261029-frontmatter"></script>
 <script>
 (async () => {
     // ── Params & Localization ──
@@ -389,19 +389,15 @@
     function updateTranslation() {
         if (!translationEntries.length) return;
         const [first, last] = visiblePrintedPages();
-        const sourceFirst = first - translationPageOffset;
-        const sourceLast = last - translationPageOffset;
-        const activeEntries = translationEntries.filter(entry => entry.start <= sourceLast && entry.end >= sourceFirst);
+        const activeEntries = translationEntries.filter((entry) => {
+            const entryStart = entry.readerStart ?? entry.start + translationPageOffset;
+            const entryEnd = entry.readerEnd ?? entry.end + translationPageOffset;
+            return entryStart <= last && entryEnd >= first;
+        });
         translationPageLabel.textContent = first === last ? `Picture-book page ${first}` : `Picture-book pages ${first}–${last}`;
         translationContent.replaceChildren();
 
-        if (!activeEntries.length) {
-            const empty = document.createElement('p');
-            empty.className = 'empty';
-            empty.textContent = 'No English translation is available for this page.';
-            translationContent.append(empty);
-            return;
-        }
+        if (!activeEntries.length) return;
 
         activeEntries.forEach((entry) => {
             const text = document.createElement('p');
