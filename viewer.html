@@ -754,6 +754,23 @@
     book.addEventListener('pointerup', endPointer);
     book.addEventListener('pointercancel', endPointer);
 
+    // Mouse-wheel zoom follows the pointer, matching the touch pinch viewport.
+    book.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const previousScale = zoomScale;
+        const nextScale = Math.max(1, Math.min(3, previousScale * Math.exp(-e.deltaY * 0.0015)));
+        if (nextScale === previousScale) return;
+
+        const sceneRect = document.getElementById('scene').getBoundingClientRect();
+        const focalX = e.clientX - (sceneRect.left + sceneRect.width / 2);
+        const focalY = e.clientY - (sceneRect.top + sceneRect.height / 2);
+        const ratio = nextScale / previousScale;
+        panX = focalX * (1 - ratio) + panX * ratio;
+        panY = focalY * (1 - ratio) + panY * ratio;
+        zoomScale = nextScale;
+        applyBookViewport();
+    }, { passive: false });
+
     // ── Keyboard ──
     document.addEventListener('keydown', e => {
         if (e.key === 'ArrowRight' || e.key === 'PageDown') document.getElementById('btn-next').click();
