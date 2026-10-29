@@ -73,6 +73,7 @@
             justify-content: center;
             perspective: 3000px;
             perspective-origin: 50% 50%;
+            touch-action: none;
         }
         /* Keep the book out of the reading layer, with only its transparent edge touching. */
         @media (min-width: 641px) {
@@ -89,6 +90,7 @@
             transform-style: preserve-3d;
             /* slight tilt for depth feel */
             transform: rotateX(4deg);
+            touch-action: none;
         }
 
         /*
@@ -494,9 +496,59 @@
     const book    = document.getElementById('book');
     const leftBg  = document.getElementById('left-bg');
     const leaves  = [];
-    let isDragging = false, currentDragLeaf = null;
+    let isDragging = false, currentDragLeaf = null, dragPointerId = null;
     let startX = 0, lastX = 0, startAngle = 0;
     let bookRect = {};
+    let zoomScale = 1, panX = 0, panY = 0;
+    const activeTouchPointers = new Map();
+    let isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
+    let pinchStartMidpoint = null, pinchStartPan = null, gestureConsumed = false;
+
+    function clampPan() {
+        const sceneRect = document.getElementById('scene').getBoundingClientRect();
+        const maxX = Math.max(0, (book.offsetWidth * zoomScale - sceneRect.width) / 2 + 24);
+        const maxY = Math.max(0, (book.offsetHeight * zoomScale - sceneRect.height) / 2 + 24);
+        panX = Math.max(-maxX, Math.min(maxX, panX));
+        panY = Math.max(-maxY, Math.min(maxY, panY));
+    }
+
+    function applyBookViewport() {
+        clampPan();
+        book.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoomScale}) rotateX(4deg)`;
+    }
+
+    function touchPoints() {
+        return [...activeTouchPointers.values()];
+    }
+
+    function distanceBetween(a, b) {
+        return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    function midpointBetween(a, b) {
+        return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    }
+
+    function cancelPageDrag() {
+        if (!isDragging || !currentDragLeaf) return;
+        currentDragLeaf.el.style.transition = '';
+        setTransform(currentDragLeaf, startAngle);
+        isDragging = false;
+        currentDragLeaf = null;
+        dragPointerId = null;
+    }
+
+    function beginPinchGesture() {
+        const [first, second] = touchPoints();
+        if (!first || !second) return;
+        cancelPageDrag();
+        isPinching = true;
+        gestureConsumed = true;
+        pinchStartDistance = distanceBetween(first, second);
+        pinchStartScale = zoomScale;
+        pinchStartMidpoint = midpointBetween(first, second);
+        pinchStartPan = { x: panX, y: panY };
+    }
 
     // ── Build ──
     function buildBook() {
@@ -549,6 +601,7 @@
 
         updateUI();
         bookRect = book.getBoundingClientRect();
+        applyBookViewport();
     }
 
     // ── Transform ──
@@ -620,6 +673,14 @@
 
     // ── Drag ──
     book.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'touch') {
+            activeTouchPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            if (activeTouchPointers.size >= 2) {
+                beginPinchGesture();
+                e.preventDefault();
+                return;
+            }
+        }
         const leafEl = e.target.closest('.leaf');
         if (!leafEl) return;
         const obj = leaves[parseInt(leafEl.dataset.index)];
@@ -633,12 +694,27 @@
         startX = e.clientX;
         lastX  = e.clientX;
         startAngle = obj.angle;
+        dragPointerId = e.pointerId;
         bookRect = book.getBoundingClientRect();
         book.setPointerCapture(e.pointerId);
     });
 
     book.addEventListener('pointermove', e => {
-        if (!isDragging || !currentDragLeaf) return;
+        if (e.pointerType === 'touch' && activeTouchPointers.has(e.pointerId)) {
+            activeTouchPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        }
+        if (isPinching && activeTouchPointers.size >= 2) {
+            const [first, second] = touchPoints();
+            const distance = distanceBetween(first, second);
+            const midpoint = midpointBetween(first, second);
+            zoomScale = Math.max(1, Math.min(3, pinchStartScale * (distance / pinchStartDistance)));
+            panX = pinchStartPan.x + midpoint.x - pinchStartMidpoint.x;
+            panY = pinchStartPan.y + midpoint.y - pinchStartMidpoint.y;
+            applyBookViewport();
+            e.preventDefault();
+            return;
+        }
+        if (!isDragging || !currentDragLeaf || e.pointerId !== dragPointerId) return;
         e.preventDefault();
         lastX = e.clientX;
         const leafW = currentDragLeaf.w;
@@ -652,6 +728,7 @@
         isDragging = false;
         const obj = currentDragLeaf;
         currentDragLeaf = null;
+        dragPointerId = null;
 
         const delta = lastX - startX;
         let snap;
@@ -663,8 +740,19 @@
         flipTo(obj, snap, 400);
     };
 
-    book.addEventListener('pointerup',     endDrag);
-    book.addEventListener('pointercancel', endDrag);
+    const endPointer = (e) => {
+        if (e.pointerType === 'touch') {
+            activeTouchPointers.delete(e.pointerId);
+            if (isPinching && activeTouchPointers.size < 2) isPinching = false;
+            if (gestureConsumed) {
+                if (activeTouchPointers.size === 0) gestureConsumed = false;
+                return;
+            }
+        }
+        if (e.pointerId === dragPointerId) endDrag();
+    };
+    book.addEventListener('pointerup', endPointer);
+    book.addEventListener('pointercancel', endPointer);
 
     // ── Keyboard ──
     document.addEventListener('keydown', e => {
