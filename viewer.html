@@ -22,10 +22,8 @@
         /* ── Floating reader controls ── */
         #top-bar {
             position: fixed;
-            top: 18px; left: 24px; right: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            top: 0; left: 0; right: 0;
+            height: 0;
             z-index: 500;
             pointer-events: none;
         }
@@ -34,9 +32,10 @@
             text-decoration: none;
             font-size: 0.82rem;
             display: flex; align-items: center; gap: 6px;
-            padding: 7px 16px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.18);
+            position: absolute; top: 0; left: 0;
+            padding: 9px 18px 9px 16px;
+            border-radius: 0 999px 999px 0;
+            border: 1px solid rgba(255,255,255,0.18); border-left: 0;
             background: rgba(8,8,18,0.58);
             backdrop-filter: blur(10px);
             transition: all 0.22s ease;
@@ -44,29 +43,30 @@
         }
         #top-bar a:hover { background: rgba(8,8,18,0.78); color: white; }
         #book-title {
-            color: rgba(255,255,255,0.78); font-size: 0.84rem; letter-spacing: 0.02em;
-            padding: 7px 14px; border-radius: 20px; background: rgba(8,8,18,0.45);
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            color: rgba(255,255,255,0.78); font-size: 0.78rem; letter-spacing: 0.02em;
+            padding: 7px 14px 9px; border-radius: 0 0 18px 18px; background: rgba(8,8,18,0.45);
             backdrop-filter: blur(10px);
         }
-        #page-indicator { color: rgba(255,255,255,0.72); font-size: 0.78rem; letter-spacing: 1px; min-width: 110px; text-align: center; padding: 7px 12px; border-radius: 20px; background: rgba(8,8,18,0.45); backdrop-filter: blur(10px); }
-        #reader-actions { display: flex; align-items: center; gap: 8px; min-width: 110px; justify-content: flex-end; pointer-events: auto; }
+        #page-indicator { color: rgba(255,255,255,0.72); font-size: 0.78rem; letter-spacing: 1px; min-width: 110px; text-align: center; padding: 9px 16px 9px 12px; }
+        #reader-actions { position: absolute; top: 0; right: 0; display: flex; align-items: center; gap: 8px; min-width: 110px; justify-content: flex-end; pointer-events: auto; background: rgba(8,8,18,0.58); border: 1px solid rgba(255,255,255,0.18); border-right: 0; border-radius: 999px 0 0 999px; backdrop-filter: blur(10px); }
         .top-action {
             display: none;
             color: rgba(255,255,255,0.82);
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 18px;
-            padding: 7px 13px;
+            background: transparent;
+            border: 0; border-right: 1px solid rgba(255,255,255,0.16);
+            border-radius: 0;
+            padding: 9px 12px 9px 16px;
             font: inherit;
             font-size: 0.78rem;
             cursor: pointer;
         }
-        .top-action:hover { background: rgba(255,255,255,0.13); color: white; }
+        .top-action:hover { background: rgba(255,255,255,0.1); color: white; }
 
         /* ── Scene ── */
         #scene {
             position: fixed;
-            top: 0; bottom: 0;
+            top: 40px; bottom: 0;
             left: 0; right: 0;
             display: flex;
             align-items: center;
@@ -268,7 +268,7 @@
         #translation-content p + p { margin-top: 1.35rem; }
         #translation-content .empty { color: rgba(255,255,255,0.55); }
         @media (max-width: 640px) {
-            #top-bar { top: 10px; left: 10px; right: 10px; }
+            #top-bar { top: 0; left: 0; right: 0; }
             #top-bar a { padding: 7px 10px; }
             #book-title { display: none; }
             #controls { bottom: 10px; gap: 8px; }
