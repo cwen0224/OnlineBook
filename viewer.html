@@ -74,12 +74,7 @@
             perspective: 3000px;
             perspective-origin: 50% 50%;
         }
-        /* Portrait books reserve a reading column for the translation panel. */
-        @media (min-width: 641px) {
-            body.translation-side #scene { right: calc(min(390px, calc(100vw - 36px)) + 52px); }
-        }
-        /* Landscape books keep their full width and place the translation below. */
-        body.translation-bottom #scene { bottom: calc(80px + min(30vh, 280px)); }
+        /* Translation is a translucent reading layer, so the artwork keeps its full size. */
 
         /*
          * #book = the full spread container (2 × page width)
@@ -215,19 +210,16 @@
         }
         @keyframes fadeHint { 0%,60%{opacity:1} 100%{opacity:0} }
 
-        /* English reading aid: overlays the scene instead of shrinking a spread. */
+        /* English reading aid: a gradient reading layer over the artwork. */
         #translation-panel {
             position: fixed;
-            top: 64px; right: 18px; bottom: 76px;
-            width: min(390px, calc(100vw - 36px));
+            top: 0; right: 0; bottom: 0;
+            width: min(420px, 42vw);
             display: none;
             flex-direction: column;
-            background: rgba(18, 18, 29, 0.96);
+            background: linear-gradient(to left, rgba(8,8,16,0.94) 0%, rgba(8,8,16,0.84) 70%, rgba(8,8,16,0) 100%);
             color: rgba(255,255,255,0.9);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 18px;
-            box-shadow: 0 20px 48px rgba(0,0,0,0.42);
-            z-index: 800;
+            z-index: 400;
             overflow: hidden;
         }
         #translation-panel.is-open { display: flex; }
@@ -258,12 +250,12 @@
         #translation-content::-webkit-scrollbar-button { display: none; }
         body.translation-bottom #translation-panel {
             top: auto;
-            right: clamp(12px, 2vw, 28px);
-            bottom: 72px;
-            left: clamp(12px, 2vw, 28px);
+            right: 0;
+            bottom: 0;
+            left: 0;
             width: auto;
-            height: min(30vh, 280px);
-            border-radius: 16px;
+            height: min(40vh, 340px);
+            background: linear-gradient(to top, rgba(8,8,16,0.94) 0%, rgba(8,8,16,0.84) 70%, rgba(8,8,16,0) 100%);
         }
         #translation-content p + p { margin-top: 1.35rem; }
         #translation-content .empty { color: rgba(255,255,255,0.55); }
@@ -273,12 +265,8 @@
             #book-title { display: none; }
             #controls { bottom: 10px; gap: 8px; }
             .ctrl-btn { padding: 8px 16px; }
-            #translation-panel {
-                top: auto; right: 10px; bottom: 72px; left: 10px;
-                width: auto; max-height: min(58vh, 500px);
-                border-radius: 16px;
-            }
-            body.translation-bottom #translation-panel { height: min(30vh, 250px); }
+            #translation-panel { width: min(88vw, 420px); }
+            body.translation-bottom #translation-panel { width: auto; height: min(42vh, 300px); }
         }
     </style>
 </head>
