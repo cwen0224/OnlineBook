@@ -229,24 +229,15 @@
             overflow: hidden;
         }
         #translation-panel.is-open { display: flex; }
-        #translation-panel header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 15px 17px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        #translation-panel h2 { font-size: 1rem; font-weight: 650; letter-spacing: 0.02em; }
-        #translation-page-label { color: rgba(255,255,255,0.45); font-size: 0.74rem; }
         #translation-close {
             appearance: none; border: 0; background: transparent; color: rgba(255,255,255,0.65);
+            position: absolute; top: 10px; right: 12px; z-index: 1;
             font-size: 1.35rem; line-height: 1; cursor: pointer; padding: 2px 4px;
         }
         #translation-close:hover { color: white; }
         #translation-content {
             overflow-y: auto;
-            padding: 17px;
+            padding: 17px 42px 17px 17px;
             font-size: 0.95rem;
             line-height: 1.7;
             white-space: pre-line;
@@ -313,13 +304,7 @@
 <div id="hint">點擊或拖曳書頁翻頁・← → 鍵盤也可以</div>
 
 <aside id="translation-panel" aria-label="English translation" aria-live="polite">
-    <header>
-        <div>
-            <h2>English translation</h2>
-            <span id="translation-page-label">—</span>
-        </div>
-        <button id="translation-close" type="button" aria-label="Close English translation">×</button>
-    </header>
+    <button id="translation-close" type="button" aria-label="Close English translation">×</button>
     <div id="translation-content"></div>
 </aside>
 
@@ -377,7 +362,6 @@
     const translationToggle = document.getElementById('translation-toggle');
     const translationPanel = document.getElementById('translation-panel');
     const translationContent = document.getElementById('translation-content');
-    const translationPageLabel = document.getElementById('translation-page-label');
     let translationPlacement = 'side';
 
     function visiblePrintedPages() {
@@ -394,7 +378,6 @@
             const entryEnd = entry.readerEnd ?? entry.end + translationPageOffset;
             return entryStart <= last && entryEnd >= first;
         });
-        translationPageLabel.textContent = first === last ? `Picture-book page ${first}` : `Picture-book pages ${first}–${last}`;
         translationContent.replaceChildren();
 
         if (!activeEntries.length) return;
