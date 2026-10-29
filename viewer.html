@@ -74,7 +74,11 @@
             perspective: 3000px;
             perspective-origin: 50% 50%;
         }
-        /* Translation is a translucent reading layer, so the artwork keeps its full size. */
+        /* Keep the book out of the reading layer, with only its transparent edge touching. */
+        @media (min-width: 641px) {
+            body.translation-side #scene { right: calc(min(420px, 42vw) - 72px); }
+        }
+        body.translation-bottom #scene { bottom: calc(min(40vh, 340px) - 72px); }
 
         /*
          * #book = the full spread container (2 × page width)
@@ -257,6 +261,11 @@
             height: min(40vh, 340px);
             background: linear-gradient(to top, rgba(8,8,16,0.94) 0%, rgba(8,8,16,0.84) 70%, rgba(8,8,16,0) 100%);
         }
+        body.translation-bottom #translation-content {
+            width: min(1080px, 88vw);
+            align-self: center;
+            padding: 28px 30px 92px;
+        }
         #translation-content p + p { margin-top: 1.35rem; }
         #translation-content .empty { color: rgba(255,255,255,0.55); }
         @media (max-width: 640px) {
@@ -267,6 +276,9 @@
             .ctrl-btn { padding: 8px 16px; }
             #translation-panel { width: min(88vw, 420px); }
             body.translation-bottom #translation-panel { width: auto; height: min(42vh, 300px); }
+            body.translation-bottom #translation-content { width: 92vw; padding: 22px 20px 78px; }
+            body.translation-side #scene { right: calc(min(88vw, 420px) - 50px); }
+            body.translation-bottom #scene { bottom: calc(min(42vh, 300px) - 50px); }
         }
     </style>
 </head>
