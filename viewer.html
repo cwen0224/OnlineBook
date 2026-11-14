@@ -375,7 +375,7 @@
     // ── English translation panel ──
     const translationEntries = (window.bookTranslations && window.bookTranslations[bookKey]) || [];
     // Both supplied translations start after four cover / front-matter scans.
-    const translationPageOffset = ['zaojiao', 'penghu_shihu'].includes(bookKey) ? 4 : 0;
+    const translationPageOffset = bookKey === 'zaojiao' ? 4 : bookKey === 'penghu_shihu' ? 3 : 0;
     const translationToggle = document.getElementById('translation-toggle');
     const translationPanel = document.getElementById('translation-panel');
     const translationContent = document.getElementById('translation-content');
@@ -424,10 +424,8 @@
         document.getElementById('translation-close').addEventListener('click', () => {
             setTranslationOpen(false);
         });
-        // English opens with its reading aid visible; placement is selected after the book ratio loads.
-        translationPanel.classList.add('is-open');
-        document.body.classList.add('translation-open');
-        translationToggle.setAttribute('aria-expanded', 'true');
+        // Keep the optional translation panel closed until the reader opens it.
+        translationToggle.setAttribute('aria-expanded', 'false');
     }
 
     // ── Load JSON ──

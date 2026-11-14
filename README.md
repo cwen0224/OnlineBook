@@ -80,6 +80,21 @@ storybook.zip
 
 把這三個檔案推到 GitHub repository，然後把 Pages 設定成從 `main` 分支的根目錄發佈即可。
 
+## itch.io 發佈
+
+如果要上傳到 itch.io，請先執行：
+
+```powershell
+.\build-itch.ps1
+```
+
+這會產生：
+
+- `dist\itch\`：可直接上傳的 HTML5 目錄
+- `dist\OnlineBook-itch.zip`：可直接上傳 itch.io 的壓縮檔
+
+itch 入口使用的是 `itch-index.html`，它會連到 `viewer.html` 與本機的書頁資源，不會把開發版的隱藏 demo 一起打包進去。
+
 ## 已實作內容
 
 - 以 CSS 3D 動畫模擬翻頁效果
