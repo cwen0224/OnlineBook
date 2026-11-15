@@ -513,7 +513,8 @@
     console.log("Detecting Book Ratio:", PAGE_RATIO, "isLandscape:", PAGE_RATIO < 1);
 
     // Portrait pages read best with a side column; a landscape spread keeps its width and uses a lower panel.
-    translationPlacement = resolveTranslationPlacement(firstPage, visiblePrintedPages());
+    // At this point page leaves have not been built yet; use the initial spread directly.
+    translationPlacement = resolveTranslationPlacement(firstPage, [1, Math.min(2, pagesData.length)]);
     if (translationPanel.classList.contains('is-open')) {
         document.body.classList.toggle('translation-side', translationPlacement === 'side');
         document.body.classList.toggle('translation-bottom', translationPlacement === 'bottom');
