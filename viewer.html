@@ -267,16 +267,16 @@
         body.translation-bottom #translation-panel {
             top: auto;
             right: 0;
-            bottom: 72px;
+            bottom: 0;
             left: 0;
             width: auto;
-            height: min(40vh, 340px);
+            height: calc(min(40vh, 340px) + 72px);
             background: linear-gradient(to top, rgba(8,8,16,0.60) 0%, rgba(8,8,16,0.52) 70%, rgba(8,8,16,0) 100%);
         }
         body.translation-bottom #translation-content {
             width: min(1080px, 88vw);
             align-self: center;
-            padding: 28px 30px 28px;
+            padding: 28px 30px 92px;
         }
         #translation-content p + p { margin-top: 1.35rem; }
         #translation-content .empty { color: rgba(255,255,255,0.55); }
@@ -287,8 +287,8 @@
             #controls { bottom: 0; gap: 8px; }
             .ctrl-btn { padding: 8px 16px; }
             #translation-panel { width: min(88vw, 420px); }
-            body.translation-bottom #translation-panel { bottom: 64px; width: auto; height: min(42vh, 300px); }
-            body.translation-bottom #translation-content { width: 92vw; padding: 22px 20px; }
+            body.translation-bottom #translation-panel { bottom: 0; width: auto; height: calc(min(42vh, 300px) + 64px); }
+            body.translation-bottom #translation-content { width: 92vw; padding: 22px 20px 78px; }
             body.translation-side #translation-content { padding: 46px 32px 28px 72px; }
             body.translation-side #scene { right: calc(min(88vw, 420px) - 50px); }
             body.translation-bottom #scene { bottom: calc(min(42vh, 300px) + 64px); }
@@ -331,7 +331,7 @@
     <button class="ctrl-btn" id="btn-next">下一頁 &#8594;</button>
 </div>
 
-<script src="translations.js?v=20261029-frontmatter"></script>
+<script src="translations.js?v=20261115-reader-refresh"></script>
 <script>
 (async () => {
     // ── Params & Localization ──
