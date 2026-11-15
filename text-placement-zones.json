@@ -87,8 +87,32 @@
           "image": "pages_zaojiao_tw/page_004.webp",
           "width": 1263,
           "height": 893,
-          "reviewStatus": "reviewed-no-safe-zone",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "zones": [
+            {
+              "id": "lower-left-open-peach-field",
+              "polygon": [
+                [
+                  4,
+                  46
+                ],
+                [
+                  34,
+                  46
+                ],
+                [
+                  34,
+                  60
+                ],
+                [
+                  4,
+                  60
+                ]
+              ],
+              "confidence": "high",
+              "note": "Clear lower-left peach field, separated from the title/byline above and the bird and child to the right. The complete 3-word title fits at the standard readable box size."
+            }
+          ],
           "englishTranslation": "Algal Reef Defense",
           "englishWordCount": 3,
           "translationScope": {
@@ -98,7 +122,7 @@
           },
           "translationStatus": "available",
           "reviewNotes": [
-            "The blank peach area is far left of the Chinese title/byline, so no zone is offered because it would not align with the source text."
+            "The safe text area is the lower-left peach field; the area immediately under the Chinese title/byline is too close to the bird and child. The translated title fits in the separate open field without covering Chinese or focal artwork."
           ]
         },
         {
@@ -258,12 +282,12 @@
           "image": "pages_zaojiao_tw/page_013.webp",
           "width": 1263,
           "height": 893,
-          "reviewStatus": "reviewed-no-safe-zone",
+          "reviewStatus": "not-applicable",
           "zones": [],
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided",
+          "translationStatus": "no-text",
           "reviewNotes": [
             "Illustration only; no Chinese text, no narration added."
           ]
@@ -349,12 +373,12 @@
           "image": "pages_zaojiao_tw/page_018.webp",
           "width": 1263,
           "height": 893,
-          "reviewStatus": "reviewed-no-safe-zone",
+          "reviewStatus": "not-applicable",
           "zones": [],
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided",
+          "translationStatus": "no-text",
           "reviewNotes": [
             "Illustration only; no Chinese copy."
           ]
@@ -383,12 +407,12 @@
           "image": "pages_zaojiao_tw/page_020.webp",
           "width": 1263,
           "height": 893,
-          "reviewStatus": "reviewed-no-safe-zone",
+          "reviewStatus": "not-applicable",
           "zones": [],
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided",
+          "translationStatus": "no-text",
           "reviewNotes": [
             "Illustration only; no Chinese narrative text."
           ]
@@ -398,12 +422,12 @@
           "image": "pages_zaojiao_tw/page_021.webp",
           "width": 1263,
           "height": 893,
-          "reviewStatus": "reviewed-no-safe-zone",
+          "reviewStatus": "not-applicable",
           "zones": [],
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided",
+          "translationStatus": "no-text",
           "reviewNotes": [
             "Illustration only; no Chinese narrative text."
           ]
@@ -527,8 +551,32 @@
           "image": "pages_zaojiao_tw/page_028.webp",
           "width": 1263,
           "height": 893,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "zones": [
+            {
+              "id": "below-centered-transition-line",
+              "polygon": [
+                [
+                  28,
+                  54
+                ],
+                [
+                  72,
+                  54
+                ],
+                [
+                  72,
+                  69
+                ],
+                [
+                  28,
+                  69
+                ]
+              ],
+              "confidence": "high",
+              "note": "Unprinted white space directly below the centered Chinese transition line; the complete 5-word English phrase fits on one line without touching the source text or page number."
+            }
+          ],
           "englishTranslation": "After months of hard work…",
           "englishWordCount": 5,
           "translationScope": {
@@ -537,9 +585,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "partial",
-          "blockedReason": "The 5-word phrase exceeds the available text height by 7px at readable preview size; expand or reposition and re-check against the illustration before approving.",
           "reviewNotes": [
-            "Only a short transition phrase."
+            "A short transition phrase can be placed in the blank white band immediately below the centered Chinese line; the previous smaller preview area was insufficient, so this zone uses the verified larger band."
           ]
         },
         {
@@ -604,7 +651,7 @@
           "image": "pages_zaojiao_tw/page_032.webp",
           "width": 1263,
           "height": 893,
-          "reviewStatus": "reviewed-no-safe-zone",
+          "reviewStatus": "not-applicable",
           "zones": [],
           "englishTranslation": "Taoyuan City Government Department of Environmental Protection",
           "englishWordCount": 7,
@@ -629,9 +676,9 @@
           "image": "pages_shigo_tw/page_001.webp",
           "width": 893,
           "height": 1263,
-          "reviewStatus": "not-applicable",
+          "reviewStatus": "blocked",
           "zones": [],
-          "reviewNote": "The English title is translated from the printed Chinese heading; the contest text and creator credit follow the supplied English source.",
+          "reviewNote": "No safe placement: the cover is filled by the Chinese title, creator line, contest banner, award badge, and central family illustration. An English box would obscure essential cover artwork/text or be too small to hold the full 20-word translation.",
           "englishTranslation": "Shigo Stone Weir\nTaoyuan City 2021 Environmental Education Picture Book Contest\nText & illustrations by Xie Hanyun and Ke Lanting",
           "englishWordCount": 20,
           "translationScope": {
@@ -652,14 +699,14 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         },
         {
           "page": 3,
           "image": "pages_shigo_tw/page_003.webp",
           "width": 893,
           "height": 1263,
-          "reviewStatus": "candidate-review",
+          "reviewStatus": "reviewed-with-zones",
           "zones": [
             {
               "id": "below-centered-title-and-byline",
@@ -706,7 +753,7 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         },
         {
           "page": 5,
@@ -765,8 +812,15 @@
           "image": "pages_shigo_tw/page_008.webp",
           "width": 893,
           "height": 1263,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-with-zones",
+          "zones": [
+            {
+              "id": "open-band-below-dialogue",
+              "polygon": [[6, 19.5], [94, 19.5], [94, 33], [6, 33]],
+              "confidence": "high",
+              "note": "Full-width quiet pink field between the Chinese dialogue (ending above 18%) and the grandmother/granddaughter illustration (beginning below 53%); the complete 31-word passage fits without covering text or focal artwork."
+            }
+          ],
           "englishTranslation": "Xiaoli suddenly looked down sadly, and tears fell one after another like pearls. \"What's wrong? Thinking about your dad and mom again?\" Grandma held Xiaoli in her arms and comforted her.",
           "englishWordCount": 31,
           "translationScope": {
@@ -775,7 +829,7 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-          "blockedReason": "The full 31-word English passage overflows the measured safe area by 13px at readable preview size. Increasing box height would enter the illustration; no verified fit."
+          "reviewNote": "The complete passage fits in the broad, unoccupied pink band below the Chinese dialogue and above the figures; the earlier narrow-band overflow assessment did not account for the full blank interval."
         },
         {
           "page": 9,
@@ -805,7 +859,7 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         },
         {
           "page": 11,
@@ -880,9 +934,16 @@
           "image": "pages_shigo_tw/page_015.webp",
           "width": 893,
           "height": 1263,
-          "reviewStatus": "blocked",
-          "zones": [],
-          "reviewNote": "English source exists; the Chinese text fills the upper-left area and the remaining page is occupied by the character and catch illustration.",
+          "reviewStatus": "reviewed-with-zones",
+          "zones": [
+            {
+              "id": "open-band-below-narration",
+              "polygon": [[8, 20.5], [92, 20.5], [92, 33.5], [8, 33.5]],
+              "confidence": "high",
+              "note": "Large blank white area immediately below the Chinese narration and above A-Hai and the grass/animal illustration; the complete 27-word passage fits within this quiet band."
+            }
+          ],
+          "reviewNote": "A broad blank area below the Chinese narration and before the illustration safely accommodates the complete English passage.",
           "englishTranslation": "As he headed toward the trap, the smell of fish filled the air. A-Hai could not help smiling and muttering, \"What a big catch!\" He walked quickly.",
           "englishWordCount": 27,
           "translationScope": {
@@ -988,7 +1049,7 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         },
         {
           "page": 22,
@@ -1052,7 +1113,7 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         },
         {
           "page": 26,
@@ -1116,7 +1177,7 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         },
         {
           "page": 30,
@@ -1129,7 +1190,7 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         },
         {
           "page": 31,
@@ -1142,7 +1203,7 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         },
         {
           "page": 32,
@@ -1224,8 +1285,32 @@
           "image": "pages_zaojiao_story_tw/page_004.webp",
           "width": 1600,
           "height": 1244,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "zones": [
+            {
+              "id": "upper-left-open-sky",
+              "polygon": [
+                [
+                  3,
+                  3
+                ],
+                [
+                  45,
+                  2
+                ],
+                [
+                  45,
+                  26
+                ],
+                [
+                  3,
+                  26
+                ]
+              ],
+              "confidence": "high",
+              "note": "Clear upper-left sky, aligned beside the Chinese dialogue; ends above the birds and does not cover the castle or characters. The complete 24-word translation fits at the reader's standard box size."
+            }
+          ],
           "englishTranslation": "Is this the algal-reef castle? It looks a little different from what I imagined. Ah Yong said to Xiaoxing, puzzled. “Yes, yes!” Xiaoxing nodded.",
           "englishWordCount": 24,
           "translationScope": {
@@ -1233,8 +1318,7 @@
             "endPage": 4,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available",
-          "blockedReason": "The full 24-word text overflows this zone by 30px at readable preview size. Expanding downward enters artwork, so no verified fit."
+          "translationStatus": "available"
         },
         {
           "page": 5,
@@ -1339,8 +1423,32 @@
           "image": "pages_zaojiao_story_tw/page_011.webp",
           "width": 1600,
           "height": 1244,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "zones": [
+            {
+              "id": "upper-left-open-water",
+              "polygon": [
+                [
+                  3,
+                  3
+                ],
+                [
+                  38,
+                  3
+                ],
+                [
+                  38,
+                  43
+                ],
+                [
+                  3,
+                  43
+                ]
+              ],
+              "confidence": "high",
+              "note": "Open upper-left water beside the Chinese passage; stays left of the curved shoreline edge and above the oyster and children. The complete 33-word translation fits at the reader's standard box size."
+            }
+          ],
           "englishTranslation": "“The seawater used to be so clean, and I was beautiful and lovable! But after wastewater from factories flowed into the sea, I became a green oyster.” Little Clam shook its head helplessly.",
           "englishWordCount": 33,
           "translationScope": {
@@ -1348,8 +1456,7 @@
             "endPage": 11,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available",
-          "blockedReason": "The right-aligned Chinese text fills the upper-right quadrant and continues close to the oyster/children; no safe adjacent zone can fit the translation."
+          "translationStatus": "available"
         },
         {
           "page": 12,
@@ -1528,8 +1635,33 @@
           "image": "pages_penghu_shihu_tw/page_001.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "reviewNote": "A clear sky strip above the printed Chinese cover title holds the six-word English title without covering the Chinese lettering or the cover illustration.",
+          "zones": [
+            {
+              "id": "safe-english-area-page-01",
+              "polygon": [
+                [
+                  15,
+                  3
+                ],
+                [
+                  85,
+                  3
+                ],
+                [
+                  85,
+                  9
+                ],
+                [
+                  15,
+                  9
+                ]
+              ],
+              "confidence": "high",
+              "note": "Open sky above the Chinese title; fits the six-word English cover title."
+            }
+          ],
           "englishTranslation": "Grandpa Stone Weir Tells a Story",
           "englishWordCount": 6,
           "translationScope": {
@@ -1545,6 +1677,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The 282-word preface fills the central and lower page; placing the full translation would cover the lighthouse/shore artwork or original Chinese text.",
           "zones": [],
           "englishTranslation": "Preface\n\nA Dream Begins and Comes Full Circle\n\nYong’an Fishing Harbor in Xinwu is Taiwan’s only Hakka fishing harbor.\n\nXinwu’s stone tidal-weir group is the largest on Taiwan’s main island. At least six weirs are still in active use. These precious living records have shaped the rich fishing culture of Hakka coastal villages.\n\nThe energetic Xinwu Hometown Association invited me to serve as a consultant. During an interpreter-training course, the association members were delighted to discover clusters of stone tidal weirs while looking for local cultural features. I immediately added basic field-research methods to the course. They then formed a 38-member survey team and spent half a year measuring, collecting materials, interviewing people, and searching for this valuable tangible cultural heritage, believed to have been passed down for 300 years. On 29 June 2013, they published “Legend of the Xinwu Stone Tidal Weirs: A Field Survey of Taiwan’s Largest Stone-Weir Group.” I was deeply honoured to be part of it.\n\nYet I also felt regret. Our younger generation may find field-survey reports difficult to understand and may have few opportunities to learn about the wisdom preserved in the stone tidal weirs left by our ancestors. So I began to weave a dream in my heart and set to work writing and illustrating for children.\n\nI thank Ms. Lu Shumei and Ms. Emma Tsai for completing the Hakka and English translations; Mr. Xie Qiantong and Mr. Jacky Baltes for reviewing the Hakka and English text; the Hakka Affairs Council and Xinwu Township Office for their support; and Chairman Guo Xianzhang and the Xinwu Hometown Association for generously serving as the publication’s chief planner. These many kind connections have brought my dream to completion.",
           "englishWordCount": 282,
@@ -1560,8 +1693,33 @@
           "image": "pages_penghu_shihu_tw/page_003.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "reviewNote": "The broad right-side white field beside the figures and below the heading safely contains the full translated title and credits without touching the Chinese title or lower-right publisher credits.",
+          "zones": [
+            {
+              "id": "safe-english-area-page-03",
+              "polygon": [
+                [
+                  61,
+                  38
+                ],
+                [
+                  95,
+                  38
+                ],
+                [
+                  95,
+                  78
+                ],
+                [
+                  61,
+                  78
+                ]
+              ],
+              "confidence": "high",
+              "note": "Clear right-side background beside the figures and below the Chinese heading; fits the title and creator credits."
+            }
+          ],
           "englishTranslation": "Grandpa Stone Weir Tells a Story\nWritten and illustrated by Qiu Jie\n\nSponsored by the Hakka Affairs Council\nSupported by the Xinwu Township Office, Taoyuan County\nPublished by the Xinwu Hometown Association, Taoyuan County",
           "englishWordCount": 34,
           "translationScope": {
@@ -1576,7 +1734,8 @@
           "image": "pages_penghu_shihu_tw/page_004.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
+          "reviewStatus": "not-applicable",
+          "reviewNote": "Illustration-only page with no printed Chinese narrative text to translate.",
           "zones": [],
           "englishTranslation": null,
           "englishWordCount": null,
@@ -1590,6 +1749,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The short dialogue is split across the top and bottom; the apparent central water band is too narrow and overlaps the weir/figures to hold the complete English legibly.",
           "zones": [],
           "englishTranslation": "Grandpa Stone, what are you doing by the seashore?\n\nI’m not Grandpa Stone. I’m Grandpa “Stone Tidal Trap.”",
           "englishWordCount": 18,
@@ -1605,8 +1765,33 @@
           "image": "pages_penghu_shihu_tw/page_006.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "reviewNote": "The horizontal sky/water band below the Chinese dialogue and above the stone-weir rocks contains the full 45-word spread text at the reader's fitted font size.",
+          "zones": [
+            {
+              "id": "safe-english-area-page-06",
+              "polygon": [
+                [
+                  7,
+                  19
+                ],
+                [
+                  93,
+                  19
+                ],
+                [
+                  93,
+                  33
+                ],
+                [
+                  7,
+                  33
+                ]
+              ],
+              "confidence": "high",
+              "note": "Clear sky/water strip below the Chinese text and above the main stone-weir illustration."
+            }
+          ],
           "englishTranslation": "If there is only one, it is called a stone. But if many stones are made into a trap, it is a stone tidal trap. We call this type of trap a “stone tidal weir.”\n\nHuh? What did you say? I still don’t get it.",
           "englishWordCount": 45,
           "translationScope": {
@@ -1622,6 +1807,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The question sits at the top; the boy, grandfather, and prominent tree occupy the remaining area. No clear area can hold the complete spread translation.",
           "zones": [],
           "englishTranslation": "If there is only one, it is called a stone. But if many stones are made into a trap, it is a stone tidal trap. We call this type of trap a “stone tidal weir.”\n\nHuh? What did you say? I still don’t get it.",
           "englishWordCount": 45,
@@ -1638,6 +1824,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Chinese narration occupies the upper band and the stone-weir/seascape begins immediately below; no sufficiently tall clear region remains.",
           "zones": [],
           "englishTranslation": "A stone tidal weir consists of many stones piled together. The piles create several small pools.\n\nAt high tide, fish swim into the pools with the water. At low tide, the water flows back to the ocean, but the fish are trapped in the pools.",
           "englishWordCount": 45,
@@ -1653,7 +1840,8 @@
           "image": "pages_penghu_shihu_tw/page_009.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
+          "reviewStatus": "reviewed-no-safe-zone",
+          "reviewNote": "The upper sky appears open, but a box tall enough for the full 45-word spread translation overlaps Grandpa's and the child's heads. The remaining clear sky is too shallow for readable text.",
           "zones": [],
           "englishTranslation": "A stone tidal weir consists of many stones piled together. The piles create several small pools.\n\nAt high tide, fish swim into the pools with the water. At low tide, the water flows back to the ocean, but the fish are trapped in the pools.",
           "englishWordCount": 45,
@@ -1669,8 +1857,33 @@
           "image": "pages_penghu_shihu_tw/page_010.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "reviewNote": "A clear upper-sky band above the crab/tree illustration fits the complete 29-word spread translation without covering Chinese or the focal crab.",
+          "zones": [
+            {
+              "id": "safe-english-area-page-10",
+              "polygon": [
+          [
+            7,
+            2
+          ],
+          [
+            93,
+            2
+          ],
+          [
+            93,
+            15
+          ],
+          [
+            7,
+            15
+          ]
+              ],
+              "confidence": "high",
+              "note": "Open upper sky above the crab/tree illustration; no Chinese is printed in this region."
+            }
+          ],
           "englishTranslation": "Then we can catch the fish in the pools?\n\nCorrect. Most fish are trapped in the pools because they cannot find the exit, so they are easy to catch.",
           "englishWordCount": 29,
           "translationScope": {
@@ -1686,6 +1899,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Chinese dialogue appears both above and below the scene, while the figures, fish, and weir occupy the center; the full spread text cannot fit safely.",
           "zones": [],
           "englishTranslation": "Then we can catch the fish in the pools?\n\nCorrect. Most fish are trapped in the pools because they cannot find the exit, so they are easy to catch.",
           "englishWordCount": 29,
@@ -1701,9 +1915,33 @@
           "image": "pages_penghu_shihu_tw/page_012.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "reviewNote": "The former demonstration box overlaps the roof/tree illustration immediately below the Chinese question; no sufficiently clear, aligned region remains.",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "reviewNote": "The short question fits in the clear sky immediately below the Chinese question and above the village roofs and trees.",
+          "zones": [
+            {
+              "id": "safe-english-area-page-12",
+              "polygon": [
+                [
+                  7,
+                  20
+                ],
+                [
+                  93,
+                  20
+                ],
+                [
+                  93,
+                  29
+                ],
+                [
+                  7,
+                  29
+                ]
+              ],
+              "confidence": "high",
+              "note": "Short single-sentence translation fits in the clear sky between the Chinese question and the village roofs."
+            }
+          ],
           "englishTranslation": "What a great way to catch fish! Who invented stone tidal weirs?",
           "englishWordCount": 12,
           "translationScope": {
@@ -1718,8 +1956,8 @@
           "image": "pages_penghu_shihu_tw/page_013.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "reviewNote": "The former demonstration box covers small bird illustrations below the Chinese paragraph; no aligned safe region of useful height is visible.",
+          "reviewStatus": "reviewed-no-safe-zone",
+          "reviewNote": "The short translation could fit below the Chinese, but the available sky band contains the bird silhouettes and is too shallow for a box aligned with the Chinese text without covering them.",
           "zones": [],
           "englishTranslation": "Long ago, people living by the sea came up with this idea.",
           "englishWordCount": 12,
@@ -1735,8 +1973,33 @@
           "image": "pages_penghu_shihu_tw/page_014.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "reviewNote": "The broad upper-sky region is free of Chinese text and the walking figures; it fits the complete 47-word spread translation above the scene.",
+          "zones": [
+            {
+              "id": "safe-english-area-page-14",
+              "polygon": [
+                [
+                  7,
+                  5
+                ],
+                [
+                  93,
+                  5
+                ],
+                [
+                  93,
+                  26
+                ],
+                [
+                  7,
+                  26
+                ]
+              ],
+              "confidence": "high",
+              "note": "Open upper sky above the walking figures on the illustration-only facing page."
+            }
+          ],
           "englishTranslation": "I heard there are many stone tidal weirs in Penghu. Did Penghu residents invent them?\n\nThere are many stone tidal weirs in Penghu. The famous Twin-Heart Stone Weir in Qimei is known around the world. But there are also many stone tidal weirs all along Taiwan’s coastline.",
           "englishWordCount": 47,
           "translationScope": {
@@ -1752,6 +2015,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Chinese narration occupies the top and the egret/stone-weir scene fills the page; the complete spread translation is placed on the clear facing illustration page instead.",
           "zones": [],
           "englishTranslation": "I heard there are many stone tidal weirs in Penghu. Did Penghu residents invent them?\n\nThere are many stone tidal weirs in Penghu. The famous Twin-Heart Stone Weir in Qimei is known around the world. But there are also many stone tidal weirs all along Taiwan’s coastline.",
           "englishWordCount": 47,
@@ -1768,6 +2032,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Chinese text appears in the upper and lower areas, with the harbor and buildings between them; no clear box fits the complete 55-word spread translation.",
           "zones": [],
           "englishTranslation": "Where exactly are they in Taiwan?\n\nMost are on the west coast. In the old days, there were many from Yehliu to Tamsui, forming a shape like a tail. The weir in Tamsui was at the end of that tail, which is why Tamsui was called “Huwei” — the end of the tail-like stone tidal weirs.",
           "englishWordCount": 55,
@@ -1783,8 +2048,33 @@
           "image": "pages_penghu_shihu_tw/page_017.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "reviewNote": "The broad upper-left sky is clear of printed dialogue and focal figures; the sailboat is farther right and below this box. It fits the 55-word spread translation.",
+          "zones": [
+            {
+              "id": "safe-english-area-page-17",
+              "polygon": [
+                [
+                  4,
+                  4
+                ],
+                [
+                  53,
+                  4
+                ],
+                [
+                  53,
+                  31
+                ],
+                [
+                  4,
+                  31
+                ]
+              ],
+              "confidence": "high",
+              "note": "Open upper-left sky; avoids the sailboat at upper right and the bird/weir illustration below."
+            }
+          ],
           "englishTranslation": "Where exactly are they in Taiwan?\n\nMost are on the west coast. In the old days, there were many from Yehliu to Tamsui, forming a shape like a tail. The weir in Tamsui was at the end of that tail, which is why Tamsui was called “Huwei” — the end of the tail-like stone tidal weirs.",
           "englishWordCount": 55,
           "translationScope": {
@@ -1799,9 +2089,33 @@
           "image": "pages_penghu_shihu_tw/page_018.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "reviewNote": "The only band directly below the Chinese text includes bird silhouettes and is too shallow for a reliable text region.",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "reviewNote": "The upper sky above the hibiscus illustration is free of Chinese text and focal artwork and fits the complete 30-word spread translation.",
+          "zones": [
+            {
+              "id": "safe-english-area-page-18",
+              "polygon": [
+                [
+                  6,
+                  5
+                ],
+                [
+                  94,
+                  5
+                ],
+                [
+                  94,
+                  22
+                ],
+                [
+                  6,
+                  22
+                ]
+              ],
+              "confidence": "high",
+              "note": "Clear upper sky above the hibiscus illustration."
+            }
+          ],
           "englishTranslation": "Tamsui was called Huwei. What an interesting name!\n\nSouth of the Tamsui River delta, people built many stone tidal weirs — for example, in Dayuan, Guanyin, and Xinwu in Taoyuan County.",
           "englishWordCount": 30,
           "translationScope": {
@@ -1817,6 +2131,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Chinese dialogue fills the lower band and the lighthouse/shore illustration fills the upper page; no clear region fits the complete spread translation.",
           "zones": [],
           "englishTranslation": "Tamsui was called Huwei. What an interesting name!\n\nSouth of the Tamsui River delta, people built many stone tidal weirs — for example, in Dayuan, Guanyin, and Xinwu in Taoyuan County.",
           "englishWordCount": 30,
@@ -1832,8 +2147,33 @@
           "image": "pages_penghu_shihu_tw/page_020.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "reviewNote": "The open upper-sky area above the crab illustration fits the complete 45-word spread translation without covering Chinese or the crab.",
+          "zones": [
+            {
+              "id": "safe-english-area-page-20",
+              "polygon": [
+                [
+                  7,
+                  5
+                ],
+                [
+                  93,
+                  5
+                ],
+                [
+                  93,
+                  23
+                ],
+                [
+                  7,
+                  23
+                ]
+              ],
+              "confidence": "high",
+              "note": "Clear upper sky above the crab illustration."
+            }
+          ],
           "englishTranslation": "Cool! I live in Dayuan, but I have never seen one or heard of them before.\n\nThe stone tidal weirs are very old and few people take care of them. Waves break against them day and night, slowly breaking them apart. Sometimes sand buries them.",
           "englishWordCount": 45,
           "translationScope": {
@@ -1848,8 +2188,33 @@
           "image": "pages_penghu_shihu_tw/page_021.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "reviewNote": "The upper sky is clear of Chinese text and the lower shell/shore artwork; it fits the complete 45-word spread translation.",
+          "zones": [
+            {
+              "id": "safe-english-area-page-21",
+              "polygon": [
+                [
+                  6,
+                  4
+                ],
+                [
+                  94,
+                  4
+                ],
+                [
+                  94,
+                  24
+                ],
+                [
+                  6,
+                  24
+                ]
+              ],
+              "confidence": "high",
+              "note": "Clear upper sky on the illustration-only facing page, above the shoreline details."
+            }
+          ],
           "englishTranslation": "Cool! I live in Dayuan, but I have never seen one or heard of them before.\n\nThe stone tidal weirs are very old and few people take care of them. Waves break against them day and night, slowly breaking them apart. Sometimes sand buries them.",
           "englishWordCount": 45,
           "translationScope": {
@@ -1865,6 +2230,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Chinese dialogue occupies the top and the debris/weir scene fills the remaining area; no box can hold the full 31-word spread text safely.",
           "zones": [],
           "englishTranslation": "How come no one maintains the stone tidal weirs?\n\nMuch coastal water is polluted, so fish cannot survive. With no fish left in the weirs, no one wants to maintain them.",
           "englishWordCount": 31,
@@ -1880,7 +2246,8 @@
           "image": "pages_penghu_shihu_tw/page_023.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
+          "reviewStatus": "reviewed-no-safe-zone",
+          "reviewNote": "The upper-left area looks blank at first glance, but the large leaf enters the lower part of any box tall enough for the complete 31-word spread translation. The remaining sky strip is too shallow.",
           "zones": [],
           "englishTranslation": "How come no one maintains the stone tidal weirs?\n\nMuch coastal water is polluted, so fish cannot survive. With no fish left in the weirs, no one wants to maintain them.",
           "englishWordCount": 31,
@@ -1896,8 +2263,33 @@
           "image": "pages_penghu_shihu_tw/page_024.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
-          "zones": [],
+          "reviewStatus": "reviewed-placement",
+          "reviewNote": "The clear upper-sky band above the fishing scene and away from Chinese text fits the complete 29-word spread translation.",
+          "zones": [
+            {
+              "id": "safe-english-area-page-24",
+              "polygon": [
+                [
+                  6,
+                  4
+                ],
+                [
+                  94,
+                  4
+                ],
+                [
+                  94,
+                  18
+                ],
+                [
+                  6,
+                  18
+                ]
+              ],
+              "confidence": "high",
+              "note": "Clear upper-sky band above the fishing scene and away from the Chinese dialogue on its facing page."
+            }
+          ],
           "englishTranslation": "Are there any stone tidal weirs left in Taiwan?\n\nSure! The ocean near Xinwu is still clean, so even today some people use stone tidal weirs to catch fish.",
           "englishWordCount": 29,
           "translationScope": {
@@ -1913,6 +2305,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Two Chinese dialogue lines occupy the bottom while the shelter, people, and egret fill the rest; no safe region fits the full spread text.",
           "zones": [],
           "englishTranslation": "Are there any stone tidal weirs left in Taiwan?\n\nSure! The ocean near Xinwu is still clean, so even today some people use stone tidal weirs to catch fish.",
           "englishWordCount": 29,
@@ -1929,6 +2322,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The Chinese question is at the top and the figures, bridge, and river occupy the remaining page; no sufficiently large clear box remains.",
           "zones": [],
           "englishTranslation": "Xinwu? The one with the famous rainbow bridge in Yong’an Fishing Harbor?\n\nYes. Yong’an Fishing Harbor is the only Hakka fishing harbor, and stone tidal weirs are also one of the traditional Hakka ways to catch fish.",
           "englishWordCount": 37,
@@ -1946,6 +2340,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The Chinese answer fills the upper band and the bridge/building/boat illustration fills the scene; no safe region fits the complete spread text.",
           "zones": [],
           "englishTranslation": "Xinwu? The one with the famous rainbow bridge in Yong’an Fishing Harbor?\n\nYes. Yong’an Fishing Harbor is the only Hakka fishing harbor, and stone tidal weirs are also one of the traditional Hakka ways to catch fish.",
           "englishWordCount": 37,
@@ -1962,7 +2357,8 @@
           "image": "pages_penghu_shihu_tw/page_028.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
+          "reviewStatus": "reviewed-no-safe-zone",
+          "reviewNote": "The 49-word spread translation cannot fit between the Chinese question and the people/flower illustration without overlapping either. The box previously marked as safe crossed into both areas.",
           "zones": [],
           "englishTranslation": "It is amazing to build such long stone tidal weirs in the ocean. Who built those in Xinwu?\n\nNobody knows exactly. They are very old — probably around 300 years old. It is said that they may have been built by the Indigenous people who lived here at that time.",
           "englishWordCount": 49,
@@ -1979,6 +2375,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The Chinese '300 years' speech bubble and the grandfather/child illustration are the page's focal content; no area fits the full 49-word spread translation.",
           "zones": [],
           "englishTranslation": "It is amazing to build such long stone tidal weirs in the ocean. Who built those in Xinwu?\n\nNobody knows exactly. They are very old — probably around 300 years old. It is said that they may have been built by the Indigenous people who lived here at that time.",
           "englishWordCount": 49,
@@ -1994,7 +2391,8 @@
           "image": "pages_penghu_shihu_tw/page_030.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
+          "reviewStatus": "reviewed-no-safe-zone",
+          "reviewNote": "The upper landscape band intersects the Chinese paragraph above and the fishing scene/raven below. No area remains wide and tall enough for the full 40-word spread translation without covering content.",
           "zones": [],
           "englishTranslation": "Xinwu has many different agricultural and fishery products. The diligent Hakka immigrants worked hard on farms and also earned the right to manage the stone tidal weirs. Generation after generation, they have managed, used, and maintained the weirs until today.",
           "englishWordCount": 40,
@@ -2011,6 +2409,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The page is illustration-only, but the windbreak trees and farm scene fill the composition; the complete 40-word spread text is kept on its facing text page.",
           "zones": [],
           "englishTranslation": "Xinwu has many different agricultural and fishery products. The diligent Hakka immigrants worked hard on farms and also earned the right to manage the stone tidal weirs. Generation after generation, they have managed, used, and maintained the weirs until today.",
           "englishWordCount": 40,
@@ -2027,6 +2426,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Chinese dialogue spans the top and the grandfather/child figures fill the central scene; no safe box can hold the 52-word spread translation.",
           "zones": [],
           "englishTranslation": "Grandpa Stone — oh no, Grandpa Stone Tidal Weir — you are such a steadfast and wise person.\n\nHehehehe! Catching fish with stone tidal weirs is environmentally friendly because it happens naturally and produces no carbon dioxide. We should cherish stone tidal weirs and take good care of them, the fish, and the oceans.",
           "englishWordCount": 52,
@@ -2044,6 +2444,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Chinese narration fills the top and the boats, shore, and prominent bird fill the rest; no sufficiently clear region fits the 52-word spread text.",
           "zones": [],
           "englishTranslation": "Grandpa Stone — oh no, Grandpa Stone Tidal Weir — you are such a steadfast and wise person.\n\nHehehehe! Catching fish with stone tidal weirs is environmentally friendly because it happens naturally and produces no carbon dioxide. We should cherish stone tidal weirs and take good care of them, the fish, and the oceans.",
           "englishWordCount": 52,
@@ -2061,6 +2462,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Although there is no Chinese narration on this image, the trees, children, and mudskipper fill the illustration; no area can hold the full spread translation without obscuring key content.",
           "zones": [],
           "englishTranslation": "True! If the ocean is polluted, fish cannot come into the stone tidal weirs. As we enjoy the beauty of the stone tidal weirs, we must also cherish our ocean.",
           "englishWordCount": 30,
@@ -2077,6 +2479,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Chinese text occupies the top and the forest/children illustration fills the page; no safe area fits the complete spread translation.",
           "zones": [],
           "englishTranslation": "True! If the ocean is polluted, fish cannot come into the stone tidal weirs. As we enjoy the beauty of the stone tidal weirs, we must also cherish our ocean.",
           "englishWordCount": 30,
@@ -2093,6 +2496,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The page is a floral-backed activity sheet with multiple Chinese prompts and four inset pictures; the text and images leave no safe space.",
           "zones": [],
           "englishTranslation": "True! If the ocean is polluted, fish cannot come into the stone tidal weirs. As we enjoy the beauty of the stone tidal weirs, we must also cherish our ocean.",
           "englishWordCount": 30,
@@ -2109,6 +2513,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Chinese questions and answers occupy nearly the full floral page around several inset illustrations; no area fits the complete 127-word translation.",
           "zones": [],
           "englishTranslation": "Who came up with this clever way of catching fish? Long, long ago, people living by the sea thought of it.\n\nI heard there are many stone tidal weirs in Penghu. They must have been invented by the people of Penghu, right?\n\nPenghu has many stone tidal weirs, and its famous Twin-Heart Stone Weir is a world-renowned sight. But stone tidal weirs can also be found along Taiwan’s coast.\n\nWhere in Taiwan are the stone tidal weirs? Most are along the west coast. Long ago, many stretched from Yehliu to Tamsui, forming a shape like a tail. The weir at Tamsui was at the tail’s end, so Tamsui was called Huwei, meaning “tail end.”\n\nHuwei is such an interesting name! In fact, there are also many stone tidal weirs south of the Tamsui River. Along Taoyuan’s coast, they can be found in Dayuan, Guanyin, and Xinwu.",
           "englishWordCount": 127,
@@ -2125,6 +2530,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The page is densely filled with Chinese dialogue and multiple illustrations; no safe region can contain the complete 125-word translation.",
           "zones": [],
           "englishTranslation": "That’s strange. She lives in Dayuan, so how has she never seen the stone tidal weirs there? Many weirs in other places are very old. With no one to maintain them, the sea gradually wears them away, and some are buried by drifting sand.\n\nWhy doesn’t anyone maintain them? In many places, coastal waters have become polluted and fish can no longer survive. The weirs are left empty, with no fish to catch, so no one repairs them.\n\nAre there any stone tidal weirs left in Taiwan? Yes! The coast of Xinwu is still clean, so people continue to fish in its weirs.\n\nXinwu—the place with the beautiful Tianhou Temple and Yong’an Fishing Harbor? That’s right. Yong’an is Taiwan’s only Hakka fishing harbor, and stone-weir fishing is one of the traditional ways people there catch fish.",
           "englishWordCount": 125,
@@ -2141,6 +2547,7 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Long Chinese dialogue blocks and inset images occupy the floral page; the 119-word translation has no safe placement area.",
           "zones": [],
           "englishTranslation": "Building such a long stone weir in the open sea is an incredible feat. Who built the weirs in Xinwu? The weirs are so old—probably about 300 years—that no one knows for certain. They may have been built by the Indigenous people who lived here long ago.\n\nXinwu is a fertile land of fish and rice. Hakka families worked hard to settle here and were granted the right to manage the stone weirs. Generation after generation, they have cared for and used them.\n\nGrandpa Stone—oh, I mean Grandpa Stone Weir—you are truly wise and have contributed so much!\n\nHa ha! Fishing with stone tidal weirs is a low-carbon way to live in harmony with nature. Let’s cherish the weirs and protect the ocean.\n\nThat’s right. Pollution can drive the fish away, leaving even a weir useless. While we cherish the stone tidal weirs, we must remember to protect the sea around them, too.",
           "englishWordCount": 119,
@@ -2156,7 +2563,8 @@
           "image": "pages_penghu_shihu_tw/page_040.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
+          "reviewStatus": "not-applicable",
+          "reviewNote": "The English story text is already printed on this page; an overlay would duplicate it.",
           "zones": [],
           "englishTranslation": null,
           "englishWordCount": null,
@@ -2169,7 +2577,8 @@
           "image": "pages_penghu_shihu_tw/page_041.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
+          "reviewStatus": "not-applicable",
+          "reviewNote": "The English story text is already printed on this page; an overlay would duplicate it.",
           "zones": [],
           "englishTranslation": null,
           "englishWordCount": null,
@@ -2182,12 +2591,13 @@
           "image": "pages_penghu_shihu_tw/page_042.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
+          "reviewStatus": "not-applicable",
+          "reviewNote": "This is an English-language continuation page with its story translation already printed in the artwork; no additional overlay is needed.",
           "zones": [],
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "no-text"
+          "translationStatus": "already-in-artwork"
         },
         {
           "page": 43,
@@ -2195,16 +2605,17 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The page is a dense Chinese introduction/essay; the existing partial title translation cannot be placed without covering the Chinese text.",
           "zones": [],
-          "englishTranslation": "Grandpa Stone Weir Tells a Story\nWritten and illustrated by Qiu Jie",
-          "englishWordCount": 10,
+          "englishTranslation": "About Stone Tidal Weirs\n\nA stone tidal weir is a fishing method that uses the tides. A long barrier is built on the shore with stones. At high tide, seawater flows over it and fish swim into the weir. As the tide ebbs, the water gradually recedes, leaving the fish trapped inside and easy to catch.\n\nBuilding a stone weir requires a sturdy wall that can withstand the waves, as well as careful decisions about its height, direction, and location. If it is too high, fish may be trapped outside; if it is too low, fish inside may escape with the ebbing tide. Building one therefore takes extensive experience and specialized skill.\n\nIn the past, without machinery, building a stone weir was a huge undertaking. Families living near the coast pooled money and labor—sometimes dozens or even hundreds of people working together. They shared the catch, creating a way of life that reflected the hard work, wisdom, and cooperation of earlier generations. A stone weir is therefore a living piece of history.\n\nEven after a weir was built, it required year-round work. Fishers had to go out at all hours to match the tides, and regularly patrol and repair sections damaged by the sea. Typhoons and giant waves could destroy a wall, making repairs especially difficult. In modern times, some builders have used excavators. At Xinwu in Taoyuan, construction waste was used to rebuild a weir with an excavator, preserving its function while creating an unusual “modern stone weir.” The contrast between old and new methods is fascinating.\n\nBesides Penghu, stone weirs once dotted Taiwan’s northwestern coast and are believed to date back 200 to 300 years. Changes in water conditions, marine pollution, and declining fish stocks made fishing less rewarding, and many weirs gradually fell into ruin. Today, few remain. Xinwu has ten, six of which are still in use. They are among Taiwan’s most valuable surviving stone weirs and living teaching resources.\n\nComparing Penghu’s weirs with those on Taiwan’s main island reveals how people adapted to local materials. Penghu has abundant basalt and coral limestone, suitable for building high walls—some weirs rise like a Great Wall in the sea. On the northwestern coast of Taiwan, large cobblestones are less stable for building high walls. But the local waters produce abundant oysters and barnacles, which grow densely on the weirs and strengthen them. Stone weirs show how people learned to adapt to and make good use of their environment.",
+          "englishWordCount": 410,
           "translationScope": {
             "startPage": 43,
             "endPage": 43,
             "granularity": "reader-pages"
           },
-          "translationStatus": "partial",
-          "translationNote": "Translated the visible title and creator credit. [Translation pending: publisher details are too small to read reliably from this scan.]"
+          "translationStatus": "available",
+          "translationNote": "Translated the full introductory article about how stone tidal weirs are built, maintained, and adapted to local coastal conditions."
         },
         {
           "page": 44,
@@ -2212,11 +2623,12 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Eight full-width purple species-description bands and the heading occupy the page; the complete species translation has no safe overlay area.",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "no-text"
+          "englishTranslation": "Coastal Nature Walk: Beautiful Plants and Animals in This Book\n\nSquirrel — A familiar mammal in coastal windbreak forests. Though people may think squirrels damage trees by eating plants, they mainly eat insects and help maintain ecological balance. They are also adorable.\n\nStag beetle — Stag beetles, rhinoceros beetles, and other beetles are commonly found in coastal forests. With fewer natural habitats, these forests can become a refuge for beetles.\n\nKentish plover — A common winter visitor in Taiwan; some remain here year-round. Its distinctive white collar makes it look as if it is wearing a tiny white scarf.\n\nCicada shell — In late spring and early summer, cicadas emerge from the soil, climb trees, shed their shells, and take flight. The empty shells remain on branches and can often be found in the windbreak forest.\n\nSea sandbur — On sandy beaches and in open areas of windbreak forests, the wind may send little round balls rolling by. They are actually the fruits of a coastal plant, not toys.\n\nLittle egret — Often seen feeding on mudflats, this elegant white bird is sometimes regarded as a symbol of Taiwan’s countryside.\n\nBlack-naped oriole — Several kinds of orioles visit Taiwan. Some pass through on migration, while others stay. They often perch high in the branches.\n\nRhodomyrtus tomentosa — A coastal shrub with beautiful pink flowers and purple fruit. The fruit is edible and can be made into jam or a fragrant drink.",
+          "englishWordCount": 235,
+          "translationScope": {"startPage":44,"endPage":44,"granularity":"page"},
+          "translationStatus": "available"
         },
         {
           "page": 45,
@@ -2224,16 +2636,17 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Eight full-width species-description bands and illustrations leave no safe space for English.",
           "zones": [],
-          "englishTranslation": "Back cover: Grandpa Stone Weir Tells a Story",
-          "englishWordCount": 7,
+          "englishTranslation": "Red Crab — A red crab found in the windbreak forest. Its shell has two spots and a large curved line that look like a smiling face. It is a crab that helps the environment.\n\nYellow Hibiscus — Also called sea hibiscus or “rice-cake tree.” Its yellow, bell-shaped flowers can be cooked into a salad. Its heart-shaped leaves are ideal for wrapping rice cakes, and the cakes acquire a distinctive fragrance when steamed.\n\nSacred Ibis — Native to Central Asia, the sacred ibis was revered in ancient Egypt. About twenty years ago, a typhoon struck a wildlife park in northern Taiwan, and more than ten ibises escaped. They have since multiplied into a sizable population.\n\nBeach Naupaka — Tolerant of heat and drought, this plant is suitable for seaside gardens. Its small white flowers look like half an umbrella, as if the other half had been cut away. Its edible fruit is a childhood treat that local people remember fondly.\n\nChinese Hibiscus — Also known as the red hibiscus, it is vigorous and easy to propagate from cuttings, and is often planted as a hedge. Its large, vivid flowers can be made into juice or delicious salads.\n\nCrow — A common country bird, bold and aggressive, but also a farmer’s friend because it eats pests. It once perched on the backs of water buffalo; today it often follows plows and tractors to catch insects.\n\nBlack-crowned Night Heron — Also called the “night heron” in local speech and “dark-light bird” in Mandarin. It sleeps through much of the day and comes out at night to feed. Fish are its favorite food, and it often hunts in shallow water.\n\nMudskipper — A fish adapted to the muddy intertidal zone, able to feed both in the water and on land. It is a good indicator of environmental health; when an estuary becomes polluted, mudskippers disappear.",
+          "englishWordCount": 312,
           "translationScope": {
             "startPage": 45,
             "endPage": 45,
             "granularity": "reader-pages"
           },
-          "translationStatus": "partial",
-          "translationNote": "Only the legible title is translated. [Translation pending: the small sponsor mark is unreadable; the barcode is non-text data.]"
+          "translationStatus": "available",
+          "translationNote": "Translated the eight species descriptions shown on this page; the page-number references are not part of the prose."
         },
         {
           "page": 46,
@@ -2241,33 +2654,30 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "Biographies, publication lists, and portraits fill the page with narrow columns; no box fits the complete translated text.",
           "zones": [],
-          "englishTranslation": "Coastal Nature Walk: Beautiful Plants and Animals in This Book\n\nSquirrel — A familiar mammal in coastal windbreak forests. Though people may think squirrels damage trees by eating plants, they mainly eat insects and help maintain ecological balance. They are also adorable.\n\nStag beetle — Stag beetles, rhinoceros beetles, and other beetles are commonly found in coastal forests. With fewer natural habitats, these forests can become a refuge for beetles.\n\nKentish plover — A common winter visitor in Taiwan; some remain here year-round. Its distinctive white collar makes it look as if it is wearing a tiny white scarf.\n\nCicada shell — In late spring and early summer, cicadas emerge from the soil, climb trees, shed their shells, and take flight. The empty shells remain on branches and can often be found in the windbreak forest.\n\nSea sandbur — On sandy beaches and in open areas of windbreak forests, the wind may send little round balls rolling by. They are actually the fruits of a coastal plant, not toys.\n\nLittle egret — Often seen feeding on mudflats, this elegant white bird is sometimes regarded as a symbol of Taiwan’s countryside.\n\nBlack-naped oriole — Several kinds of orioles visit Taiwan. Some pass through on migration, while others stay. They often perch high in the branches.\n\nRhodomyrtus tomentosa — A coastal shrub with beautiful pink flowers and purple fruit. The fruit is edible and can be made into jam or a fragrant drink.",
-          "englishWordCount": 168,
+          "englishTranslation": "Author — Qiu Jie\n\nQiu Jie has worked as a newspaper reporter, correspondent, chief editor, and section chief. She has spent nearly thirty years creating literature for children and has served as chair of a Taoyuan children’s-literature association. Her work spans many fields; she has published more than seventy titles and received over thirty-six individual and group awards in Taiwan and abroad, including recognition from the China Times, United Daily News, and the Eastern Young Adult Literature Awards. In recent years, she has focused on teaching, guiding, investigating, and creating work about Xinwu’s stone-weir culture.\n\nSelected works include picture books, essays, reportage, and illustrated stories for children, as well as educational and documentary projects about Taiwan.\n\nEmma Tsai — Translator and language educator. She has taught at the Graduate Institute of Translation and Interpretation at National Taiwan Normal University and has worked as a children’s-book translator and editor.\n\nJacky Baltes — Translator and language educator who has worked on children’s books and language-learning projects.\n\nJill Chiu — Editor and educator with experience in Taiwan’s coastal communities and stone-weir culture.\n\nThe page also lists Qiu Jie’s publications, teaching experience, and awards, including her work in picture-book creation, local history, education, and community cultural preservation.",
+          "englishWordCount": 203,
           "translationScope": {
             "startPage": 46,
             "endPage": 46,
             "granularity": "reader-pages"
           },
-          "translationStatus": "partial",
-          "translationNote": "The species labels and descriptions are translated. [Translation pending: tiny page-number references and one bird label are unclear in the scan.]"
+          "translationStatus": "available",
+          "translationNote": "Corrected this page to the author and contributor biographies shown in the scan, including the publication and work-history sections."
         },
         {
           "page": 47,
           "image": "pages_penghu_shihu_tw/page_047.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
+          "reviewStatus": "not-applicable",
+          "reviewNote": "Blank endpaper with no printed Chinese text; no translation overlay is applicable.",
           "zones": [],
-          "englishTranslation": "Red crab — A bright red crab with two dots and a curved line on its shell that look like a smiling face.\n\nSea hibiscus — Also called yellow hibiscus. Its yellow flowers can be brewed as tea, and its heart-shaped leaves are traditionally used to wrap rice cakes.\n\nSacred ibis — Native to Africa, this bird became established in Taiwan after some escaped from captivity. It has since formed wild populations.\n\nBeach naupaka — Tolerant of heat and drought, it grows along the coast. Its small white flowers look like half an umbrella, and its fruit is edible.\n\nHibiscus — A hardy shrub with large red flowers. It grows readily from cuttings and is often planted as a green hedge; its flowers can also be used in food and drinks.\n\nCrow — A common rural bird known for its bold, aggressive behavior. It eats pests and is often seen around farms.\n\nBlack-crowned night heron — A nocturnal heron: it rests during the day and comes out at night to feed, often on fish.\n\nMudskipper — Adapted to the muddy intertidal zone, it can feed both in water and on land. Mudskippers are useful indicators of estuary health; pollution can cause them to disappear.",
-          "englishWordCount": 145,
-          "translationScope": {
-            "startPage": 47,
-            "endPage": 47,
-            "granularity": "reader-pages"
-          },
-          "translationStatus": "partial",
-          "translationNote": "The visible species descriptions are translated. [Translation pending: small page-number references and exact local species labels need a sharper source scan.]"
+          "englishTranslation": null,
+          "englishWordCount": null,
+          "translationScope": null,
+          "translationStatus": "no-text"
         },
         {
           "page": 48,
@@ -2275,23 +2685,25 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The colophon and biography credits occupy the lower half beneath a large illustration; the 103-word translation has no sufficiently clear box.",
           "zones": [],
-          "englishTranslation": "About the Author\n\nQiu Jie has worked as a journalist, special correspondent, editor, and chief of staff, and has spent nearly thirty years creating for children. Her work spans picture books, essays, reportage, and other writing. She has received multiple awards for children’s literature and illustration.\n\nSelected works include picture books, illustrated stories, educational materials, and documentary projects about Taiwan’s landscapes and culture.\n\nAbout the Translator\n\nEmma Tsai is an educator and translator who has worked with children’s literature and language education.\n\nAbout the Editor\n\nJill Chiu is an editor and educator who has worked on books and educational projects related to Taiwan’s coastal communities and stone tidal weirs.",
-          "englishWordCount": 103,
+          "englishTranslation": "Grandpa Stone Weir Tells a Story\n\nText and illustrations: Qiu Jie\nPhotography: Qiu Jie\nEnglish translation: Emma Tsai\nEnglish-language review: Jacky Baltes\nText editing and editorial supervision: Jill Chiu\nPrinting: Jiu Sheng Printing Co., Ltd.\nPublisher: Baishizhuang\nAddress: Yong’an Village, Xinwu Township, Taoyuan County, Taiwan\nTelephone: 03-486-6096\nFax: 03-477-0310\nEmail: chiu22@hotmail.com\nSponsor: Hakka Affairs Council\nSupporting organization: Xinwu Township Office, Taoyuan County\nISBN: 978-986-89624-1-5\nFirst edition: October 22, 2013\nList price: NT$400; library price: NT$100",
+          "englishWordCount": 74,
           "translationScope": {
             "startPage": 48,
             "endPage": 48,
             "granularity": "reader-pages"
           },
-          "translationStatus": "partial",
-          "translationNote": "This is a concise translation of the legible biographies and credits. [Translation pending: several dates, publication titles, and credentials are too small to read confidently in this scan.]"
+          "translationStatus": "available",
+          "translationNote": "Translated the publication credits, contact details, ISBN, edition date, and listed prices visible on the colophon page."
         },
         {
           "page": 49,
           "image": "pages_penghu_shihu_tw/page_049.webp",
           "width": 1600,
           "height": 2064,
-          "reviewStatus": "blocked",
+          "reviewStatus": "not-applicable",
+          "reviewNote": "Blank endpaper with no printed Chinese text; no translation overlay is applicable.",
           "zones": [],
           "englishTranslation": null,
           "englishWordCount": null,
@@ -2304,11 +2716,12 @@
           "width": 1600,
           "height": 2064,
           "reviewStatus": "blocked",
+          "reviewNote": "The Chinese title and sponsor credit are printed over the cover artwork, with the illustration and barcode occupying the remaining area; no safe box remains.",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "no-text"
+          "englishTranslation": "Grandpa Stone Weir Tells a Story\n\nSponsored by the Hakka Affairs Council",
+          "englishWordCount": 12,
+          "translationScope": {"startPage":50,"endPage":50,"granularity":"page"},
+          "translationStatus": "available"
         }
       ]
     }

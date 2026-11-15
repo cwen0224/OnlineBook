@@ -10,9 +10,8 @@ const ROOT = path.resolve(import.meta.dirname, '..');
 const BOOKS = ['zaojiao', 'shigo', 'zaojiao_story', 'penghu_shihu'];
 const DEFAULTS = {
   lang: 'zh-TW', width: 1440, height: 1000, fromPage: 1,
-  translation: 'closed',
+  translation: 'auto',
 };
-const PRINTED_TO_READER_PAGE_OFFSET = { zaojiao: 4, shigo: 0, zaojiao_story: 0, penghu_shihu: 3 };
 
 function help() {
   console.log(`Usage: node tools/capture-book-pages.mjs --book <key> [options]
@@ -29,8 +28,9 @@ Options:
   --height <pixels>       Browser viewport height (default: ${DEFAULTS.height})
   --from-page <number>    First printed page to include (default: 1)
   --to-page <number>      Last printed page to include (default: last page)
-  --translation <state>   English panel: closed | open (default: closed)
+  --translation <state>   English display: auto | closed | open (default: auto by language)
   --preview-page <number> Overlay page text plus any annotated facing-page text
+  --audit-only            Measure overlay fit without writing screenshots
   --base-url <url>        Use an already-running site instead of starting a local server
   --chrome <path>         Chrome executable (or set CHROME_PATH)
   --help                  Show this help
@@ -54,6 +54,7 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const flag = argv[i];
     if (flag === '--help' || flag === '-h') { options.help = true; continue; }
+    if (flag === '--audit-only') { options.auditOnly = true; continue; }
     const key = names.get(flag);
     if (!key) throw new Error(`Unknown option: ${flag}`);
     if (!argv[i + 1] || argv[i + 1].startsWith('--')) throw new Error(`Missing value for ${flag}`);
@@ -63,7 +64,7 @@ function parseArgs(argv) {
   if (options.help) return options;
   if (!BOOKS.includes(options.book)) throw new Error(`--book must be one of: ${BOOKS.join(', ')}`);
   if (!['zh-TW', 'en'].includes(options.lang)) throw new Error('--lang must be zh-TW or en');
-  if (!['open', 'closed'].includes(options.translation)) throw new Error('--translation must be open or closed');
+  if (!['auto', 'open', 'closed'].includes(options.translation)) throw new Error('--translation must be auto, open or closed');
   if (options.previewPage !== undefined) {
     options.previewPage = Number(options.previewPage);
     if (!Number.isInteger(options.previewPage) || options.previewPage < 1) throw new Error('--preview-page must be a positive integer');
@@ -89,24 +90,23 @@ async function loadPreviewPages(book, pageNumber) {
     : pageNumber % 2 === 0 ? [pageNumber, pageNumber + 1] : [pageNumber - 1, pageNumber];
   const previews = facePageNumbers.map((number) => {
     const page = pages.find((item) => item.page === number);
-    const scope = page?.translationScope;
-    const readerPageOffset = PRINTED_TO_READER_PAGE_OFFSET[book] || 0;
-    const isPageScoped = scope?.granularity === 'page'
-      || (scope?.startPage === scope?.endPage
-        && (scope?.granularity === 'reader-pages' || scope?.granularity === 'printed-pages')
-        && scope.startPage + readerPageOffset === number);
-    if (!page?.englishTranslation || !page.zones?.length || !isPageScoped) return null;
-    const points = page.zones[0].polygon;
-    const xs = points.map(([x]) => x);
-    const ys = points.map(([, y]) => y);
-    return {
-      page: number,
-      text: page.englishTranslation,
-      wordCount: page.englishWordCount,
-      zoneId: page.zones[0].id,
-      box: { left: Math.min(...xs), top: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) },
-    };
-  }).filter(Boolean);
+    if (!page?.englishTranslation || !page.zones?.length) return [];
+    return page.zones.map((zone) => {
+      const text = zone.englishText || (page.zones.length === 1 ? page.englishTranslation : null);
+      if (!text) return null;
+      const points = zone.polygon;
+      const xs = points.map(([x]) => x);
+      const ys = points.map(([, y]) => y);
+      return {
+        page: number,
+        text,
+        wordCount: text.trim().split(/\s+/).filter(Boolean).length,
+        zoneId: zone.id,
+        polygon: points,
+        box: { left: Math.min(...xs), top: Math.min(...ys), width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) },
+      };
+    }).filter(Boolean);
+  }).flat();
   if (!previews.some((preview) => preview.page === pageNumber)) {
     throw new Error(`Page ${pageNumber} needs page-specific English text and a placement zone in text-placement-zones.json.`);
   }
@@ -128,18 +128,20 @@ async function addPreviewOverlay(devtools, preview) {
       'position:absolute', 'z-index:5', 'box-sizing:border-box',
       'left:' + preview.box.left + '%', 'top:' + preview.box.top + '%',
       'width:' + preview.box.width + '%', 'height:' + preview.box.height + '%',
-      'display:flex', 'align-items:center', 'overflow:hidden',
-      'padding:clamp(16px,1.4vw,20px)', 'border-radius:12px', 'color:#fffaf3',
-      'background:linear-gradient(105deg,rgba(91,58,34,.50),rgba(112,74,45,.50))',
-      'box-shadow:0 0 18px 5px rgba(91,58,34,.12),0 5px 18px rgba(38,30,20,.12)',
-      'backdrop-filter:blur(2px)', '-webkit-backdrop-filter:blur(2px)'
+      'display:flex', 'align-items:center', 'justify-content:center', 'overflow:auto',
+      'padding:clamp(10px,1.35vw,24px)', 'border-radius:10px', 'color:#fffaf3',
+      'background:rgba(112,74,45,.50)',
+      'border:1px solid rgba(255,244,226,.28)', 'box-shadow:none'
     ].join(';');
+    const left = preview.box.left, top = preview.box.top;
+    box.style.clipPath = 'polygon(' + preview.polygon.map(([x,y]) => (((x-left)/preview.box.width)*100) + '% ' + (((y-top)/preview.box.height)*100) + '%').join(',') + ')';
     const text = document.createElement('span');
     text.dataset.cliEnglishText = 'true';
     text.textContent = preview.text;
     text.style.cssText = [
       'display:block', 'width:100%', 'max-height:100%', 'min-height:0', 'overflow:visible',
-      'font:650 clamp(16px,1.3vw,20px)/1.2 system-ui,sans-serif',
+      'box-sizing:border-box',
+      'font:650 clamp(12px,1.12vw,20px)/1.48 system-ui,sans-serif',
       'letter-spacing:.01em', 'white-space:pre-line',
       'text-shadow:0 1px 3px rgba(35,20,10,.48)'
     ].join(';');
@@ -149,8 +151,10 @@ async function addPreviewOverlay(devtools, preview) {
     const availableHeight = box.clientHeight - parseFloat(getComputedStyle(box).paddingTop) - parseFloat(getComputedStyle(box).paddingBottom);
     const fits = requiredHeight <= availableHeight + 1;
     if (!fits) box.style.outline = '2px solid #ff3b30';
+    const rect = box.getBoundingClientRect();
     return { fits, requiredHeight, availableHeight,
-      overflowPx: Math.max(0, requiredHeight - availableHeight) };
+      overflowPx: Math.max(0, requiredHeight - availableHeight),
+      hoverPoint: { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 } };
   })()`);
   if (!result) throw new Error(`Could not place preview on page ${preview.page}.`);
   return result;
@@ -307,11 +311,20 @@ async function main() {
     await devtools.send('Page.navigate', { url: readerUrl });
     await waitFor(async () => devtools.evaluate(`(() => document.readyState === 'complete' && document.querySelectorAll('#book .leaf img').length > 0 && document.querySelector('#btn-next'))()`), 'reader initialization', 60000);
     await devtools.evaluate(`(async () => { await document.fonts.ready; return true; })()`);
+    await waitFor(async () => devtools.evaluate(`(() => !document.querySelector('#loading-screen')?.isConnected)()`), 'book loading screen dismissal', 60000);
 
-    if (options.translation === 'open') {
+    {
       const toggleExists = await devtools.evaluate(`Boolean(document.querySelector('#translation-toggle') && getComputedStyle(document.querySelector('#translation-toggle')).display !== 'none')`);
       if (!toggleExists) console.warn('This book has no English panel toggle; capturing with the panel unavailable.');
-      else await devtools.evaluate(`document.querySelector('#translation-toggle').click()`);
+      else {
+        const panelIsOpen = await devtools.evaluate(`document.body.classList.contains('page-english-open')`);
+        const shouldBeOpen = options.translation === 'auto'
+          ? options.lang === 'en'
+          : options.translation === 'open';
+        if (options.translation !== 'auto' && panelIsOpen !== shouldBeOpen) {
+          await devtools.evaluate(`document.querySelector('#translation-toggle').click()`);
+        }
+      }
     }
 
     const totalPages = await devtools.evaluate(`document.querySelectorAll('#book .leaf').length * 2`);
@@ -337,14 +350,41 @@ async function main() {
           await Promise.all(imgs.map(img => img.decode().catch(() => {})));
           return true;
         })()`), `images for ${visiblePages.join('-')}`, 30000);
+        const pageBoxAudit = await devtools.evaluate(`(() => {
+          const pages = ${JSON.stringify(visiblePages)};
+          return pages.flatMap(page => {
+            const img = [...document.querySelectorAll('#book img')].find(item => item.alt === '第' + page + '頁');
+            const face = img?.closest('.face');
+            return [...(face?.querySelectorAll('.page-english-box') || [])]
+              .filter(box => getComputedStyle(box).display !== 'none')
+              .map(box => ({
+                page,
+                label: box.getAttribute('aria-label'),
+                width: Math.round(box.clientWidth),
+                height: Math.round(box.clientHeight),
+                fontSize: getComputedStyle(box).fontSize,
+                scrollWidth: Math.round(box.scrollWidth),
+                scrollHeight: Math.round(box.scrollHeight),
+                fits: box.scrollWidth <= box.clientWidth + 1 && box.scrollHeight <= box.clientHeight + 1
+              }));
+          });
+        })()`);
+        const translationState = await devtools.evaluate(`({
+          englishOpen: document.body.classList.contains('page-english-open'),
+          fallbackPanelOpen: document.body.classList.contains('translation-open')
+        })`);
         const label = visiblePages.length === 1 ? `page-${String(visiblePages[0]).padStart(3, '0')}` : `spread-${String(visiblePages[0]).padStart(3, '0')}-${String(visiblePages[1]).padStart(3, '0')}`;
-        const file = `${options.book}-${options.lang}-${options.translation}-${label}.png`;
-        const screenshot = await devtools.send('Page.captureScreenshot', { format: 'png', fromSurface: true, captureBeyondViewport: false });
-        await fs.writeFile(path.join(outDir, file), Buffer.from(screenshot.data, 'base64'));
-        states.push({ visiblePages, file, width: options.width, height: options.height });
-        console.log(`Captured ${visiblePages.join('–')} → ${path.join(outDir, file)}`);
+        let file = null;
+        if (!options.auditOnly) {
+          file = `${options.book}-${options.lang}-${options.translation}-${label}.png`;
+          const screenshot = await devtools.send('Page.captureScreenshot', { format: 'png', fromSurface: true, captureBeyondViewport: false });
+          await fs.writeFile(path.join(outDir, file), Buffer.from(screenshot.data, 'base64'));
+          console.log(`Captured ${visiblePages.join('–')} → ${path.join(outDir, file)}`);
+        }
+        states.push({ visiblePages, file, width: options.width, height: options.height, ...translationState, pageBoxAudit });
+        if (options.auditOnly) console.log(`Audited ${visiblePages.join('–')}: ${pageBoxAudit.length} visible English box(es)`);
         const visiblePreviews = previews.filter((preview) => visiblePages.includes(preview.page));
-        if (visiblePreviews.length) {
+        if (visiblePreviews.length && !options.auditOnly) {
           const previewFit = [];
           for (const preview of visiblePreviews) {
             const fit = await addPreviewOverlay(devtools, preview);
@@ -380,7 +420,9 @@ async function main() {
       diagnostics: devtools.diagnostics,
     };
     await fs.writeFile(path.join(outDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
-    console.log(`Finished ${states.length} screenshot(s); ${devtools.diagnostics.length} browser error(s).`);
+    console.log(options.auditOnly
+      ? `Audited ${states.length} reader state(s); ${devtools.diagnostics.length} browser error(s).`
+      : `Finished ${states.length} screenshot(s); ${devtools.diagnostics.length} browser error(s).`);
     console.log(`Index: ${path.join(outDir, 'manifest.json')}`);
     if (devtools.diagnostics.length) process.exitCode = 1;
   } finally {

@@ -128,6 +128,35 @@
             background: #fff;
         }
 
+        .page-english-box {
+            position: absolute;
+            z-index: 3;
+            box-sizing: border-box;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            padding: clamp(6px, min(1vw, 1.2vh), 12px);
+            border: 1px solid rgba(255, 244, 226, 0.24);
+            border-radius: 10px;
+            background: rgba(112, 74, 45, 0.5);
+            color: #fffaf3;
+            font-size: clamp(12px, 1.12vw, 20px);
+            line-height: 1.48;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+            text-shadow: 0 1px 2px rgba(0,0,0,.35);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,250,243,.35) transparent;
+            pointer-events: auto;
+        }
+        body.page-english-open .page-english-box { display: flex; }
+        .page-english-box::-webkit-scrollbar { width: 5px; }
+        .page-english-box::-webkit-scrollbar-thumb { background: rgba(255,250,243,.3); border-radius: 8px; }
+        @media (max-width: 640px) {
+            .page-english-box { padding: 8px; font-size: clamp(11px, 3.2vw, 16px); }
+        }
+
         /* Subtle spine-edge shadow only — no overlay gradients */
         .face.front::after,
         .face.back::after {
@@ -384,13 +413,15 @@
 
     // ── English translation panel ──
     let translationEntries = [...((window.bookTranslations && window.bookTranslations[bookKey]) || [])];
+    let placementPages = [];
     // Both supplied translations start after four cover / front-matter scans.
     const translationPageOffset = bookKey === 'zaojiao' ? 4 : bookKey === 'penghu_shihu' ? 3 : 0;
     try {
-        const response = await fetch('text-placement-zones.json');
+        const response = await fetch('text-placement-zones.json?v=20261115-page-boxes');
         if (response.ok) {
             const placementData = await response.json();
-            const placementEntries = (placementData.books?.[bookKey]?.pages || [])
+            placementPages = placementData.books?.[bookKey]?.pages || [];
+            const placementEntries = placementPages
                 .filter((page) => page.englishTranslation && page.translationScope?.granularity === 'reader-pages')
                 .map((page) => ({
                     readerStart: page.translationScope.startPage ?? page.page,
@@ -411,6 +442,7 @@
     const translationPanel = document.getElementById('translation-panel');
     const translationContent = document.getElementById('translation-content');
     let translationPlacement = 'side';
+    let englishOpen = lang === 'en';
 
     function resolveTranslationPlacement(firstPage, visiblePages = []) {
         const ratio = firstPage?.height && firstPage?.width
@@ -434,6 +466,54 @@
         translationToggle.textContent = isOpen ? t.hideEnglish : t.showEnglish;
     }
 
+    function pageTranslation(pageNumber) {
+        return placementPages.find((page) => {
+            return page.page === pageNumber && page.zones?.length && page.englishTranslation;
+        });
+    }
+
+    function appendPageEnglishBox(face, pageNumber) {
+        const page = pageTranslation(pageNumber);
+        if (!page) return;
+        for (const zone of page.zones) {
+            const points = zone.polygon;
+            if (!Array.isArray(points) || points.length < 4) continue;
+            const xs = points.map(([x]) => x);
+            const ys = points.map(([, y]) => y);
+            const left = Math.min(...xs), top = Math.min(...ys);
+            const width = Math.max(...xs) - left, height = Math.max(...ys) - top;
+            if (width <= 0 || height <= 0) continue;
+            const box = document.createElement('div');
+            box.className = 'page-english-box';
+            const zoneText = zone.englishText || (page.zones.length === 1 ? page.englishTranslation : '');
+            if (!zoneText) continue;
+            box.textContent = zoneText;
+            box.setAttribute('lang', 'en');
+            box.setAttribute('aria-label', `English translation for page ${pageNumber}`);
+            box.style.left = `${left}%`;
+            box.style.top = `${top}%`;
+            box.style.width = `${width}%`;
+            box.style.height = `${height}%`;
+            box.style.clipPath = `polygon(${points.map(([x, y]) => `${((x - left) / width) * 100}% ${((y - top) / height) * 100}%`).join(', ')})`;
+            face.append(box);
+        }
+    }
+
+    function fitPageEnglishBoxes() {
+        const minimumFontSize = window.matchMedia('(max-width: 640px)').matches ? 11 : 12;
+        book.querySelectorAll('.page-english-box').forEach((box) => {
+            box.style.display = 'flex';
+            const preferredSize = parseFloat(getComputedStyle(box).fontSize);
+            let size = preferredSize;
+            while (size > minimumFontSize
+                && (box.scrollWidth > box.clientWidth + 1 || box.scrollHeight > box.clientHeight + 1)) {
+                size = Math.max(minimumFontSize, size - 0.5);
+                box.style.fontSize = `${size}px`;
+            }
+            box.style.display = '';
+        });
+    }
+
     function visiblePrintedPages() {
         const flipped = leaves.filter(l => l.angle === -180).length;
         if (flipped === 0) return [1, Math.min(2, TOTAL_PAGES)];
@@ -441,23 +521,35 @@
     }
 
     function updateTranslation() {
-        if (!translationEntries.length) return;
         const [first, last] = visiblePrintedPages();
         const activeEntries = translationEntries.filter((entry) => {
             const entryStart = entry.readerStart ?? entry.start + translationPageOffset;
             const entryEnd = entry.readerEnd ?? entry.end + translationPageOffset;
             return entryStart <= last && entryEnd >= first;
         });
+        const hasSafePageBox = placementPages.some((page) => page.page >= first
+            && page.page <= last && page.zones?.length && page.englishTranslation);
+        const shouldShowFallbackPanel = englishOpen && !hasSafePageBox && activeEntries.length > 0;
+        const panelWasOpen = translationPanel.classList.contains('is-open');
+        translationPanel.classList.toggle('is-open', shouldShowFallbackPanel);
+        document.body.classList.toggle('translation-open', shouldShowFallbackPanel);
+
         const nextPlacement = resolveTranslationPlacement(firstPage, [first, last]);
-        if (translationPanel.classList.contains('is-open') && nextPlacement !== translationPlacement) {
+        if (shouldShowFallbackPanel && nextPlacement !== translationPlacement) {
             translationPlacement = nextPlacement;
             document.body.classList.toggle('translation-side', translationPlacement === 'side');
             document.body.classList.toggle('translation-bottom', translationPlacement === 'bottom');
             requestAnimationFrame(rebuildBookForAvailableSpace);
         }
+        if (!shouldShowFallbackPanel) {
+            document.body.classList.remove('translation-side', 'translation-bottom');
+        }
         translationContent.replaceChildren();
 
-        if (!activeEntries.length) return;
+        if (!shouldShowFallbackPanel || !activeEntries.length) {
+            if (panelWasOpen) requestAnimationFrame(rebuildBookForAvailableSpace);
+            return;
+        }
 
         activeEntries.forEach((entry) => {
             const text = document.createElement('p');
@@ -467,27 +559,24 @@
     }
 
     function setTranslationOpen(isOpen) {
-        translationPanel.classList.toggle('is-open', isOpen);
-        document.body.classList.toggle('translation-open', isOpen);
-        document.body.classList.toggle('translation-side', isOpen && translationPlacement === 'side');
-        document.body.classList.toggle('translation-bottom', isOpen && translationPlacement === 'bottom');
+        englishOpen = isOpen;
+        document.body.classList.toggle('page-english-open', isOpen);
         translationToggle.setAttribute('aria-expanded', String(isOpen));
         updateTranslationToggleLabel(isOpen);
-        if (isOpen) updateTranslation();
-        requestAnimationFrame(rebuildBookForAvailableSpace);
+        updateTranslation();
     }
 
     if (translationEntries.length) {
         translationToggle.style.display = 'inline-block';
         translationToggle.addEventListener('click', () => {
-            setTranslationOpen(!translationPanel.classList.contains('is-open'));
+            setTranslationOpen(!englishOpen);
         });
         document.getElementById('translation-close').addEventListener('click', () => {
             setTranslationOpen(false);
         });
         const openByDefault = lang === 'en';
-        translationPanel.classList.toggle('is-open', openByDefault);
-        document.body.classList.toggle('translation-open', openByDefault);
+        englishOpen = openByDefault;
+        document.body.classList.toggle('page-english-open', openByDefault);
         translationToggle.setAttribute('aria-expanded', String(openByDefault));
         updateTranslationToggleLabel(openByDefault);
     }
@@ -515,10 +604,6 @@
     // Portrait pages read best with a side column; a landscape spread keeps its width and uses a lower panel.
     // At this point page leaves have not been built yet; use the initial spread directly.
     translationPlacement = resolveTranslationPlacement(firstPage, [1, Math.min(2, pagesData.length)]);
-    if (translationPanel.classList.contains('is-open')) {
-        document.body.classList.toggle('translation-side', translationPlacement === 'side');
-        document.body.classList.toggle('translation-bottom', translationPlacement === 'bottom');
-    }
 
     const TOTAL_PAGES  = pagesData.length;
     // Bump this whenever page image assets are regenerated so visitors do not see stale scans.
@@ -656,12 +741,18 @@
                 </div>
             `;
 
+            const frontFace = leaf.querySelector('.face.front');
+            const backFace = leaf.querySelector('.face.back');
+            appendPageEnglishBox(frontFace, i * 2 + 1);
+            if (backPage) appendPageEnglishBox(backFace, i * 2 + 2);
+
             book.appendChild(leaf);
             const obj = { el: leaf, index: i, angle: 0, w: leafW };
             leaves.push(obj);
             setTransform(obj, 0);
         }
 
+        fitPageEnglishBoxes();
         updateUI();
         bookRect = book.getBoundingClientRect();
         applyBookViewport();
@@ -707,7 +798,7 @@
         document.getElementById('spread-info').textContent    = spreadText;
         document.getElementById('btn-prev').disabled = (flipped === 0);
         document.getElementById('btn-next').disabled = (flipped >= MAX_FLIPPED_LEAVES);
-        if (translationPanel.classList.contains('is-open')) updateTranslation();
+        if (englishOpen) updateTranslation();
         if (USE_INCREMENTAL_PRELOAD) preloadPageRange(flipped * 2, PRELOAD_AHEAD);
     }
 
