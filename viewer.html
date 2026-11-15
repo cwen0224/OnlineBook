@@ -79,7 +79,7 @@
         @media (min-width: 641px) {
             body.translation-side #scene { right: calc(min(420px, 42vw) - 72px); }
         }
-        body.translation-bottom #scene { bottom: calc(min(40vh, 340px) - 72px); }
+        body.translation-bottom #scene { bottom: calc(min(40vh, 340px) + 72px); }
 
         /*
          * #book = the full spread container (2 × page width)
@@ -267,7 +267,7 @@
         body.translation-bottom #translation-panel {
             top: auto;
             right: 0;
-            bottom: 0;
+            bottom: 72px;
             left: 0;
             width: auto;
             height: min(40vh, 340px);
@@ -276,7 +276,7 @@
         body.translation-bottom #translation-content {
             width: min(1080px, 88vw);
             align-self: center;
-            padding: 28px 30px 92px;
+            padding: 28px 30px 28px;
         }
         #translation-content p + p { margin-top: 1.35rem; }
         #translation-content .empty { color: rgba(255,255,255,0.55); }
@@ -287,11 +287,11 @@
             #controls { bottom: 0; gap: 8px; }
             .ctrl-btn { padding: 8px 16px; }
             #translation-panel { width: min(88vw, 420px); }
-            body.translation-bottom #translation-panel { width: auto; height: min(42vh, 300px); }
-            body.translation-bottom #translation-content { width: 92vw; padding: 22px 20px 78px; }
+            body.translation-bottom #translation-panel { bottom: 64px; width: auto; height: min(42vh, 300px); }
+            body.translation-bottom #translation-content { width: 92vw; padding: 22px 20px; }
             body.translation-side #translation-content { padding: 46px 32px 28px 72px; }
             body.translation-side #scene { right: calc(min(88vw, 420px) - 50px); }
-            body.translation-bottom #scene { bottom: calc(min(42vh, 300px) - 50px); }
+            body.translation-bottom #scene { bottom: calc(min(42vh, 300px) + 64px); }
         }
     </style>
 </head>
@@ -351,7 +351,11 @@
             prev: '← 上一頁',
             next: '下一頁 →',
             back: '← 返回書架',
-            hint: '點擊或拖曳書頁翻頁・← → 鍵盤也可以'
+            hint: '點擊或拖曳書頁翻頁・← → 鍵盤也可以',
+            showEnglish: '顯示英文',
+            hideEnglish: '收合英文',
+            englishPanelLabel: '英文翻譯',
+            closeEnglish: '關閉英文翻譯'
         },
         'en': {
             titles: { zaojiao: 'Social Series: Algal Reef Defense', shigo: 'Parenting Series: Shigo Stone Weir', zaojiao_story: 'Taoyuan Coastal Series: Algal Reef Picture Book', penghu_shihu: 'Taoyuan Coastal Series: Grandpa Stone Weir Tells a Story' },
@@ -359,7 +363,11 @@
             prev: '← Prev',
             next: 'Next →',
             back: '← Library',
-            hint: 'Click or drag to flip • Arrow keys supported'
+            hint: 'Click or drag to flip • Arrow keys supported',
+            showEnglish: 'Show English',
+            hideEnglish: 'Collapse English',
+            englishPanelLabel: 'English translation',
+            closeEnglish: 'Close English translation'
         }
     };
 
@@ -371,15 +379,60 @@
     document.getElementById('btn-next').textContent = t.next;
     document.querySelector('#top-bar a').textContent = t.back;
     document.getElementById('hint').textContent = t.hint;
+    document.getElementById('translation-panel').setAttribute('aria-label', t.englishPanelLabel);
+    document.getElementById('translation-close').setAttribute('aria-label', t.closeEnglish);
 
     // ── English translation panel ──
-    const translationEntries = (window.bookTranslations && window.bookTranslations[bookKey]) || [];
+    let translationEntries = [...((window.bookTranslations && window.bookTranslations[bookKey]) || [])];
     // Both supplied translations start after four cover / front-matter scans.
     const translationPageOffset = bookKey === 'zaojiao' ? 4 : bookKey === 'penghu_shihu' ? 3 : 0;
+    try {
+        const response = await fetch('text-placement-zones.json');
+        if (response.ok) {
+            const placementData = await response.json();
+            const placementEntries = (placementData.books?.[bookKey]?.pages || [])
+                .filter((page) => page.englishTranslation && page.translationScope?.granularity === 'reader-pages')
+                .map((page) => ({
+                    readerStart: page.translationScope.startPage ?? page.page,
+                    readerEnd: page.translationScope.endPage ?? page.page,
+                    text: page.englishTranslation
+                }));
+            const isCoveredByExistingText = (candidate) => translationEntries.some((entry) => {
+                const start = entry.readerStart ?? entry.start + translationPageOffset;
+                const end = entry.readerEnd ?? entry.end + translationPageOffset;
+                return start <= candidate.readerEnd && end >= candidate.readerStart;
+            });
+            translationEntries.push(...placementEntries.filter((entry) => !isCoveredByExistingText(entry)));
+        }
+    } catch (error) {
+        console.warn(`Could not load supplemental page translations for ${bookKey}.`, error);
+    }
     const translationToggle = document.getElementById('translation-toggle');
     const translationPanel = document.getElementById('translation-panel');
     const translationContent = document.getElementById('translation-content');
     let translationPlacement = 'side';
+
+    function resolveTranslationPlacement(firstPage, visiblePages = []) {
+        const ratio = firstPage?.height && firstPage?.width
+            ? firstPage.height / firstPage.width
+            : 1.414;
+        const activeText = translationEntries
+            .filter((entry) => {
+                const start = entry.readerStart ?? entry.start + translationPageOffset;
+                const end = entry.readerEnd ?? entry.end + translationPageOffset;
+                return visiblePages.some((page) => start <= page && end >= page);
+            })
+            .map((entry) => entry.text)
+            .join(' ');
+        const isLongAppendix = bookKey === 'penghu_shihu'
+            && visiblePages.some((page) => page >= 37 && page <= 48)
+            && activeText.length > 500;
+        return ratio < 1 || isLongAppendix ? 'bottom' : 'side';
+    }
+
+    function updateTranslationToggleLabel(isOpen) {
+        translationToggle.textContent = isOpen ? t.hideEnglish : t.showEnglish;
+    }
 
     function visiblePrintedPages() {
         const flipped = leaves.filter(l => l.angle === -180).length;
@@ -395,6 +448,13 @@
             const entryEnd = entry.readerEnd ?? entry.end + translationPageOffset;
             return entryStart <= last && entryEnd >= first;
         });
+        const nextPlacement = resolveTranslationPlacement(firstPage, [first, last]);
+        if (translationPanel.classList.contains('is-open') && nextPlacement !== translationPlacement) {
+            translationPlacement = nextPlacement;
+            document.body.classList.toggle('translation-side', translationPlacement === 'side');
+            document.body.classList.toggle('translation-bottom', translationPlacement === 'bottom');
+            requestAnimationFrame(rebuildBookForAvailableSpace);
+        }
         translationContent.replaceChildren();
 
         if (!activeEntries.length) return;
@@ -412,11 +472,12 @@
         document.body.classList.toggle('translation-side', isOpen && translationPlacement === 'side');
         document.body.classList.toggle('translation-bottom', isOpen && translationPlacement === 'bottom');
         translationToggle.setAttribute('aria-expanded', String(isOpen));
+        updateTranslationToggleLabel(isOpen);
         if (isOpen) updateTranslation();
         requestAnimationFrame(rebuildBookForAvailableSpace);
     }
 
-    if (lang === 'en' && translationEntries.length) {
+    if (translationEntries.length) {
         translationToggle.style.display = 'inline-block';
         translationToggle.addEventListener('click', () => {
             setTranslationOpen(!translationPanel.classList.contains('is-open'));
@@ -424,8 +485,11 @@
         document.getElementById('translation-close').addEventListener('click', () => {
             setTranslationOpen(false);
         });
-        // Keep the optional translation panel closed until the reader opens it.
-        translationToggle.setAttribute('aria-expanded', 'false');
+        const openByDefault = lang === 'en';
+        translationPanel.classList.toggle('is-open', openByDefault);
+        document.body.classList.toggle('translation-open', openByDefault);
+        translationToggle.setAttribute('aria-expanded', String(openByDefault));
+        updateTranslationToggleLabel(openByDefault);
     }
 
     // ── Load JSON ──
@@ -449,7 +513,7 @@
     console.log("Detecting Book Ratio:", PAGE_RATIO, "isLandscape:", PAGE_RATIO < 1);
 
     // Portrait pages read best with a side column; a landscape spread keeps its width and uses a lower panel.
-    translationPlacement = PAGE_RATIO < 1 ? 'bottom' : 'side';
+    translationPlacement = resolveTranslationPlacement(firstPage, visiblePrintedPages());
     if (translationPanel.classList.contains('is-open')) {
         document.body.classList.toggle('translation-side', translationPlacement === 'side');
         document.body.classList.toggle('translation-bottom', translationPlacement === 'bottom');
@@ -836,7 +900,12 @@
 
     // ── Init ──
     buildBook();
-    if (translationPanel.classList.contains('is-open')) updateTranslation();
+    if (translationPanel.classList.contains('is-open')) {
+        translationPlacement = resolveTranslationPlacement(firstPage, visiblePrintedPages());
+        document.body.classList.toggle('translation-side', translationPlacement === 'side');
+        document.body.classList.toggle('translation-bottom', translationPlacement === 'bottom');
+        updateTranslation();
+    }
     
     // Wait for images
     await preloadInitialImages();

@@ -18,7 +18,7 @@
     "purpose": "Candidate areas for the English text backing and text. Place only after checking the full-resolution page; avoid Chinese text, page numbers, faces, characters, and essential story objects. Multiple candidate polygons per page are supported.",
     "emptyZones": "An empty zones array means no safe candidate was confidently identified at the initial visual review; it is not a claim that no area can ever be used.",
     "confidence": "medium/low are provisional visual judgments from contact-sheet review and must be verified at full resolution.",
-      "translationFields": "englishTranslation contains the available English text for the indicated scope. englishWordCount counts that whole scope and is repeated on each page covered by it; use translationScope to avoid treating a spread count as a single-page count. translationStatus distinguishes available/partial text, not-provided, already-in-artwork, no-text, and source-incomplete cases; null text can still mean translation is intentionally unavailable or source cannot be transcribed safely. A placement zone is valid only after the complete English text fits at readable preview size and does not obscure Chinese or key illustration content; otherwise set reviewStatus to blocked and zones to []."
+    "translationFields": "englishTranslation contains the available English text for the indicated scope. englishWordCount counts that whole scope and is repeated on each page covered by it; use translationScope to avoid treating a spread count as a single-page count. translationStatus distinguishes available/partial text, not-provided, already-in-artwork, no-text, and source-incomplete cases; null text can still mean translation is intentionally unavailable or source cannot be transcribed safely. A placement zone is valid only after the complete English text fits at readable preview size and does not obscure Chinese or key illustration content; otherwise set reviewStatus to blocked and zones to []."
   },
   "books": {
     "zaojiao": {
@@ -631,12 +631,15 @@
           "height": 1263,
           "reviewStatus": "not-applicable",
           "zones": [],
-          "reviewNote": "English source exists, but the cover title, illustration, and contest text leave no safe text area.",
+          "reviewNote": "The English title is translated from the printed Chinese heading; the contest text and creator credit follow the supplied English source.",
           "englishTranslation": "Shigo Stone Weir\nTaoyuan City 2021 Environmental Education Picture Book Contest\nText & illustrations by Xie Hanyun and Ke Lanting",
           "englishWordCount": 20,
-          "translationScope": { "startPage": 1, "endPage": 1, "granularity": "reader-pages" },
-          "translationStatus": "available",
-          "reviewNote": "The English title is translated from the printed Chinese heading; the contest text and creator credit follow the supplied English source."
+          "translationScope": {
+            "startPage": 1,
+            "endPage": 1,
+            "granularity": "reader-pages"
+          },
+          "translationStatus": "available"
         },
         {
           "page": 2,
@@ -660,14 +663,35 @@
           "zones": [
             {
               "id": "below-centered-title-and-byline",
-              "polygon": [[13, 55], [87, 55], [87, 71], [13, 71]],
+              "polygon": [
+                [
+                  13,
+                  55
+                ],
+                [
+                  87,
+                  55
+                ],
+                [
+                  87,
+                  71
+                ],
+                [
+                  13,
+                  71
+                ]
+              ],
               "confidence": "medium",
-          "note": "Quiet blank band below the centered title-page credit, with a small visible gap; box spans the printed Chinese title width and avoids the boy, cat, and flower."
+              "note": "Quiet blank band below the centered title-page credit, with a small visible gap; box spans the printed Chinese title width and avoids the boy, cat, and flower."
             }
           ],
           "englishTranslation": "Shigo Stone Weir\nText & illustrations by Xie Hanyun and Ke Lanting",
           "englishWordCount": 12,
-          "translationScope": { "startPage": 3, "endPage": 3, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 3,
+            "endPage": 3,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "reviewNote": "The English title is translated from the printed Chinese heading; the creator credit follows the supplied English source."
         },
@@ -694,7 +718,11 @@
           "reviewNote": "English source exists, but the text is followed by the child and vegetable illustration; no safe aligned area was identified.",
           "englishTranslation": "In the simple Xinnwu District lived many Hakka families who once made their living from the sea. Grandma wore a floral jacket and a straw hat, wrapped her face in a floral cloth, and walked through the vegetable garden, pulling up bright orange-red carrots, busy and cheerful. Little granddaughter Xiaoli happily helped water the plants.",
           "englishWordCount": 55,
-          "translationScope": { "startPage": 5, "endPage": 5, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 5,
+            "endPage": 5,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The translation is a two-page scope, and current file-to-reader mapping does not confirm a single-page text assignment. The proposed 7%-high band cannot contain the full passage in any case."
         },
@@ -708,7 +736,11 @@
           "reviewNote": "English source exists, but the narrow gap below the text is occupied by cabbage artwork.",
           "englishTranslation": "Xiaoli: \"Grandma! These cabbages are so big and green, they must be delicious.\"",
           "englishWordCount": 13,
-          "translationScope": { "startPage": 6, "endPage": 6, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 6,
+            "endPage": 6,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -721,7 +753,11 @@
           "reviewNote": "The band directly below the Chinese text overlaps Grandma's decorated head; the remaining side space is too narrow to align both edges with the source text column.",
           "englishTranslation": "\"Xiaoli and your dad both love cabbage, so tonight Grandma will stir-fry a plate for you.\" Grandma picked a fresh cabbage.",
           "englishWordCount": 21,
-          "translationScope": { "startPage": 7, "endPage": 7, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 7,
+            "endPage": 7,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -733,7 +769,11 @@
           "zones": [],
           "englishTranslation": "Xiaoli suddenly looked down sadly, and tears fell one after another like pearls. \"What's wrong? Thinking about your dad and mom again?\" Grandma held Xiaoli in her arms and comforted her.",
           "englishWordCount": 31,
-          "translationScope": { "startPage": 8, "endPage": 8, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 8,
+            "endPage": 8,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The full 31-word English passage overflows the measured safe area by 13px at readable preview size. Increasing box height would enter the illustration; no verified fit."
         },
@@ -747,7 +787,11 @@
           "reviewNote": "English source exists, but the upper text is adjacent to the grandmother and the lower caption is near page content; no safe aligned area.",
           "englishTranslation": "Grandma lifted the basket full of vegetables, carrying a bamboo basket in one hand and Xiaoli in the other. With a mysterious smile, she said, \"I'll take you somewhere fun.\" \"Where?\" Xiaoli stopped crying and asked curiously.",
           "englishWordCount": 37,
-          "translationScope": { "startPage": 9, "endPage": 9, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 9,
+            "endPage": 9,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -773,7 +817,11 @@
           "reviewNote": "English source exists; the Chinese dialogue sits immediately above the cat and squirrel illustration, leaving no safe aligned box.",
           "englishTranslation": "Xiaoli: \"Isn't this the place where you often fish?\" \"Yes. The coast of Xinnwu has the most stone fish traps in Taiwan. This one was bought by your great-grandfather,\" Grandma said. She told the story of the family trap.",
           "englishWordCount": 39,
-          "translationScope": { "startPage": 11, "endPage": 11, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 11,
+            "endPage": 11,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -786,7 +834,11 @@
           "reviewNote": "English source exists; the illustrated child and basket occupy the area immediately below the Chinese text.",
           "englishTranslation": "\"Why are so many stones piled up to make a stone fish trap?\" Xiaoli asked in confusion. \"These are cobblestones. They are stacked with big stones surrounding small stones,\" Grandma said while looking at the trap.",
           "englishWordCount": 36,
-          "translationScope": { "startPage": 12, "endPage": 12, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 12,
+            "endPage": 12,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -799,7 +851,11 @@
           "reviewNote": "English source exists, but Chinese text occupies both the upper and lower areas; the central illustration leaves no safe aligned region.",
           "englishTranslation": "\"Stone fish traps use the tides to catch fish. When the tide comes in, fish are drawn into the trap. When the tide goes out, waves hit the trap. The big stones stay put, while the small stones are struck and make noise, scaring the fish so they cannot escape.\" Grandma told the story of Hakka stone fish traps in detail. \"Wow! What a clever method. It sounds so interesting!\" Xiaoli admired the wisdom of her ancestors.",
           "englishWordCount": 77,
-          "translationScope": { "startPage": 13, "endPage": 13, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 13,
+            "endPage": 13,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -812,7 +868,11 @@
           "reviewNote": "English source exists; the Chinese narration runs along the lower margin beneath the main character illustration, with no safe aligned area.",
           "englishTranslation": "After school, A-Hai walked briskly, humming a tune. He could not wait to rush to his family's stone fish trap to check today's catch.",
           "englishWordCount": 24,
-          "translationScope": { "startPage": 14, "endPage": 14, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 14,
+            "endPage": 14,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -825,7 +885,11 @@
           "reviewNote": "English source exists; the Chinese text fills the upper-left area and the remaining page is occupied by the character and catch illustration.",
           "englishTranslation": "As he headed toward the trap, the smell of fish filled the air. A-Hai could not help smiling and muttering, \"What a big catch!\" He walked quickly.",
           "englishWordCount": 27,
-          "translationScope": { "startPage": 15, "endPage": 15, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 15,
+            "endPage": 15,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -838,7 +902,11 @@
           "reviewNote": "English source exists; Chinese text is at the top and the large fishing scene below contains the key story figures and action.",
           "englishTranslation": "When the tide came in, schools of fish swam into the stone fish trap; when the tide went out, the fishermen busied themselves catching fish.",
           "englishWordCount": 25,
-          "translationScope": { "startPage": 16, "endPage": 16, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 16,
+            "endPage": 16,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -851,7 +919,11 @@
           "reviewNote": "English source exists, but the long Chinese block ends immediately above the people and fishing-net illustration.",
           "englishTranslation": "\"Mom, I'm back from school. I'm here to help.\" \"Good, you're so considerate!\" Everyone worked in perfect coordination and quickly lifted the fish into bamboo baskets, net after net, basket after basket. Though they were busy and did not stop for a moment, they were filled with joy because they knew today's income would be good.",
           "englishWordCount": 56,
-          "translationScope": { "startPage": 17, "endPage": 17, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 17,
+            "endPage": 17,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -864,7 +936,11 @@
           "reviewNote": "English source exists; multiple Chinese dialogue blocks and the central character leave no safe aligned area.",
           "englishTranslation": "\"Summer is the peak season for stone fish traps, and in the past we could catch thousands of catties of fish in a day!\" \"So many! What if you couldn't sell them all?\" \"We'd keep some for ourselves, and give some to relatives and neighbors, or dry them into fish jerky, so nothing went to waste.\"",
           "englishWordCount": 56,
-          "translationScope": { "startPage": 18, "endPage": 18, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 18,
+            "endPage": 18,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -877,7 +953,11 @@
           "reviewNote": "English source exists, but Chinese text is split above and below the grandmother illustration with no safe connected area.",
           "englishTranslation": "\"How many kinds of fish could you catch at one time?\" \"Hmm! With one cast of the net, you could catch more than thirty kinds of fish.\" \"What about winter?\" \"In winter there are fewer catches, but you can catch mullet!\" Grandma talked endlessly about the old life around Hakka stone fish traps, and Xiaoli listened with great interest.",
           "englishWordCount": 59,
-          "translationScope": { "startPage": 19, "endPage": 19, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 19,
+            "endPage": 19,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -890,7 +970,11 @@
           "reviewNote": "English source exists, but Chinese text occupies upper and middle portions around the stone-weir/child illustration.",
           "englishTranslation": "After school, high school student A-Hai, as always, went to check the stone fish trap first. Trash of all kinds floated up and down in the trap with the seawater. A-Hai said helplessly, \"Marine pollution is getting more and more serious. There is more trash and fewer fish!\" After picking up the trash one by one, he finally managed to catch only two fish.",
           "englishWordCount": 64,
-          "translationScope": { "startPage": 20, "endPage": 20, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 20,
+            "endPage": 20,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -916,7 +1000,11 @@
           "reviewNote": "English source exists; the long Chinese block occupies the lower page and has no free aligned space beneath it.",
           "englishTranslation": "\"Your dad is very filial. No matter spring, summer, autumn, or winter, rain or shine, as soon as school was over, he would first go to the stone fish trap to see whether he could help. If there was nothing to do, he would still bring fish home. But now pollution is severe, catches are small, and the stone fish-trap fishing culture can no longer support the fishermen's livelihood, so your dad left here to work in the city.\"",
           "englishWordCount": 79,
-          "translationScope": { "startPage": 22, "endPage": 22, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 22,
+            "endPage": 22,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -929,7 +1017,11 @@
           "reviewNote": "English source exists; Chinese narration appears in top and lower text areas around the child and shorebird, leaving no safe aligned box.",
           "englishTranslation": "\"I often think back to the days of fishing with stone traps in the past. Those busy days are truly worth missing! Now I still come here every day to check the trap, and catch fish if I can. At least I can still have a little taste of the catch.\" \"This sounds so sad!\"",
           "englishWordCount": 55,
-          "translationScope": { "startPage": 23, "endPage": 23, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 23,
+            "endPage": 23,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -942,7 +1034,11 @@
           "reviewNote": "English source exists; the Chinese text sits above the figures, and the remaining space is occupied by the character/artwork.",
           "englishTranslation": "\"Grandma, I'll help pick up the trash too.\" Xiaoli felt sorry for the decline of Hakka stone fish-trap culture, and began picking up the floating trash with Grandma.",
           "englishWordCount": 28,
-          "translationScope": { "startPage": 24, "endPage": 24, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 24,
+            "endPage": 24,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -968,7 +1064,11 @@
           "reviewNote": "English source exists; the short Chinese dialogue is positioned at the bottom beside the cat and fish illustration, with no safe aligned space.",
           "englishTranslation": "\"It's getting late. Let's go home! For dinner, we have not only delicious cabbage but also fresh, tasty fish!\"",
           "englishWordCount": 19,
-          "translationScope": { "startPage": 26, "endPage": 26, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 26,
+            "endPage": 26,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -981,7 +1081,11 @@
           "reviewNote": "English source exists; the dense Chinese dialogue fills the upper page and the figures occupy the area below.",
           "englishTranslation": "\"Grandma, the story you told is wonderful! Please take me fishing again tomorrow, okay?\" Xiaoli was fascinated by the story of the Hakka stone fish traps, and Grandma nodded with a smile. \"Who built the stone fish traps?\" \"How do you repair them if they are damaged?\" \"How old is this stone fish trap?\" \"How many stone fish traps are there in Xinnwu?\" \"How do you calculate the daily high tide time?\" ... Xiaoli asked one question after another, seemingly forgetting her longing for her parents for the moment.",
           "englishWordCount": 89,
-          "translationScope": { "startPage": 27, "endPage": 27, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 27,
+            "endPage": 27,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -994,7 +1098,11 @@
           "reviewNote": "English source exists, but this colophon is densely filled with publication details; no unoccupied aligned area is available.",
           "englishTranslation": "Taoyuan City 2021 Environmental Education Picture Book Contest\nTitle: Hakka Stone Fish Trap\nIssued by: Cheng Wen-tsan\nIssuing agency: Taoyuan City Government\nPublisher: Taoyuan City Government Environmental Protection Bureau\nText & illustrations: Xie Hanyun and Ke Lanting\nPrinting: Dingze Technology Co., Ltd.\nISBN: 978-626-7020-76-0 (hardcover)\nPublication date: April 2022",
           "englishWordCount": 49,
-          "translationScope": { "startPage": 28, "endPage": 28, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 28,
+            "endPage": 28,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -1046,7 +1154,11 @@
           "reviewNote": "English source exists, but the back-cover blurb occupies the upper area and the illustration/barcode fill the remainder.",
           "englishTranslation": "Xinnwu is the place in Taiwan with the most stone fish traps. It used to be prosperous. Now marine pollution is worsening and fish catches are declining... That culture has also faded. Come and listen to Grandma Hakka tell the story of the stone fish-trap fishing culture.",
           "englishWordCount": 47,
-          "translationScope": { "startPage": 32, "endPage": 32, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 32,
+            "endPage": 32,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The translation spans pages 14–15; it cannot be assigned to this single page without a verified split. The proposed 7%-high band is too small for the full text."
         }
@@ -1065,7 +1177,11 @@
           "zones": [],
           "englishTranslation": "Algal Reef Castle",
           "englishWordCount": 3,
-          "translationScope": { "startPage": 1, "endPage": 1, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 1,
+            "endPage": 1,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The cover title is translatable, but the existing cover art/title leaves no verified, non-obstructive placement zone."
         },
@@ -1078,7 +1194,11 @@
           "zones": [],
           "englishTranslation": "Xiaoxing, have you heard that there is a mysterious thousand-year-old algal-reef castle by the seashore in Xinwu, Taoyuan? Would you like to explore it together? Ah Yong said excitedly.",
           "englishWordCount": 29,
-          "translationScope": { "startPage": 2, "endPage": 2, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 2,
+            "endPage": 2,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "A trial overlay for the 29-word passage in the clear right-side sky clipped multiple lines at a readable font size. Expanding it down covers the astronaut/vehicle and island focal art; moving it left intersects the sun/rocket. The remaining aligned sky area cannot hold the text safely."
         },
@@ -1091,7 +1211,11 @@
           "zones": [],
           "englishTranslation": "“Great! Maybe there will be interesting things to learn and creatures waiting for us to discover!” Xiaoxing clapped in agreement.",
           "englishWordCount": 20,
-          "translationScope": { "startPage": 3, "endPage": 3, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 3,
+            "endPage": 3,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The Chinese is at the lower right; open sky above it is interrupted by the island and clouds, leaving no aligned safe box for the translation."
         },
@@ -1104,7 +1228,11 @@
           "zones": [],
           "englishTranslation": "Is this the algal-reef castle? It looks a little different from what I imagined. Ah Yong said to Xiaoxing, puzzled. “Yes, yes!” Xiaoxing nodded.",
           "englishWordCount": 24,
-          "translationScope": { "startPage": 4, "endPage": 4, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 4,
+            "endPage": 4,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The full 24-word text overflows this zone by 30px at readable preview size. Expanding downward enters artwork, so no verified fit."
         },
@@ -1118,7 +1246,11 @@
           "blockedReason": "The translated passage needs more vertical space than the open-water band can provide without overlapping foreground characters; no safe aligned text box was confirmed in screenshot review.",
           "englishTranslation": "“Welcome to the Guanyin–Xinwu Algal Reef! This is our biggest and most magnificent algal-reef castle, home to many beautiful creatures. Come, I’ll introduce you to the environment and everyone!” He waved enthusiastically.",
           "englishWordCount": 33,
-          "translationScope": { "startPage": 5, "endPage": 5, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 5,
+            "endPage": 5,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available"
         },
         {
@@ -1130,7 +1262,11 @@
           "zones": [],
           "englishTranslation": "“Hello, Little Clam, Little Qian, and Little Hua!” Xiaoxing and Ah Yong greeted them happily.",
           "englishWordCount": 15,
-          "translationScope": { "startPage": 6, "endPage": 6, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 6,
+            "endPage": 6,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The full 15-word text overflows this zone by 6px at readable preview size. Lowering the box risks entering the children/animal artwork; needs a larger verified quiet region."
         },
@@ -1143,7 +1279,11 @@
           "zones": [],
           "englishTranslation": "“Why do you all look so sick? Are you hurt? There was so much discarded fishing net, plastic bottles, and glass bottles along the way. What happened?” Ah Yong asked Xiaoxing and the others worriedly.",
           "englishWordCount": 35,
-          "translationScope": { "startPage": 7, "endPage": 7, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 7,
+            "endPage": 7,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The Chinese spans the upper half and the focal characters/animals fill the space below; no safe aligned text area is visible."
         },
@@ -1156,7 +1296,11 @@
           "zones": [],
           "englishTranslation": "“We built this castle layer by layer over 7,600 years, and it was very sturdy. But ever since the steel monster appeared, the castle has begun to be destroyed.”",
           "englishWordCount": 30,
-          "translationScope": { "startPage": 8, "endPage": 8, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 8,
+            "endPage": 8,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The full 30-word text overflows this zone by 41px at readable preview size. Expanding downward enters the horizon/shoreline art; no verified fit."
         },
@@ -1169,7 +1313,11 @@
           "zones": [],
           "englishTranslation": "“There is so much human-made trash in the sea. It has damaged our environment. Look at my foot—it was pierced by glass!” Little Crab said angrily.",
           "englishWordCount": 27,
-          "translationScope": { "startPage": 9, "endPage": 9, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 9,
+            "endPage": 9,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "A trial overlay of the 27-word passage in the open strip below the Chinese text covered the crab and stone-weir illustration. The remaining clear sky to the left is too narrow to fit the translation at a readable size; no safe aligned zone was found."
         },
@@ -1195,7 +1343,11 @@
           "zones": [],
           "englishTranslation": "“The seawater used to be so clean, and I was beautiful and lovable! But after wastewater from factories flowed into the sea, I became a green oyster.” Little Clam shook its head helplessly.",
           "englishWordCount": 33,
-          "translationScope": { "startPage": 11, "endPage": 11, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 11,
+            "endPage": 11,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The right-aligned Chinese text fills the upper-right quadrant and continues close to the oyster/children; no safe adjacent zone can fit the translation."
         },
@@ -1208,7 +1360,11 @@
           "zones": [],
           "englishTranslation": "“One day, I came out of my hole for a walk by the sea. I suddenly saw a plastic bottle and happily thought it was our new home, so I crawled inside. Who knew it would be so easy to get in and so hard to get out? My long mouth got stuck and was hurt.” Little Qian touched the injured mouth.",
           "englishWordCount": 62,
-          "translationScope": { "startPage": 12, "endPage": 12, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 12,
+            "endPage": 12,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The long Chinese passage fills the right half down to the bottom edge; no safe zone remains for the corresponding English text."
         },
@@ -1221,7 +1377,11 @@
           "zones": [],
           "englishTranslation": "“While I was looking for lunch, a fishing net suddenly fell from the sky and tangled me up. I panicked and used all my strength to break free. The net was terrifying, and my beautiful tail was hurt too.” Little Hua looked at its injured tail.",
           "englishWordCount": 46,
-          "translationScope": { "startPage": 13, "endPage": 13, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 13,
+            "endPage": 13,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The right-side Chinese block extends to the lower edge and overlaps the illustrated reef area; no safe aligned placement is available."
         },
@@ -1232,11 +1392,15 @@
           "height": 1244,
           "reviewStatus": "blocked",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "source-incomplete",
-          "blockedReason": "The Chinese text is visibly clipped at the right edge and several words cannot be read reliably; no translation or placement zone was guessed."
+          "englishTranslation": "This place used to be so lively, and everyone was happy. The sea and the reef have been badly affected, leaving everyone unhappy. “We’re really unhappy,” the little fish and shrimp said. “We really wish we could go back to how things were.”",
+          "englishWordCount": 43,
+          "translationScope": {
+            "startPage": 14,
+            "endPage": 14,
+            "granularity": "reader-pages"
+          },
+          "translationStatus": "partial",
+          "blockedReason": "The final clause is clipped at the right edge; its meaning is supplied from the continuation on page 15."
         },
         {
           "page": 15,
@@ -1245,11 +1409,15 @@
           "height": 1244,
           "reviewStatus": "blocked",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "source-incomplete",
-          "blockedReason": "The first line of the Chinese paragraph is visibly clipped at the left edge, so the sentence opening cannot be transcribed reliably; the remaining translation is withheld rather than completed by guesswork. The crowded illustration also leaves no safe nearby zone."
+          "englishTranslation": "The reef used to be clean and beautiful, with many living creatures living there happily. But now their home has been badly damaged, and the seawater is becoming more and more polluted. “It’s getting harder to live here,” sighed the little fish. “We really wish we could go back to the beautiful reef of the past!” The little fish and shrimp made a wish.",
+          "englishWordCount": 64,
+          "translationScope": {
+            "startPage": 15,
+            "endPage": 15,
+            "granularity": "reader-pages"
+          },
+          "translationStatus": "partial",
+          "blockedReason": "The page begins mid-sentence; its opening is supplied from the preceding page. The crowded illustration leaves no safe nearby placement zone."
         },
         {
           "page": 16,
@@ -1260,7 +1428,11 @@
           "zones": [],
           "englishTranslation": "Algal Reef Patrol Team",
           "englishWordCount": 4,
-          "translationScope": { "startPage": 16, "endPage": 16, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 16,
+            "endPage": 16,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The Chinese title is printed across the flag itself; placing English elsewhere would not align with source text, while overlaying the flag would alter key artwork."
         },
@@ -1273,7 +1445,11 @@
           "zones": [],
           "englishTranslation": "“Don’t be afraid. Let us help you!” Ah Yong told Xiaoxing. “Residents of Yong’an, your beautiful algal reef has suffered great damage. We need your help to protect it!” Ah Yong picked up a loudspeaker and called to the residents: “Let’s collect the fishing nets, plastic bottles, glass bottles, and other rubbish from the algal reef and sort it properly!” The residents replied, “We’ll form the Algal Reef Patrol Team and work together to protect the reef from further damage.”",
           "englishWordCount": 80,
-          "translationScope": { "startPage": 17, "endPage": 17, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 17,
+            "endPage": 17,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The lengthy Chinese dialogue occupies most of the page; no safe, non-overlapping text area remains. The final line trails into the page turn and needs source-page verification."
         },
@@ -1286,7 +1462,11 @@
           "zones": [],
           "englishTranslation": "“To prevent wastewater from polluting the algal reef, the Taoyuan Environmental Protection Bureau has also established a water-quality monitoring station to protect the reef’s marine life from pollution-related illness.” The residents of Yong’an said. “Little Bobo, Little Clam, Little Shrimp, Little Qian, and Little Hua, we all want to say: Ah Yong and Xiaoxing, thank you!” Ah Yong and Xiaoxing replied, “Hehehe, it was nothing!”",
           "englishWordCount": 65,
-          "translationScope": { "startPage": 18, "endPage": 18, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 18,
+            "endPage": 18,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The right-side Chinese passage extends through most of the page height; the open beach on the left is separated from the source text and contains the explanatory illustration."
         },
@@ -1312,7 +1492,11 @@
           "zones": [],
           "englishTranslation": "Knowledge Corner: Introducing Special Species\n\nLittle Red Crab: Hello, everyone! I’m Little Red Crab. Although my name sounds cute, my scientific name is the handsome-sounding Ferocious Crab. I have a deep red and black body and bright red eyes, with one large claw and one small claw. I am one of the most numerous creatures in the algal reef, so I have lots of brothers and sisters. We mainly live in crevices among rocks near the shore. I’m an omnivore, and I love algae and little shrimp and crabs.\n\nLittle Rock Oyster: Hello, everyone! I’m the lovely rock oyster. My scientific name is the rock oyster. I have a gray-black shell. We live on rocks in shallow water near the coast. Since our homes differ, each of us has a different shape. We usually eat algae and tiny plankton. Eating algae helps us grow beautiful!",
           "englishWordCount": 145,
-          "translationScope": { "startPage": 20, "endPage": 20, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 20,
+            "endPage": 20,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The two Chinese profile speech bubbles and their labels occupy the page; adding separate English boxes would overlap the source text or character artwork."
         },
@@ -1325,7 +1509,11 @@
           "zones": [],
           "englishTranslation": "Little Flower Striped Fish: Hello, I’m Little Flower, a huashen chickenfish. Isn’t my species name unusual? It’s because I make a clucking sound like a chicken! My body is oval, with three curved black stripes along each side. I mainly live where algal reefs meet rivers and the sea. I like eating small fish, shrimp, and some algae.\n\nLittle Qian the Eel: Hehehe, it’s my turn at last! My species is called a moray eel. My body is long and round like a snake, with a flat fish-like tail, a mouth like a hook, and a row of sharp teeth. My body is white and gray with many round black spots, and the spots grow larger as I grow. I usually live in relatively shallow algal reefs and crevices. My favorite foods are small fish and some algae. Everyone, eat until you’re full so you can be as handsome and strong as I am!",
           "englishWordCount": 154,
-          "translationScope": { "startPage": 21, "endPage": 21, "granularity": "reader-pages" },
+          "translationScope": {
+            "startPage": 21,
+            "endPage": 21,
+            "granularity": "reader-pages"
+          },
           "translationStatus": "available",
           "blockedReason": "The two Chinese profile speech bubbles and their labels occupy the page; adding separate English boxes would overlap the source text or character artwork."
         }
@@ -1393,7 +1581,8 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text",
+          "translationNote": "Illustration-only page; no printed Chinese narrative text."
         },
         {
           "page": 5,
@@ -1921,10 +2110,14 @@
           "height": 2064,
           "reviewStatus": "blocked",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "not-provided"
+          "englishTranslation": "Who came up with this clever way of catching fish? Long, long ago, people living by the sea thought of it.\n\nI heard there are many stone tidal weirs in Penghu. They must have been invented by the people of Penghu, right?\n\nPenghu has many stone tidal weirs, and its famous Twin-Heart Stone Weir is a world-renowned sight. But stone tidal weirs can also be found along Taiwan’s coast.\n\nWhere in Taiwan are the stone tidal weirs? Most are along the west coast. Long ago, many stretched from Yehliu to Tamsui, forming a shape like a tail. The weir at Tamsui was at the tail’s end, so Tamsui was called Huwei, meaning “tail end.”\n\nHuwei is such an interesting name! In fact, there are also many stone tidal weirs south of the Tamsui River. Along Taoyuan’s coast, they can be found in Dayuan, Guanyin, and Xinwu.",
+          "englishWordCount": 127,
+          "translationScope": {
+            "startPage": 37,
+            "endPage": 37,
+            "granularity": "reader-pages"
+          },
+          "translationStatus": "available"
         },
         {
           "page": 38,
@@ -1933,10 +2126,14 @@
           "height": 2064,
           "reviewStatus": "blocked",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "not-provided"
+          "englishTranslation": "That’s strange. She lives in Dayuan, so how has she never seen the stone tidal weirs there? Many weirs in other places are very old. With no one to maintain them, the sea gradually wears them away, and some are buried by drifting sand.\n\nWhy doesn’t anyone maintain them? In many places, coastal waters have become polluted and fish can no longer survive. The weirs are left empty, with no fish to catch, so no one repairs them.\n\nAre there any stone tidal weirs left in Taiwan? Yes! The coast of Xinwu is still clean, so people continue to fish in its weirs.\n\nXinwu—the place with the beautiful Tianhou Temple and Yong’an Fishing Harbor? That’s right. Yong’an is Taiwan’s only Hakka fishing harbor, and stone-weir fishing is one of the traditional ways people there catch fish.",
+          "englishWordCount": 125,
+          "translationScope": {
+            "startPage": 38,
+            "endPage": 38,
+            "granularity": "reader-pages"
+          },
+          "translationStatus": "available"
         },
         {
           "page": 39,
@@ -1945,10 +2142,14 @@
           "height": 2064,
           "reviewStatus": "blocked",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "not-provided"
+          "englishTranslation": "Building such a long stone weir in the open sea is an incredible feat. Who built the weirs in Xinwu? The weirs are so old—probably about 300 years—that no one knows for certain. They may have been built by the Indigenous people who lived here long ago.\n\nXinwu is a fertile land of fish and rice. Hakka families worked hard to settle here and were granted the right to manage the stone weirs. Generation after generation, they have cared for and used them.\n\nGrandpa Stone—oh, I mean Grandpa Stone Weir—you are truly wise and have contributed so much!\n\nHa ha! Fishing with stone tidal weirs is a low-carbon way to live in harmony with nature. Let’s cherish the weirs and protect the ocean.\n\nThat’s right. Pollution can drive the fish away, leaving even a weir useless. While we cherish the stone tidal weirs, we must remember to protect the sea around them, too.",
+          "englishWordCount": 119,
+          "translationScope": {
+            "startPage": 39,
+            "endPage": 39,
+            "granularity": "reader-pages"
+          },
+          "translationStatus": "available"
         },
         {
           "page": 40,
@@ -1960,7 +2161,8 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "already-in-artwork",
+          "translationNote": "The page contains the printed English story text."
         },
         {
           "page": 41,
@@ -1972,7 +2174,8 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "already-in-artwork",
+          "translationNote": "The page contains the printed English story text."
         },
         {
           "page": 42,
@@ -1984,7 +2187,7 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         },
         {
           "page": 43,
@@ -1993,10 +2196,15 @@
           "height": 2064,
           "reviewStatus": "blocked",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "not-provided"
+          "englishTranslation": "Grandpa Stone Weir Tells a Story\nWritten and illustrated by Qiu Jie",
+          "englishWordCount": 10,
+          "translationScope": {
+            "startPage": 43,
+            "endPage": 43,
+            "granularity": "reader-pages"
+          },
+          "translationStatus": "partial",
+          "translationNote": "Translated the visible title and creator credit. [Translation pending: publisher details are too small to read reliably from this scan.]"
         },
         {
           "page": 44,
@@ -2008,7 +2216,7 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         },
         {
           "page": 45,
@@ -2017,10 +2225,15 @@
           "height": 2064,
           "reviewStatus": "blocked",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "not-provided"
+          "englishTranslation": "Back cover: Grandpa Stone Weir Tells a Story",
+          "englishWordCount": 7,
+          "translationScope": {
+            "startPage": 45,
+            "endPage": 45,
+            "granularity": "reader-pages"
+          },
+          "translationStatus": "partial",
+          "translationNote": "Only the legible title is translated. [Translation pending: the small sponsor mark is unreadable; the barcode is non-text data.]"
         },
         {
           "page": 46,
@@ -2029,10 +2242,15 @@
           "height": 2064,
           "reviewStatus": "blocked",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "not-provided"
+          "englishTranslation": "Coastal Nature Walk: Beautiful Plants and Animals in This Book\n\nSquirrel — A familiar mammal in coastal windbreak forests. Though people may think squirrels damage trees by eating plants, they mainly eat insects and help maintain ecological balance. They are also adorable.\n\nStag beetle — Stag beetles, rhinoceros beetles, and other beetles are commonly found in coastal forests. With fewer natural habitats, these forests can become a refuge for beetles.\n\nKentish plover — A common winter visitor in Taiwan; some remain here year-round. Its distinctive white collar makes it look as if it is wearing a tiny white scarf.\n\nCicada shell — In late spring and early summer, cicadas emerge from the soil, climb trees, shed their shells, and take flight. The empty shells remain on branches and can often be found in the windbreak forest.\n\nSea sandbur — On sandy beaches and in open areas of windbreak forests, the wind may send little round balls rolling by. They are actually the fruits of a coastal plant, not toys.\n\nLittle egret — Often seen feeding on mudflats, this elegant white bird is sometimes regarded as a symbol of Taiwan’s countryside.\n\nBlack-naped oriole — Several kinds of orioles visit Taiwan. Some pass through on migration, while others stay. They often perch high in the branches.\n\nRhodomyrtus tomentosa — A coastal shrub with beautiful pink flowers and purple fruit. The fruit is edible and can be made into jam or a fragrant drink.",
+          "englishWordCount": 168,
+          "translationScope": {
+            "startPage": 46,
+            "endPage": 46,
+            "granularity": "reader-pages"
+          },
+          "translationStatus": "partial",
+          "translationNote": "The species labels and descriptions are translated. [Translation pending: tiny page-number references and one bird label are unclear in the scan.]"
         },
         {
           "page": 47,
@@ -2041,10 +2259,15 @@
           "height": 2064,
           "reviewStatus": "blocked",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "not-provided"
+          "englishTranslation": "Red crab — A bright red crab with two dots and a curved line on its shell that look like a smiling face.\n\nSea hibiscus — Also called yellow hibiscus. Its yellow flowers can be brewed as tea, and its heart-shaped leaves are traditionally used to wrap rice cakes.\n\nSacred ibis — Native to Africa, this bird became established in Taiwan after some escaped from captivity. It has since formed wild populations.\n\nBeach naupaka — Tolerant of heat and drought, it grows along the coast. Its small white flowers look like half an umbrella, and its fruit is edible.\n\nHibiscus — A hardy shrub with large red flowers. It grows readily from cuttings and is often planted as a green hedge; its flowers can also be used in food and drinks.\n\nCrow — A common rural bird known for its bold, aggressive behavior. It eats pests and is often seen around farms.\n\nBlack-crowned night heron — A nocturnal heron: it rests during the day and comes out at night to feed, often on fish.\n\nMudskipper — Adapted to the muddy intertidal zone, it can feed both in water and on land. Mudskippers are useful indicators of estuary health; pollution can cause them to disappear.",
+          "englishWordCount": 145,
+          "translationScope": {
+            "startPage": 47,
+            "endPage": 47,
+            "granularity": "reader-pages"
+          },
+          "translationStatus": "partial",
+          "translationNote": "The visible species descriptions are translated. [Translation pending: small page-number references and exact local species labels need a sharper source scan.]"
         },
         {
           "page": 48,
@@ -2053,10 +2276,15 @@
           "height": 2064,
           "reviewStatus": "blocked",
           "zones": [],
-          "englishTranslation": null,
-          "englishWordCount": null,
-          "translationScope": null,
-          "translationStatus": "not-provided"
+          "englishTranslation": "About the Author\n\nQiu Jie has worked as a journalist, special correspondent, editor, and chief of staff, and has spent nearly thirty years creating for children. Her work spans picture books, essays, reportage, and other writing. She has received multiple awards for children’s literature and illustration.\n\nSelected works include picture books, illustrated stories, educational materials, and documentary projects about Taiwan’s landscapes and culture.\n\nAbout the Translator\n\nEmma Tsai is an educator and translator who has worked with children’s literature and language education.\n\nAbout the Editor\n\nJill Chiu is an editor and educator who has worked on books and educational projects related to Taiwan’s coastal communities and stone tidal weirs.",
+          "englishWordCount": 103,
+          "translationScope": {
+            "startPage": 48,
+            "endPage": 48,
+            "granularity": "reader-pages"
+          },
+          "translationStatus": "partial",
+          "translationNote": "This is a concise translation of the legible biographies and credits. [Translation pending: several dates, publication titles, and credentials are too small to read confidently in this scan.]"
         },
         {
           "page": 49,
@@ -2068,7 +2296,7 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         },
         {
           "page": 50,
@@ -2080,7 +2308,7 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "not-provided"
+          "translationStatus": "no-text"
         }
       ]
     }
