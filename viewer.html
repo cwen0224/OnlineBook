@@ -82,6 +82,7 @@
         }
         .top-action:hover { background: var(--coffee-glass-hover); color: white; }
         #reading-mode-toggle { display: inline-flex; align-items: center; gap: 5px; }
+        #english-size-toggle { display: inline-block; min-width: 42px; text-align: center; padding: 9px 12px 10px; }
         #reading-mode-toggle:focus-visible, .top-action:focus-visible, .ctrl-btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 
         /* ── Scene ── */
@@ -165,7 +166,7 @@
             border-radius: 10px;
             background: rgba(112, 74, 45, 0.5);
             color: #fffaf3;
-            font-size: clamp(12px, 1.12vw, 20px);
+            font-size: calc(clamp(12px, 1.12vw, 20px) * var(--english-text-scale, 1));
             line-height: 1.48;
             white-space: pre-line;
             overflow-wrap: anywhere;
@@ -206,7 +207,7 @@
         }
         body.focus-mode .page-english-strip {
             max-height: min(38vh, 360px);
-            font-size: clamp(17px, 1.45vw, 23px);
+            font-size: calc(clamp(17px, 1.45vw, 23px) * var(--english-text-scale, 1));
             line-height: 1.5;
         }
         .page-english-strip {
@@ -222,7 +223,7 @@
             border-radius: 14px;
             background: var(--coffee-glass);
             color: #fffaf3;
-            font-size: clamp(16px, 1.25vw, 20px);
+            font-size: calc(clamp(16px, 1.25vw, 20px) * var(--english-text-scale, 1));
             line-height: 1.42;
             text-align: left !important;
             justify-self: stretch;
@@ -431,6 +432,7 @@
             scrollbar-width: thin;
             scrollbar-color: rgba(255,255,255,0.32) transparent;
         }
+        #translation-content { font-size: calc(1.08rem * var(--english-text-scale, 1)); }
         #translation-content::-webkit-scrollbar { width: 8px; }
         #translation-content::-webkit-scrollbar-track { background: transparent; }
         #translation-content::-webkit-scrollbar-thumb {
@@ -510,6 +512,7 @@
     <span id="book-title">電子繪本</span>
     <div id="reader-actions">
         <button class="top-action" id="translation-toggle" type="button" aria-expanded="false">English text</button>
+        <button class="top-action" id="english-size-toggle" type="button" aria-label="English text size">大</button>
         <button class="top-action" id="reading-mode-toggle" type="button" aria-pressed="false">Single page</button>
         <span id="page-indicator">—</span>
     </div>
@@ -544,6 +547,27 @@
     document.body.classList.toggle('legacy-translation-view', legacyPanelEnabled);
     const LANGUAGE_PREFERENCE_KEY = 'onlinebook.language';
     const READING_MODE_KEY = 'onlinebook.readingMode';
+    const ENGLISH_TEXT_SIZE_KEY = 'onlinebook.englishTextSize';
+    const englishSizeLevels = [{ label: '大', scale: 1.18 }, { label: '中', scale: 1 }, { label: '小', scale: 0.84 }];
+    let englishTextSizeIndex = 0;
+    try {
+        const savedSize = Number.parseInt(localStorage.getItem(ENGLISH_TEXT_SIZE_KEY), 10);
+        if (Number.isInteger(savedSize) && savedSize >= 0 && savedSize < englishSizeLevels.length) englishTextSizeIndex = savedSize;
+    } catch (_) { /* Keep the default size when storage is unavailable. */ }
+    const englishSizeToggle = document.getElementById('english-size-toggle');
+    function applyEnglishTextSize() {
+        const size = englishSizeLevels[englishTextSizeIndex];
+        document.body.style.setProperty('--english-text-scale', String(size.scale));
+        englishSizeToggle.textContent = size.label;
+        const localizedSize = lang === 'en' ? ['Large', 'Medium', 'Small'][englishTextSizeIndex] : size.label;
+        englishSizeToggle.setAttribute('aria-label', lang === 'en' ? `English text size: ${localizedSize}` : `英文文字大小：${localizedSize}`);
+        englishSizeToggle.title = englishSizeToggle.getAttribute('aria-label');
+    }
+    englishSizeToggle.addEventListener('click', () => {
+        englishTextSizeIndex = (englishTextSizeIndex + 1) % englishSizeLevels.length;
+        applyEnglishTextSize();
+        try { localStorage.setItem(ENGLISH_TEXT_SIZE_KEY, String(englishTextSizeIndex)); } catch (_) { /* Preference is optional. */ }
+    });
     let readingMode = params.get('mode') === 'focus' ? 'focus'
         : params.get('mode') === 'spread' ? 'spread'
             : (localStorage.getItem(READING_MODE_KEY) === 'focus' ? 'focus' : 'spread');
@@ -552,6 +576,7 @@
     try { savedLanguage = localStorage.getItem(LANGUAGE_PREFERENCE_KEY); } catch (_) { /* Keep the default below. */ }
     // A language in the link is an intentional choice; otherwise restore the last choice.
     const lang = params.get('lang') || savedLanguage || 'zh-TW';
+    applyEnglishTextSize();
     try { localStorage.setItem(LANGUAGE_PREFERENCE_KEY, lang); } catch (_) { /* Storage may be unavailable in private mode. */ }
     const readingModeToggle = document.getElementById('reading-mode-toggle');
     let hasPageEnglishStrips = false;
