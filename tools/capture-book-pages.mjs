@@ -24,11 +24,14 @@ Required:
 Options:
   --library               Capture and audit the six-card book library
   --lang <zh-TW|en>       Reader language (default: ${DEFAULTS.lang})
+  --mode <spread|focus>   Layout to capture (default: spread)
   --out <directory>       Screenshot output directory (default: OS temp directory)
   --width <pixels>        Browser viewport width (default: ${DEFAULTS.width})
   --height <pixels>       Browser viewport height (default: ${DEFAULTS.height})
   --from-page <number>    First printed page to include (default: 1)
   --to-page <number>      Last printed page to include (default: last page)
+  --capture-pages <list>  Capture selected printed pages only (for example 1,2,3,43,50)
+  --focus-interaction-test Exercise late-page drag, keyboard, preload, and mode preservation
   --translation <state>   English display: auto | closed | open (default: auto by language)
   --legacy-panel          Keep the legacy English panel enabled for fallback auditing
   --p12-bars-test         Enable the p12–13 two-column bottom English-strip test
@@ -57,11 +60,14 @@ function parseArgs(argv) {
     ['--to-page', 'toPage'], ['--translation', 'translation'],
     ['--base-url', 'baseUrl'], ['--chrome', 'chrome'], ['--preview-page', 'previewPage'],
     ['--viewport', 'viewport'],
+    ['--mode', 'mode'],
+    ['--capture-pages', 'capturePages'],
   ]);
   for (let i = 0; i < argv.length; i += 1) {
     const flag = argv[i];
     if (flag === '--help' || flag === '-h') { options.help = true; continue; }
     if (flag === '--audit-only') { options.auditOnly = true; continue; }
+    if (flag === '--focus-interaction-test') { options.focusInteractionTest = true; continue; }
     if (flag === '--legacy-panel') { options.legacyPanel = true; continue; }
     if (flag === '--library') { options.library = true; continue; }
     if (flag === '--p12-bars-test') { options.p12BarsTest = true; continue; }
@@ -76,6 +82,9 @@ function parseArgs(argv) {
   if (!BOOKS.includes(options.book)) throw new Error(`--book must be one of: ${BOOKS.join(', ')}`);
   if (!['zh-TW', 'en'].includes(options.lang)) throw new Error('--lang must be zh-TW or en');
   if (!['auto', 'open', 'closed'].includes(options.translation)) throw new Error('--translation must be auto, open or closed');
+  options.mode ||= 'spread';
+  if (!['spread', 'focus'].includes(options.mode)) throw new Error('--mode must be spread or focus');
+  if (options.focusInteractionTest && options.mode !== 'focus') throw new Error('--focus-interaction-test requires --mode focus');
   if (options.p12BarsTest && (options.book !== 'penghu_shihu' || options.lang !== 'en')) {
     throw new Error('--p12-bars-test requires --book penghu_shihu --lang en');
   }
@@ -105,6 +114,14 @@ function parseArgs(argv) {
   if (options.toPage !== undefined) {
     options.toPage = Number(options.toPage);
     if (!Number.isInteger(options.toPage) || options.toPage < options.fromPage) throw new Error('--to-page must be an integer >= --from-page');
+  }
+  if (options.capturePages !== undefined) {
+    options.capturePages = options.capturePages.split(',').map(Number);
+    if (!options.capturePages.length || options.capturePages.some(page => !Number.isInteger(page) || page < 1)) {
+      throw new Error('--capture-pages must be a comma-separated list of positive page numbers');
+    }
+    options.fromPage = Math.min(options.fromPage, ...options.capturePages);
+    options.toPage = Math.max(options.toPage ?? 1, ...options.capturePages);
   }
   return options;
 }
@@ -436,7 +453,7 @@ async function main() {
       return;
     }
 
-    const readerUrl = `${baseUrl.replace(/\/$/, '')}/viewer.html?book=${encodeURIComponent(options.book)}&lang=${encodeURIComponent(options.lang)}${options.legacyPanel ? '&legacy=1' : ''}`;
+    const readerUrl = `${baseUrl.replace(/\/$/, '')}/viewer.html?book=${encodeURIComponent(options.book)}&lang=${encodeURIComponent(options.lang)}&mode=${options.mode}${options.legacyPanel ? '&legacy=1' : ''}`;
     await devtools.send('Page.navigate', { url: readerUrl });
     await waitFor(async () => devtools.evaluate(`(() => document.readyState === 'complete' && document.querySelectorAll('#book .leaf img').length > 0 && document.querySelector('#btn-next'))()`), 'reader initialization', 60000);
     await devtools.evaluate(`(async () => { await document.fonts.ready; return true; })()`);
@@ -480,7 +497,7 @@ async function main() {
       }
     }
 
-    const totalPages = await devtools.evaluate(`document.querySelectorAll('#book .leaf').length * 2`);
+    const totalPages = await devtools.evaluate(`document.querySelectorAll('#book img[alt^="第"]').length`);
     const manifestRes = await fetch(`${baseUrl.replace(/\/$/, '')}/book_${options.book}_${options.lang}.json`);
     if (!manifestRes.ok) throw new Error(`Could not load book manifest (${manifestRes.status}).`);
     const pageManifest = await manifestRes.json();
@@ -490,12 +507,21 @@ async function main() {
     if (totalPages < actualTotal) throw new Error('Reader page count does not match the book manifest.');
 
     const states = [];
-    const maxStates = Math.ceil(actualTotal / 2);
+    if (options.focusInteractionTest) {
+      await devtools.evaluate(`(() => {
+        const descriptor = Object.getOwnPropertyDescriptor(Image.prototype, 'src');
+        window.__focusPreloadUrls = [];
+        Object.defineProperty(Image.prototype, 'src', {configurable:true, get(){return descriptor.get.call(this);}, set(value){window.__focusPreloadUrls.push(String(value)); return descriptor.set.call(this,value);}});
+        return true;
+      })()`);
+    }
+    const maxStates = options.mode === 'focus' ? actualTotal - 1 : Math.ceil(actualTotal / 2);
     for (let state = 0; state <= maxStates; state += 1) {
-      const visiblePages = state === 0
-        ? [1]
-        : [...new Set([Math.min(state * 2, actualTotal), Math.min(state * 2 + 1, actualTotal)])];
-      if (visiblePages.some((page) => page >= options.fromPage && page <= toPage)) {
+      const visiblePages = options.mode === 'focus'
+        ? [state + 1]
+        : state === 0 ? [1] : [...new Set([Math.min(state * 2, actualTotal), Math.min(state * 2 + 1, actualTotal)])];
+      if (visiblePages.some((page) => page >= options.fromPage && page <= toPage
+        && (!options.capturePages || options.capturePages.includes(page)))) {
         await waitFor(async () => devtools.evaluate(`(async () => {
           const nums = ${JSON.stringify(visiblePages)};
           const imgs = nums.map(n => [...document.querySelectorAll('#book img')].find(img => img.alt === '第' + n + '頁'));
@@ -503,6 +529,16 @@ async function main() {
           await Promise.all(imgs.map(img => img.decode().catch(() => {})));
           return true;
         })()`), `images for ${visiblePages.join('-')}`, 30000);
+        if (options.mode === 'focus') {
+          await waitFor(async () => devtools.evaluate(`(() => {
+            const page = ${visiblePages[0]};
+            const image = [...document.querySelectorAll('#book img')].find(item => item.alt === '第' + page + '頁');
+            if (!image) return false;
+            const expectedHeight = Number.parseFloat(getComputedStyle(document.body).getPropertyValue('--strip-preview-page-height'));
+            const imageHeight = image.getBoundingClientRect().height;
+            return !document.body.classList.contains('strip-page-open') || !(expectedHeight > 0) || Math.abs(imageHeight - expectedHeight) < 5;
+          })()`), `settled focus layout for page ${visiblePages[0]}`, 12000);
+        }
         let toggleEvidence = null;
         if (options.tenSpreadsTest && visiblePages[0] === options.fromPage) {
           const initialState = await devtools.evaluate(`(() => ({
@@ -696,7 +732,81 @@ async function main() {
             return [selector, style ? { background: style.backgroundColor, borderRadius: style.borderRadius, color: style.color } : null];
           }))
         })`);
+        const expectedVisibleStripPages = (await readExpectedStripTexts(options.book, 1, actualTotal));
+        const expectedStripPages = Object.entries(expectedVisibleStripPages)
+          .filter(([page, text]) => visiblePages.includes(Number(page)) && text)
+          .map(([page]) => Number(page));
+        const actualStripPages = await devtools.evaluate(`([...document.querySelectorAll('#page-english-strips .page-english-strip')]
+          .filter(strip => getComputedStyle(strip).display !== 'none' && strip.getBoundingClientRect().width > 0)
+          .map(strip => Number(strip.dataset.page)).sort((a,b) => a-b))`);
+        const visibleStripPagesMatch = JSON.stringify(actualStripPages) === JSON.stringify(expectedStripPages);
+        let wheelScrollEvidence = null;
+        const scrollableStrip = stripLayout?.strips.find(strip => strip.canScroll);
+        if (scrollableStrip) {
+          const target = await devtools.evaluate(`(() => {
+            const strip = [...document.querySelectorAll('#page-english-strips .page-english-strip')]
+              .find(item => Number(item.dataset.page) === ${scrollableStrip.page});
+            if (!strip) return null;
+            const rect = strip.getBoundingClientRect();
+            return { x: Math.round(rect.left + rect.width / 2), y: Math.round(rect.top + rect.height / 2) };
+          })()`);
+          const before = await devtools.evaluate(`(() => ({
+            scrollTop: document.querySelector('#page-english-strips .page-english-strip[data-page="${scrollableStrip.page}"]')?.scrollTop ?? -1,
+            indicator: document.querySelector('#page-indicator')?.textContent.trim(),
+            angles: [...document.querySelectorAll('#book .leaf')].map(leaf => leaf.style.transform)
+          }))()`);
+          if (target) {
+            await devtools.send('Input.dispatchMouseEvent', {
+              type: 'mouseWheel', x: target.x, y: target.y, deltaX: 0, deltaY: 180,
+            });
+            await delay(100);
+          }
+          const nativeAfter = await devtools.evaluate(`(() => ({
+            scrollTop: document.querySelector('#page-english-strips .page-english-strip[data-page="${scrollableStrip.page}"]')?.scrollTop ?? -1,
+            indicator: document.querySelector('#page-indicator')?.textContent.trim(),
+            angles: [...document.querySelectorAll('#book .leaf')].map(leaf => leaf.style.transform)
+          }))()`);
+          let eventEvidence = null;
+          if (target && nativeAfter.scrollTop <= before.scrollTop) {
+            eventEvidence = await devtools.evaluate(`(() => {
+              const point = ${JSON.stringify(target)};
+              const event = new WheelEvent('wheel', { deltaY: 180, deltaX: 0, bubbles: true, cancelable: true,
+                clientX: point.x, clientY: point.y });
+              const targetElement = document.elementFromPoint(point.x, point.y);
+              targetElement?.dispatchEvent(event);
+              return { defaultPrevented: event.defaultPrevented, target: targetElement?.className || targetElement?.id || targetElement?.tagName };
+            })()`);
+            await delay(50);
+          }
+          const after = await devtools.evaluate(`(() => ({
+            scrollTop: document.querySelector('#page-english-strips .page-english-strip[data-page="${scrollableStrip.page}"]')?.scrollTop ?? -1,
+            indicator: document.querySelector('#page-indicator')?.textContent.trim(),
+            angles: [...document.querySelectorAll('#book .leaf')].map(leaf => leaf.style.transform)
+          }))()`);
+          wheelScrollEvidence = { page: scrollableStrip.page, target, before, after,
+            nativeAfter, eventEvidence,
+            scrolled: after.scrollTop > before.scrollTop,
+            pageStateUnchanged: before.indicator === after.indicator && JSON.stringify(before.angles) === JSON.stringify(after.angles) };
+        }
         const label = visiblePages.length === 1 ? `page-${String(visiblePages[0]).padStart(3, '0')}` : `spread-${String(visiblePages[0]).padStart(3, '0')}-${String(visiblePages[1]).padStart(3, '0')}`;
+        const focusLayout = await devtools.evaluate(`(() => {
+          const book = document.querySelector('#book');
+          const image = [...document.querySelectorAll('#book img')].find(item => item.alt === '第${visiblePages[0]}頁');
+          const rect = image?.getBoundingClientRect();
+          const scene = document.querySelector('#scene').getBoundingClientRect();
+          const strip = [...document.querySelectorAll('#page-english-strips .page-english-strip')].find(item => item.dataset.page === '${visiblePages[0]}');
+          const stripRect = strip?.getBoundingClientRect();
+          const controls = document.querySelector('#controls').getBoundingClientRect();
+          return {mode: document.body.classList.contains('focus-mode') ? 'focus' : 'spread', page: image?.alt,
+            pageRect: rect && {left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height},
+            scene: {left: scene.left, top: scene.top, right: scene.right, bottom: scene.bottom},
+            stripRect: stripRect && {left: stripRect.left, top: stripRect.top, right: stripRect.right, bottom: stripRect.bottom, width: stripRect.width, height: stripRect.height},
+            controls: {top: controls.top, bottom: controls.bottom},
+            topmostPageAtCenter: document.elementFromPoint(innerWidth/2, (rect.top+rect.bottom)/2)?.closest('img')?.alt || null,
+            viewportSafe: Boolean(rect && rect.left >= scene.left-1 && rect.right <= scene.right+1 && rect.top >= 40 && rect.bottom < controls.top),
+            stripSafe: !stripRect || (stripRect.left>=0 && stripRect.right<=innerWidth && stripRect.top>=rect.bottom && stripRect.bottom<=controls.top),
+            pageWidth: rect?.width || 0};
+        })()`);
         let file = null;
         if (!options.auditOnly) {
           file = `${options.book}-${options.lang}-${options.translation}-${options.viewport || 'single'}-${label}.png`;
@@ -704,7 +814,11 @@ async function main() {
           await fs.writeFile(path.join(outDir, file), Buffer.from(screenshot.data, 'base64'));
           console.log(`Captured ${visiblePages.join('–')} → ${path.join(outDir, file)}`);
         }
-        states.push({ visiblePages, file, width: options.width, height: options.height, ...translationState, initialToggleEvidence, toggleEvidence, pageBoxAudit, legacyBoxAudit, stripLayout });
+        states.push({ visiblePages, file, width: options.width, height: options.height, focusLayout, ...translationState,
+          expectedVisibleStripPages: options.translation === 'closed' ? [] : expectedStripPages,
+          actualStripPages, visibleStripPagesMatch: options.translation === 'closed' || visibleStripPagesMatch,
+          wheelScrollEvidence,
+          initialToggleEvidence, toggleEvidence, pageBoxAudit, legacyBoxAudit, stripLayout });
         if (options.auditOnly) console.log(`Audited ${visiblePages.join('–')}: ${pageBoxAudit.length} visible English box(es)`);
         const visiblePreviews = previews.filter((preview) => visiblePages.includes(preview.page));
         if (visiblePreviews.length && !options.auditOnly) {
@@ -790,10 +904,63 @@ async function main() {
       }
       return failures;
     }) : [];
+    let focusInteraction = null;
+    if (options.focusInteractionTest) {
+      const startPage = Math.max(2, Math.min(options.fromPage, actualTotal - 2));
+      if (options.mode !== 'focus' || options.toPage < startPage) throw new Error('Interaction test page must be within the selected focus capture range.');
+      focusInteraction = await devtools.evaluate(`(() => {
+        const image = [...document.querySelectorAll('#book img')].find(item => item.alt === '第${startPage}頁');
+        if (!image) return {ready:false};
+        window.__focusPointerEvents=[];
+        for (const type of ['pointerdown','pointermove','pointerup','pointercancel']) document.querySelector('#book').addEventListener(type,event=>window.__focusPointerEvents.push({type,target:event.target.closest('.leaf')?.dataset.index||null,pointerId:event.pointerId,x:event.clientX,y:event.clientY}),true);
+        const rect=image.getBoundingClientRect();
+        return {ready:true, startPage:${startPage}, x:rect.right-18, y:rect.top+rect.height/2, width:rect.width,
+          mode:document.body.classList.contains('focus-mode')?'focus':'spread'};
+      })()`);
+      if (focusInteraction?.ready) {
+        await devtools.send('Input.dispatchMouseEvent', {type:'mousePressed',x:focusInteraction.x,y:focusInteraction.y,button:'left',buttons:1});
+        await devtools.send('Input.dispatchMouseEvent', {type:'mouseMoved',x:Math.round(focusInteraction.x-focusInteraction.width*.9),y:focusInteraction.y,button:'left',buttons:1});
+        await devtools.send('Input.dispatchMouseEvent', {type:'mouseReleased',x:Math.round(focusInteraction.x-focusInteraction.width*.9),y:focusInteraction.y,button:'left',buttons:0});
+        await delay(520);
+        const dragResult = await devtools.evaluate(`({indicator:document.querySelector('#page-indicator').textContent.trim(),angles:[...document.querySelectorAll('#book .leaf')].map(leaf=>leaf.style.transform)})`);
+        const dragPage = dragResult.indicator;
+        await devtools.send('Input.dispatchKeyEvent', {type:'keyDown',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+        await devtools.send('Input.dispatchKeyEvent', {type:'keyUp',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+        await delay(520);
+        const keyboardPage = await devtools.evaluate(`document.querySelector('#page-indicator').textContent.trim()`);
+        const preload = await devtools.evaluate(`(() => {
+          const img=[...document.querySelectorAll('#book img')].find(item=>item.alt==='第${startPage+1}頁');
+          return {requested:window.__focusPreloadUrls.some(url=>url.includes(img?.getAttribute('src')?.split('?')[0]||'__missing__')),
+            loaded:Boolean(img?.complete&&img.naturalWidth>0), observed:window.__focusPreloadUrls.length};
+        })()`);
+        await devtools.evaluate(`document.querySelector('#reading-mode-toggle').click()`);
+        await delay(180);
+        const spreadState = await devtools.evaluate(`({mode:document.body.classList.contains('focus-mode')?'focus':'spread',indicator:document.querySelector('#page-indicator').textContent.trim(),pressed:document.querySelector('#reading-mode-toggle').getAttribute('aria-pressed')})`);
+        await devtools.evaluate(`document.querySelector('#reading-mode-toggle').click()`);
+        await delay(180);
+        const focusState = await devtools.evaluate(`({mode:document.body.classList.contains('focus-mode')?'focus':'spread',indicator:document.querySelector('#page-indicator').textContent.trim(),pressed:document.querySelector('#reading-mode-toggle').getAttribute('aria-pressed'),preference:localStorage.getItem('onlinebook.readingMode')})`);
+        focusInteraction = {ready:true,startPage,dragPage,dragResult,pointerEvents:await devtools.evaluate(`window.__focusPointerEvents`),preload,spreadState,focusState,
+          dragAdvanced:dragPage.includes(String(startPage+1)),keyboardAdvanced:keyboardPage.includes(String(startPage+2)),
+          preloadRequested:preload.requested&&preload.loaded,
+          togglePreservedPosition:spreadState.mode==='spread'&&spreadState.indicator.includes(`${startPage+1}`)&&spreadState.indicator.includes(`${startPage+2}`)
+            &&focusState.mode==='focus'&&focusState.indicator.includes(`${startPage+1}`)&&focusState.preference==='focus'};
+      }
+    }
     const diagnostics = devtools.diagnostics;
+    const visibleStripFailures = states.filter(state => !state.visibleStripPagesMatch)
+      .map(state => `visible pages ${state.visiblePages.join('-')}: expected English strips ${state.expectedVisibleStripPages.join(',') || '(none)'}, got ${state.actualStripPages.join(',') || '(none)'}`);
+    const wheelFailures = states.filter(state => state.wheelScrollEvidence
+      && (!state.wheelScrollEvidence.scrolled || !state.wheelScrollEvidence.pageStateUnchanged))
+      .map(state => `page ${state.wheelScrollEvidence.page}: wheel scroll did not move the strip without changing reader state`);
     const audit = {
-      passed: stripFailures.length === 0 && diagnostics.length === 0,
-      failures: stripFailures,
+      passed: stripFailures.length === 0 && visibleStripFailures.length === 0 && wheelFailures.length === 0 && diagnostics.length === 0
+        && (!options.focusInteractionTest || Boolean(focusInteraction?.ready && focusInteraction.dragAdvanced && focusInteraction.keyboardAdvanced && focusInteraction.preloadRequested && focusInteraction.togglePreservedPosition)),
+      failures: [...stripFailures, ...visibleStripFailures, ...wheelFailures,
+        ...(options.focusInteractionTest && !focusInteraction?.dragAdvanced ? ['focus interaction: drag did not advance exactly one printed page'] : []),
+        ...(options.focusInteractionTest && !focusInteraction?.keyboardAdvanced ? ['focus interaction: keyboard did not advance exactly one printed page'] : []),
+        ...(options.focusInteractionTest && !focusInteraction?.preloadRequested ? ['focus interaction: next printed page was not observed in incremental preload'] : []),
+        ...(options.focusInteractionTest && !focusInteraction?.togglePreservedPosition ? ['focus interaction: mode toggle did not preserve its current reading position'] : [])],
+      focusInteraction,
       assertions: {
         englishOpen: options.tenSpreadsTest,
         chineseDefaultClosedAndExplicitOpenVerified: options.tenSpreadsTest
@@ -807,6 +974,9 @@ async function main() {
           ? states.every(state => state.legacyView && state.fallbackPanelOpen && state.legacyPanelVisible
             && state.visibleLegacyPageBoxes === 0 && !state.stripContainerVisible && state.visibleStripCount === 0)
           : null,
+        visibleStripPagesMatchPrintedPages: states.every(state => state.visibleStripPagesMatch),
+        trackpadWheelScrollsLongStripWithoutPageTurn: states.filter(state => state.wheelScrollEvidence)
+          .every(state => state.wheelScrollEvidence.scrolled && state.wheelScrollEvidence.pageStateUnchanged),
         legacyPanelHasNoBottomStripOverlap: options.legacyPanel
           ? states.every(state => state.legacyView && state.legacyPanelVisible && state.visibleStripCount === 0)
           : null,
@@ -841,11 +1011,19 @@ async function main() {
       await fs.writeFile(path.join(outDir, `${options.viewport}-audit.json`), `${JSON.stringify(audit, null, 2)}\n`, 'utf8');
       if (!audit.passed) process.exitCode = 1;
     }
+    if (visibleStripFailures.length) {
+      console.error(`Visible-page strip assertion failed: ${visibleStripFailures.join('; ')}`);
+      process.exitCode = 1;
+    }
+    if (wheelFailures.length) {
+      console.error(`Wheel-scroll assertion failed: ${wheelFailures.join('; ')}`);
+      process.exitCode = 1;
+    }
     console.log(options.auditOnly
       ? `Audited ${states.length} reader state(s); ${devtools.diagnostics.length} browser error(s).`
       : `Finished ${states.length} screenshot(s); ${devtools.diagnostics.length} browser error(s).`);
     console.log(`Index: ${path.join(outDir, manifestName)}`);
-    if (devtools.diagnostics.length) process.exitCode = 1;
+    if (devtools.diagnostics.length || (options.focusInteractionTest && !audit.passed)) process.exitCode = 1;
   } finally {
     try { devtools?.socket.close(); } catch { /* Already closed. */ }
     if (chromeProcess?.pid) {

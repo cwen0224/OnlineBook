@@ -81,6 +81,8 @@
             transition: background 0.2s ease, color 0.2s ease;
         }
         .top-action:hover { background: var(--coffee-glass-hover); color: white; }
+        #reading-mode-toggle { display: inline-flex; align-items: center; gap: 5px; }
+        #reading-mode-toggle:focus-visible, .top-action:focus-visible, .ctrl-btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 
         /* ── Scene ── */
         #scene {
@@ -111,6 +113,9 @@
             transform: rotateX(4deg);
             touch-action: none;
         }
+        body.focus-mode #book { transform: rotateX(0deg); }
+        body.focus-mode #scene { perspective: none; }
+        body.focus-mode .face.back { display: none; }
 
         /*
          * Each .leaf sits on the RIGHT half of the book.
@@ -195,6 +200,15 @@
             pointer-events: none;
             transform-origin: top center;
         }
+        body.focus-mode .page-english-strips {
+            width: min(90vw, 900px);
+            grid-template-columns: minmax(0, 1fr);
+        }
+        body.focus-mode .page-english-strip {
+            max-height: min(38vh, 360px);
+            font-size: clamp(17px, 1.45vw, 23px);
+            line-height: 1.5;
+        }
         .page-english-strip {
             position: relative;
             display: flex;
@@ -213,6 +227,9 @@
             text-align: left !important;
             justify-self: stretch;
             overflow-y: auto;
+            /* The fixed strip container is pointer-transparent so the book
+               remains interactive; opt the scrollable card back into hit testing. */
+            pointer-events: auto;
             overflow-wrap: anywhere;
             text-shadow: 0 1px 2px rgba(0,0,0,.35);
             white-space: normal;
@@ -453,6 +470,9 @@
             #top-bar { top: 0; left: 0; right: 0; }
             #top-bar a { padding: 7px 10px; }
             #book-title { display: none; }
+            #reader-actions { gap: 3px; }
+            .top-action { padding: 7px 8px; font-size: .7rem; }
+            #page-indicator { min-width: 0; padding: 7px 6px; font-size: .65rem; letter-spacing: 0; }
             #controls { bottom: 0; width: 100vw; gap: 5px; min-height: 46px; }
             .ctrl-btn {
                 flex: 0 0 auto;
@@ -490,6 +510,7 @@
     <span id="book-title">電子繪本</span>
     <div id="reader-actions">
         <button class="top-action" id="translation-toggle" type="button" aria-expanded="false">English text</button>
+        <button class="top-action" id="reading-mode-toggle" type="button" aria-pressed="false">Single page</button>
         <span id="page-indicator">—</span>
     </div>
 </div>
@@ -522,11 +543,17 @@
     const legacyPanelEnabled = params.get('legacy') === '1';
     document.body.classList.toggle('legacy-translation-view', legacyPanelEnabled);
     const LANGUAGE_PREFERENCE_KEY = 'onlinebook.language';
+    const READING_MODE_KEY = 'onlinebook.readingMode';
+    let readingMode = params.get('mode') === 'focus' ? 'focus'
+        : params.get('mode') === 'spread' ? 'spread'
+            : (localStorage.getItem(READING_MODE_KEY) === 'focus' ? 'focus' : 'spread');
+    document.body.classList.toggle('focus-mode', readingMode === 'focus');
     let savedLanguage = null;
     try { savedLanguage = localStorage.getItem(LANGUAGE_PREFERENCE_KEY); } catch (_) { /* Keep the default below. */ }
     // A language in the link is an intentional choice; otherwise restore the last choice.
     const lang = params.get('lang') || savedLanguage || 'zh-TW';
     try { localStorage.setItem(LANGUAGE_PREFERENCE_KEY, lang); } catch (_) { /* Storage may be unavailable in private mode. */ }
+    const readingModeToggle = document.getElementById('reading-mode-toggle');
     let hasPageEnglishStrips = false;
     document.body.classList.toggle('strip-preview', hasPageEnglishStrips);
 
@@ -558,6 +585,15 @@
     };
 
     const t = i18n[lang] || i18n['zh-TW'];
+    function updateReadingModeToggle() {
+        const focus = readingMode === 'focus';
+        readingModeToggle.setAttribute('aria-pressed', String(focus));
+        readingModeToggle.setAttribute('aria-label', focus
+            ? (lang === 'en' ? 'Switch to double-page spread' : '切換為雙頁跨頁模式')
+            : (lang === 'en' ? 'Switch to single-page focus mode' : '切換為單頁專注模式'));
+        readingModeToggle.textContent = focus ? (lang === 'en' ? 'Double page' : '雙頁') : (lang === 'en' ? 'Single page' : '單頁');
+    }
+    updateReadingModeToggle();
     document.getElementById('book-title').textContent = t.titles[bookKey] || 'E-Book';
     document.title = (t.titles[bookKey] || 'E-Book') + ' | Reader';
     document.getElementById('loading-text').textContent = t.loading;
@@ -665,6 +701,20 @@
         strips.id = 'page-english-strips';
         strips.className = 'page-english-strips';
         document.body.append(strips);
+        // Trackpad wheels may target the transparent overlay rather than its
+        // scrollable child. Route deltas by pointer position so they scroll the
+        // strip instead of falling through to the book's wheel-to-zoom handler.
+        document.addEventListener('wheel', (event) => {
+            const strip = [...strips.querySelectorAll('.page-english-strip')].find((item) => {
+                const rect = item.getBoundingClientRect();
+                return event.clientX >= rect.left && event.clientX <= rect.right
+                    && event.clientY >= rect.top && event.clientY <= rect.bottom;
+            });
+            if (!strip || strip.scrollHeight <= strip.clientHeight + 1) return;
+            event.preventDefault();
+            event.stopPropagation();
+            strip.scrollTop += event.deltaY;
+        }, { capture: true, passive: false });
         updatePageEnglishStrips();
     }
 
@@ -690,7 +740,7 @@
             return;
         }
         const [firstPage, lastPage] = visiblePrintedPages();
-        const hasVisibleStrip = [firstPage, lastPage].some((pageNumber) => {
+        const hasVisibleStrip = [...new Set([firstPage, lastPage])].some((pageNumber) => {
             const page = placementPages.find((item) => item.page === pageNumber);
             return typeof page?.bottomStripText === 'string' && page.bottomStripText.trim();
         });
@@ -715,7 +765,7 @@
             strip.className = 'page-english-strip';
             strip.dataset.page = String(pageNumber);
             strip.dataset.englishText = pageText;
-            strip.style.gridColumn = pageNumber % 2 === 0 ? '1' : '2';
+            strip.style.gridColumn = readingMode === 'focus' ? '1' : (pageNumber % 2 === 0 ? '1' : '2');
             const stripText = document.createElement('div');
             stripText.className = 'page-english-strip-text';
             const paragraphs = pageText.split(/\n\s*\n/);
@@ -814,7 +864,7 @@
         const safeHeight = Math.max(0, safeBottom - safeTop);
         const gap = 12;
         const naturalStripHeight = strips.offsetHeight;
-        const naturalPageHeight = scene.clientWidth * 0.96 * PAGE_RATIO / 2;
+        const naturalPageHeight = scene.clientWidth * 0.94 * PAGE_RATIO / (readingMode === 'focus' ? 1 : 2);
         const compositionHeight = naturalPageHeight + gap + naturalStripHeight;
         const scale = Math.min(1, Math.max(0.05, (safeHeight - gap) / Math.max(1, compositionHeight)));
         const pageHeight = naturalPageHeight * scale;
@@ -859,7 +909,13 @@
 
     function visiblePrintedPages() {
         const flipped = leaves.filter(l => l.angle === -180).length;
-        if (flipped === 0) return [1, Math.min(2, TOTAL_PAGES)];
+        if (readingMode === 'focus') {
+            const page = Math.min(flipped + 1, TOTAL_PAGES);
+            return [page, page];
+        }
+        // The first sheet's front (page 1) is the only printed face visible on
+        // the cover; page 2 is on its inward-facing back until the sheet flips.
+        if (flipped === 0) return [1, 1];
         return [Math.min(flipped * 2, TOTAL_PAGES), Math.min(flipped * 2 + 1, TOTAL_PAGES)];
     }
 
@@ -963,6 +1019,12 @@
         const availW = sceneRect.width;
         const availH = sceneRect.height;
 
+        if (readingMode === 'focus') {
+            const leafH = Math.floor(Math.min(availH * 0.94, availW * 0.94 * PAGE_RATIO));
+            const leafW = Math.floor(leafH / PAGE_RATIO);
+            return { leafW, leafH, spreadW: leafW, spreadH: leafH };
+        }
+
         if (hasPageEnglishStrips && document.body.classList.contains('strip-page-open')) {
             const previewPageHeight = Number.parseFloat(document.body.style.getPropertyValue('--strip-preview-page-height'));
             if (previewPageHeight > 0) {
@@ -1013,7 +1075,7 @@
 
     function applyBookViewport() {
         clampPan();
-        book.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoomScale}) rotateX(4deg)`;
+        book.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoomScale}) rotateX(${readingMode === 'focus' ? 0 : 4}deg)`;
     }
 
     function touchPoints() {
@@ -1061,41 +1123,44 @@
         book.querySelectorAll('.leaf').forEach(el => el.remove());
         leaves.length = 0;
 
-        for (let i = 0; i < TOTAL_LEAVES; i++) {
+        const leafCount = readingMode === 'focus' ? TOTAL_PAGES : TOTAL_LEAVES;
+        for (let i = 0; i < leafCount; i++) {
             const leaf = document.createElement('div');
             leaf.className = 'leaf';
             leaf.dataset.index = i;
             leaf.style.width  = leafW + 'px';
             leaf.style.height = leafH + 'px';
             // Leaves sit on the RIGHT half (spine = left edge of leaf = center of book)
-            leaf.style.left = leafW + 'px';
+            leaf.style.left = (readingMode === 'focus' ? 0 : leafW) + 'px';
             leaf.style.top  = '0px';
 
-            const frontPage = pagesData[i * 2];
-            const backPage  = pagesData[i * 2 + 1];
+            const frontPage = pagesData[readingMode === 'focus' ? i : i * 2];
+            const backPage  = readingMode === 'focus' ? null : pagesData[i * 2 + 1];
+            const frontPageNumber = readingMode === 'focus' ? i + 1 : i * 2 + 1;
+            const backPageNumber = i * 2 + 2;
 
             const frontImg = frontPage
-                ? `<img src="${imageUrl(frontPage)}" loading="${i < 3 ? 'eager' : 'lazy'}" alt="第${i*2+1}頁">`
+                ? `<img src="${imageUrl(frontPage)}" loading="${i < 3 ? 'eager' : 'lazy'}" alt="第${frontPageNumber}頁">`
                 : '<img style="background:#fff;">';
             const backImg = backPage
-                ? `<img src="${imageUrl(backPage)}"  loading="${i < 3 ? 'eager' : 'lazy'}" alt="第${i*2+2}頁">`
+                ? `<img src="${imageUrl(backPage)}"  loading="${i < 3 ? 'eager' : 'lazy'}" alt="第${backPageNumber}頁">`
                 : '<img style="background:#fff;">';
 
             leaf.innerHTML = `
                 <div class="face front">
                     ${frontImg}
-                    <span class="page-num">${i*2+1}</span>
+                    <span class="page-num">${frontPageNumber}</span>
                 </div>
                 <div class="face back">
                     ${backImg}
-                    ${backPage ? `<span class="page-num">${i*2+2}</span>` : ''}
+                    ${backPage ? `<span class="page-num">${backPageNumber}</span>` : ''}
                 </div>
             `;
 
             const frontFace = leaf.querySelector('.face.front');
             const backFace = leaf.querySelector('.face.back');
-            appendPageEnglishBox(frontFace, i * 2 + 1);
-            if (backPage) appendPageEnglishBox(backFace, i * 2 + 2);
+            appendPageEnglishBox(frontFace, frontPageNumber);
+            if (backPage) appendPageEnglishBox(backFace, backPageNumber);
 
             book.appendChild(leaf);
             const obj = { el: leaf, index: i, angle: 0, w: leafW };
@@ -1116,10 +1181,11 @@
 
         // z-index: unflipped leaves stack front-to-back on right;
         //          flipped leaves stack back-to-front on left
-        const base = TOTAL_LEAVES - obj.index;
-        let z = angle <= -90 ? obj.index + 1 : base + TOTAL_LEAVES;
+        const leafCount = leaves.length;
+        const base = leafCount - obj.index;
+        let z = angle <= -90 ? obj.index + 1 : base + leafCount;
         // Keep the whole sheet above every resting page until its CSS transition finishes.
-        if (isTurning || (angle !== 0 && angle !== -180)) z += TOTAL_LEAVES * 2;
+        if (isTurning || (angle !== 0 && angle !== -180)) z += leafCount * 2;
 
         obj.el.style.zIndex   = z;
         obj.el.style.transform = `rotateY(${angle}deg)`;
@@ -1128,6 +1194,18 @@
     // ── UI ──
     function updateUI() {
         const flipped = leaves.filter(l => l.angle === -180).length;
+        if (readingMode === 'focus') {
+            const page = Math.min(flipped + 1, TOTAL_PAGES);
+            const text = lang === 'en' ? `Page ${page} / ${TOTAL_PAGES}` : `第 ${page} 頁 / 共 ${TOTAL_PAGES} 頁`;
+            document.getElementById('page-indicator').textContent = text;
+            document.getElementById('spread-info').textContent = text;
+            document.getElementById('btn-prev').disabled = flipped === 0;
+            document.getElementById('btn-next').disabled = flipped >= TOTAL_PAGES - 1;
+            if (englishOpen) updateTranslation();
+            updatePageEnglishStrips();
+            if (USE_INCREMENTAL_PRELOAD) preloadPageRange(flipped + 1, PRELOAD_AHEAD);
+            return;
+        }
         const leftPage  = flipped * 2;
         const rightPage = flipped * 2 + 1;
 
@@ -1157,7 +1235,7 @@
     // ── Flip ──
     function flipTo(obj, targetAngle, dur = 440) {
         if (USE_INCREMENTAL_PRELOAD && targetAngle === -180) {
-            preloadPageRange((obj.index + 1) * 2, PRELOAD_AHEAD);
+            preloadPageRange((obj.index + 1) * (readingMode === 'focus' ? 1 : 2), PRELOAD_AHEAD);
         }
         obj.el.style.transition = `transform ${dur}ms cubic-bezier(0.25,0.8,0.25,1)`;
         setTransform(obj, targetAngle, true);
@@ -1169,12 +1247,24 @@
     }
 
     document.getElementById('btn-next').addEventListener('click', () => {
-        const next = leaves.find(l => l.angle === 0 && l.index < MAX_FLIPPED_LEAVES);
+        const maxFlips = readingMode === 'focus' ? TOTAL_PAGES - 1 : MAX_FLIPPED_LEAVES;
+        const next = leaves.find(l => l.angle === 0 && l.index < maxFlips);
         if (next) flipTo(next, -180);
     });
     document.getElementById('btn-prev').addEventListener('click', () => {
         const prev = [...leaves].reverse().find(l => l.angle === -180);
         if (prev) flipTo(prev, 0);
+    });
+    readingModeToggle.addEventListener('click', () => {
+        const visiblePage = visiblePrintedPages()[0];
+        readingMode = readingMode === 'focus' ? 'spread' : 'focus';
+        try { localStorage.setItem(READING_MODE_KEY, readingMode); } catch (_) { /* Preference is optional. */ }
+        document.body.classList.toggle('focus-mode', readingMode === 'focus');
+        updateReadingModeToggle();
+        const flipped = readingMode === 'focus' ? visiblePage - 1 : (visiblePage === 1 ? 0 : Math.floor(visiblePage / 2));
+        buildBook();
+        leaves.forEach((leaf, index) => setTransform(leaf, index < flipped ? -180 : 0));
+        updateUI();
     });
 
     // ── Drag ──
@@ -1190,9 +1280,9 @@
         const leafEl = e.target.closest('.leaf');
         if (!leafEl) return;
         const obj = leaves[parseInt(leafEl.dataset.index)];
-        if (obj.angle === 0 && obj.index >= MAX_FLIPPED_LEAVES) return;
+        if (obj.angle === 0 && obj.index >= (readingMode === 'focus' ? TOTAL_PAGES - 1 : MAX_FLIPPED_LEAVES)) return;
         if (USE_INCREMENTAL_PRELOAD && obj.angle === 0) {
-            preloadPageRange((obj.index + 1) * 2, PRELOAD_AHEAD);
+            preloadPageRange((obj.index + 1) * (readingMode === 'focus' ? 1 : 2), PRELOAD_AHEAD);
         }
         obj.el.style.transition = 'none';
         isDragging = true;
