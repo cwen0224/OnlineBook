@@ -543,14 +543,16 @@ async function main() {
               return shouldCue === strip.classList.contains('is-scrollable');
             }))()`), `scroll cue synchronization for spread ${visiblePages.join('-')}`, 5000);
         }
-        const spreadStripTexts = await readExpectedStripTexts(options.book, Math.min(...visiblePages), Math.max(...visiblePages));
-        if (visiblePages.some(page => spreadStripTexts[String(page)])) {
-          await waitFor(async () => devtools.evaluate(`(() => {
-            const height = Number.parseFloat(document.body.style.getPropertyValue('--strip-preview-page-height')) || 0;
-            const stripTop = Number.parseFloat(document.body.style.getPropertyValue('--strip-preview-strip-top')) || 0;
-            return document.body.classList.contains('strip-page-open') && height > 0 && stripTop > 0;
-          })()`), `strip layout calculation for spread ${visiblePages.join('-')}`, 10000);
-        }
+        await delay(250);
+        await waitFor(async () => devtools.evaluate(`(() => {
+          const bookRect = document.querySelector('#book').getBoundingClientRect();
+          const pages = ${JSON.stringify(visiblePages)};
+          return bookRect.width > 1 && bookRect.height > 1 && pages.every(page => {
+            const image = [...document.querySelectorAll('#book img')].find(item => item.alt === '第' + page + '頁');
+            const rect = image?.getBoundingClientRect();
+            return image && image.naturalWidth > 0 && rect.width > 1 && rect.height > 1;
+          });
+        })()`), `visible book layout for spread ${visiblePages.join('-')}`, 10000);
         const pageBoxAudit = await devtools.evaluate(`(() => {
           const pages = ${JSON.stringify(visiblePages)};
           return pages.flatMap(page => {
@@ -573,6 +575,17 @@ async function main() {
                   fits: box.scrollWidth <= box.clientWidth + 1 && box.scrollHeight <= box.clientHeight + 1
                 };
               });
+          });
+        })()`);
+        const legacyBoxAudit = await devtools.evaluate(`(() => {
+          const pages = ${JSON.stringify(visiblePages)};
+          return pages.flatMap(page => {
+            const image = [...document.querySelectorAll('#book img')].find(item => item.alt === '第' + page + '頁');
+            return [...(image?.closest('.face')?.querySelectorAll('.page-english-box') || [])].map(box => ({
+              page,
+              visible: getComputedStyle(box).display !== 'none' && box.getBoundingClientRect().width > 0,
+              text: box.textContent.trim()
+            }));
           });
         })()`);
         const stripLayout = await devtools.evaluate(`(() => {
@@ -620,6 +633,8 @@ async function main() {
           const safeBottom = controlsRect.top - 12;
           const compositionTop = Math.min(bookRect.top, ...pages.map(page => page.stripBounds.top));
           const compositionBottom = Math.max(bookRect.bottom, ...pages.map(page => page.stripBounds.bottom));
+          const pageBottom = Math.max(bookRect.bottom, ...pages.map(page => page.pageBounds?.bottom || bookRect.bottom));
+          const pageToStripGap = pages.length ? Math.min(...pages.map(page => page.gapBelowPage)) : null;
           const topSlack = Math.round(compositionTop - safeTop);
           const bottomSlack = Math.round(safeBottom - compositionBottom);
           const expected = ${JSON.stringify(options.tenSpreadsTest ? await readExpectedStripTexts(options.book, options.fromPage, options.toPage) : null)};
@@ -652,6 +667,7 @@ async function main() {
             book: { top: Math.round(bookRect.top), bottom: Math.round(bookRect.bottom) },
             safeArea: { top: safeTop, bottom: Math.round(safeBottom), controlsBottom: Math.round(viewportHeight - controlsRect.bottom) },
             composition: { top: Math.round(compositionTop), bottom: Math.round(compositionBottom) },
+            pageToStripGap,
             layoutVariables: Object.fromEntries(['--strip-preview-height', '--strip-preview-scene-top', '--strip-preview-scene-bottom', '--strip-preview-strip-top', '--strip-preview-page-height', '--strip-preview-scale'].map(name => [name, document.body.style.getPropertyValue(name)])),
             verticalSlack: { top: topSlack, bottom: bottomSlack, balanceDelta: Math.abs(topSlack - bottomSlack) },
             bookInsideScene: bookRect.top >= sceneRect.top - 1 && bookRect.bottom <= sceneRect.bottom + 1,
@@ -666,8 +682,11 @@ async function main() {
           legacyView: document.body.classList.contains('legacy-translation-view'),
           legacyPanelPresent: Boolean(document.querySelector('#translation-panel #translation-content')),
           legacyPanelVisible: getComputedStyle(document.querySelector('#translation-panel')).display !== 'none',
+          visibleLegacyPageBoxes: [...document.querySelectorAll('#book .page-english-box')].filter(box => getComputedStyle(box).display !== 'none').length,
           stripContainerPresent: Boolean(document.querySelector('#page-english-strips')),
           stripContainerVisible: Boolean(document.querySelector('#page-english-strips') && getComputedStyle(document.querySelector('#page-english-strips')).display !== 'none'),
+          visibleStripCount: [...document.querySelectorAll('#page-english-strips .page-english-strip')]
+            .filter(strip => getComputedStyle(strip).display !== 'none' && strip.getBoundingClientRect().width > 0).length,
           stripPageOpen: document.body.classList.contains('strip-page-open'),
           translationToggleLabel: document.querySelector('#translation-toggle')?.textContent?.trim() || '',
           uiLanguage: document.documentElement.lang,
@@ -685,7 +704,7 @@ async function main() {
           await fs.writeFile(path.join(outDir, file), Buffer.from(screenshot.data, 'base64'));
           console.log(`Captured ${visiblePages.join('–')} → ${path.join(outDir, file)}`);
         }
-        states.push({ visiblePages, file, width: options.width, height: options.height, ...translationState, initialToggleEvidence, toggleEvidence, pageBoxAudit, stripLayout });
+        states.push({ visiblePages, file, width: options.width, height: options.height, ...translationState, initialToggleEvidence, toggleEvidence, pageBoxAudit, legacyBoxAudit, stripLayout });
         if (options.auditOnly) console.log(`Audited ${visiblePages.join('–')}: ${pageBoxAudit.length} visible English box(es)`);
         const visiblePreviews = previews.filter((preview) => visiblePages.includes(preview.page));
         if (visiblePreviews.length && !options.auditOnly) {
@@ -784,6 +803,13 @@ async function main() {
         legacyPanelHidden: options.tenSpreadsTest,
         legacyPanelImplementationPreserved: states.every(state => state.legacyPanelPresent),
         legacyPanelHiddenByDefault: states.every(state => !state.legacyView && !state.fallbackPanelOpen),
+        legacyPanelVisibleWhenRequested: options.legacyPanel
+          ? states.every(state => state.legacyView && state.fallbackPanelOpen && state.legacyPanelVisible
+            && state.visibleLegacyPageBoxes === 0 && !state.stripContainerVisible && state.visibleStripCount === 0)
+          : null,
+        legacyPanelHasNoBottomStripOverlap: options.legacyPanel
+          ? states.every(state => state.legacyView && state.legacyPanelVisible && state.visibleStripCount === 0)
+          : null,
         stripNullPagesSuppressed: options.tenSpreadsTest ? states.every(state => state.stripLayout?.strips.every(strip => Boolean(strip.text))) : null,
         p24Suppressed: options.tenSpreadsTest ? Boolean(states.find(state => state.visiblePages[0] === 24)?.stripLayout?.suppressedPages.includes(24)) : null,
         p25TextExact: options.tenSpreadsTest ? Boolean(states.find(state => state.visiblePages[0] === 24)?.stripLayout?.strips.find(strip => strip.page === 25)?.text === expectedStripTextsForAudit['25']) : null,
@@ -797,6 +823,7 @@ async function main() {
         mobileControlsBottomSafeMarginMinPx: options.tenSpreadsTest && options.viewport === 'mobile' ? 16 : null,
         mobileCompositionSlackBalanceDeltaMaxPx: options.tenSpreadsTest && options.viewport === 'mobile' ? 24 : null,
         mobileBookAndStripBalancedBetweenHeaderAndNavigation: options.tenSpreadsTest && options.viewport === 'mobile',
+        desktopBookAndStripBalancedBetweenHeaderAndNavigation: options.tenSpreadsTest && options.viewport === 'desktop',
       },
     };
     const manifest = {

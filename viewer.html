@@ -187,7 +187,7 @@
             z-index: 450;
             left: 50%;
             bottom: var(--strip-preview-bottom, 56px);
-            transform: translateX(-50%) scale(var(--strip-preview-scale, 1));
+            transform: translateX(-50%);
             width: min(90vw, 1224px);
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -273,11 +273,8 @@
         body.strip-preview:not(.page-english-open) .page-english-strips { display: none; }
         body.strip-page-open #hint { display: none; }
         body.strip-page-open .page-english-box { display: none !important; }
-        body.strip-preview .page-english-box { display: none !important; }
-        body.strip-preview.strip-page-open .page-english-strips {
-            top: var(--strip-preview-strip-top, auto);
-            bottom: auto;
-        }
+        body.strip-preview:not(.legacy-translation-view) .page-english-box { display: none !important; }
+        body.strip-preview.strip-page-open .page-english-strips { top: var(--strip-preview-strip-top, auto); bottom: auto; }
         @media (max-width: 640px) {
             .page-english-box { padding: 8px; font-size: clamp(11px, 3.2vw, 16px); }
             body.strip-preview {
@@ -582,7 +579,7 @@
             const placementData = await response.json();
             placementPages = placementData.books?.[bookKey]?.pages || [];
             hasPageEnglishStrips = placementPages.some((page) => typeof page.bottomStripText === 'string' && page.bottomStripText.trim());
-            document.body.classList.toggle('strip-preview', hasPageEnglishStrips);
+            document.body.classList.toggle('strip-preview', hasPageEnglishStrips && !legacyPanelEnabled);
             const placementEntries = placementPages
                 .filter((page) => page.englishTranslation && page.translationScope?.granularity === 'reader-pages')
                 .map((page) => ({
@@ -672,8 +669,9 @@
     }
 
     let stripCueObserver = null;
+    let stripLayoutRebuildQueued = false;
     function updatePageEnglishStrips() {
-        if (!hasPageEnglishStrips) return;
+        if (!hasPageEnglishStrips || legacyPanelEnabled) return;
         const strips = document.getElementById('page-english-strips');
         if (!strips) return;
         stripCueObserver?.disconnect();
@@ -760,8 +758,12 @@
                 measuredHeight = Math.ceil(strips.getBoundingClientRect().height);
             }
             document.body.style.setProperty('--strip-preview-height', `${measuredHeight}px`);
-            if (mobileLayoutChanged || Math.abs(measuredHeight - previousHeight) > 1) {
-                setTimeout(rebuildBookForAvailableSpace, 0);
+            if ((mobileLayoutChanged || Math.abs(measuredHeight - previousHeight) > 1) && !stripLayoutRebuildQueued) {
+                stripLayoutRebuildQueued = true;
+                requestAnimationFrame(() => {
+                    rebuildBookForAvailableSpace();
+                    stripLayoutRebuildQueued = false;
+                });
             }
             requestAnimationFrame(syncStripScrollCues);
         }
@@ -774,13 +776,14 @@
         const safeTop = 48;
         const safeBottom = controlsRect.top - 16;
         const safeHeight = Math.max(0, safeBottom - safeTop);
-        const gap = 24;
-        const naturalPageHeight = scene.clientWidth * 0.96 * PAGE_RATIO / 2;
+        const gap = 27;
+        const renderedBookHeight = document.getElementById('book').getBoundingClientRect().height;
+        const naturalPageHeight = renderedBookHeight > 1
+            ? renderedBookHeight
+            : scene.clientWidth * 0.96 * PAGE_RATIO / 2;
         const naturalStripHeight = strips.offsetHeight;
-        const scale = Math.min(1, Math.max(0.1, (safeHeight - gap) / Math.max(1, naturalPageHeight + gap + naturalStripHeight)));
-        const pageHeight = naturalPageHeight * scale;
-        const stripHeight = naturalStripHeight * scale;
-        const groupHeight = pageHeight + gap + stripHeight;
+        const pageHeight = Math.min(naturalPageHeight, Math.max(1, safeHeight - gap - naturalStripHeight));
+        const groupHeight = pageHeight + gap + naturalStripHeight;
         const pageTop = safeTop + Math.max(0, (safeHeight - groupHeight) / 2);
         const pageBottom = pageTop + pageHeight;
         const sceneHeight = pageHeight / 0.94;
@@ -790,14 +793,14 @@
             '--strip-preview-scene-bottom': `${window.innerHeight - pageBottom - letterbox}px`,
             '--strip-preview-strip-top': `${pageBottom + gap}px`,
             '--strip-preview-page-height': `${pageHeight}px`,
-            '--strip-preview-scale': String(scale),
+            '--strip-preview-scale': '1',
         };
         let changed = false;
         for (const [property, value] of Object.entries(next)) {
             if (bodyStyle.getPropertyValue(property).trim() !== value) changed = true;
             bodyStyle.setProperty(property, value);
         }
-        return changed;
+        return changed || Math.abs(pageHeight - naturalPageHeight) > 1;
     }
 
     function positionMobileStripComposition(strips) {
