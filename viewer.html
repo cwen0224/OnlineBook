@@ -145,12 +145,16 @@
         .face.back  { transform: rotateY(180deg); }
 
         .face img {
-            width: 100%; height: 100%;
-            object-fit: contain;   /* ← show full page, no crop */
+            position: absolute;
+            inset: 0;
+            width: auto; height: auto;
+            max-width: 100%; max-height: 100%;
+            object-fit: contain;   /* show the full scan without changing its aspect ratio */
             object-position: center;
             display: block;
             pointer-events: none;
             background: #fff;
+            margin: auto;
         }
 
         .page-english-box {
@@ -1019,7 +1023,7 @@
     // ── Compute page aspect ratio from JSON data ──
     const firstPage = pagesData[0];
     const PAGE_RATIO = (firstPage && firstPage.width && firstPage.height)
-        ? (firstPage.height / firstPage.width) 
+        ? (firstPage.height / firstPage.width)
         : 1.414;
 
     console.log("Detecting Book Ratio:", PAGE_RATIO, "isLandscape:", PAGE_RATIO < 1);

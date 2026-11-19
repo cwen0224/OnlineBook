@@ -102,14 +102,21 @@
             text-align: left;
             overflow: hidden;
         }
-        .cover-img {
+        .cover-frame {
             display: block;
             flex: 0 0 auto;
-            width: auto;
             height: clamp(116px, 19vh, 176px);
-            min-height: 0;
             max-width: 48%;
-            max-height: none;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        .cover-img {
+            display: block;
+            width: auto;
+            height: auto;
+            min-height: 0;
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
             margin: 0;
         }
@@ -164,7 +171,7 @@
                 grid-template-rows: none;
             }
             .book-card { gap: 16px; }
-            .cover-img { height: clamp(92px, 28vw, 142px); max-width: 46%; }
+            .cover-frame { height: clamp(92px, 28vw, 142px); max-width: 46%; }
         }
     </style>
 </head>
@@ -182,8 +189,8 @@
         <h1 id="main-title" style="color: white; font-size: 3.8rem; margin-bottom: 4rem; text-shadow: 0 10px 30px rgba(0,0,0,0.8); letter-spacing: 6px; font-weight: 800; text-align: center;">線上電子繪本</h1>
         
         <div style="display: flex; gap: 4rem; flex-wrap: wrap; justify-content: center; align-items: center; padding: 0 20px;">
-            <a href="viewer.html?book=zaojiao&lang=zh-TW" class="book-card book-link" data-book="zaojiao" style="width: 380px;">
-                <img src="pages_zaojiao_tw/page_001.webp" class="cover-img" alt="Cover">
+            <a href="viewer.html?book=zaojiao&lang=zh-TW" class="book-card book-link" data-book="zaojiao">
+                <span class="cover-frame"><img src="pages_zaojiao_tw/page_001.webp" class="cover-img" alt="Cover"></span>
                 <div class="book-meta">
                     <h2 class="b-title" style="font-size: 1.6rem; margin: 0; font-weight: 600; letter-spacing: 1px;">藻礁保衛戰</h2>
                     <p class="b-cat" style="margin-top: 12px; font-size: 0.9rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">社會系列</p>
@@ -191,7 +198,7 @@
             </a>
             
             <a href="viewer.html?book=shigo&lang=zh-TW" class="book-card book-link" data-book="shigo">
-                <img src="pages_shigo_tw/page_001.webp" class="cover-img" alt="Cover">
+                <span class="cover-frame"><img src="pages_shigo_tw/page_001.webp" class="cover-img" alt="Cover"></span>
                 <div class="book-meta">
                     <h2 class="b-title" style="font-size: 1.6rem; margin: 0; font-weight: 600; letter-spacing: 1px;">海客石滬</h2>
                     <p class="b-cat" style="margin-top: 12px; font-size: 0.9rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">親子系列</p>
@@ -199,7 +206,7 @@
             </a>
 
             <a href="viewer.html?book=zaojiao_story&lang=zh-TW" class="book-card book-link" data-book="zaojiao_story">
-                <img src="pages_zaojiao_story_tw/page_001.webp" class="cover-img" alt="Cover">
+                <span class="cover-frame"><img src="pages_zaojiao_story_tw/page_001.webp" class="cover-img" alt="Cover"></span>
                 <div class="book-meta">
                     <h2 class="b-title" style="font-size: 1.6rem; margin: 0; font-weight: 600; letter-spacing: 1px;">藻礁繪本</h2>
                     <p class="b-cat" style="margin-top: 12px; font-size: 0.9rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">桃園戶海系列</p>
@@ -207,21 +214,21 @@
             </a>
 
             <a href="viewer.html?book=penghu_shihu&lang=zh-TW" class="book-card book-link" data-book="penghu_shihu">
-                <img src="pages_penghu_shihu_tw/page_001.webp" class="cover-img" alt="Cover">
+                <span class="cover-frame"><img src="pages_penghu_shihu_tw/page_001.webp" class="cover-img" alt="Cover"></span>
                 <div class="book-meta">
                     <h2 class="b-title" style="font-size: 1.6rem; margin: 0; font-weight: 600; letter-spacing: 1px;">石滬爺爺說故事</h2>
                     <p class="b-cat" style="margin-top: 12px; font-size: 0.9rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">桃園戶海系列</p>
                 </div>
             </a>
             <a href="viewer.html?book=nautilus&lang=zh-TW" class="book-card book-link" data-book="nautilus">
-                <img src="pages_nautilus_tw/page_001.webp" class="cover-img" alt="Cover">
+                <span class="cover-frame"><img src="pages_nautilus_tw/page_001.webp" class="cover-img" alt="Cover"></span>
                 <div class="book-meta">
                     <h2 class="b-title" style="font-size: 1.6rem; margin: 0; font-weight: 600; letter-spacing: 1px;">活化石的心聲—鸚鵡螺</h2>
                     <p class="b-cat" style="margin-top: 12px; font-size: 0.9rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">桃園戶海系列</p>
                 </div>
             </a>
             <a href="viewer.html?book=chequbei&lang=zh-TW" class="book-card book-link" data-book="chequbei">
-                <img src="pages_chequbei_tw/page_001.webp" class="cover-img" alt="Cover">
+                <span class="cover-frame"><img src="pages_chequbei_tw/page_001.webp" class="cover-img" alt="Cover"></span>
                 <div class="book-meta">
                     <h2 class="b-title" style="font-size: 1.6rem; margin: 0; font-weight: 600; letter-spacing: 1px;">守護海中玫瑰—硨磲貝</h2>
                     <p class="b-cat" style="margin-top: 12px; font-size: 0.9rem; opacity: 0.7; font-weight: 400; letter-spacing: 2px;">桃園戶海系列</p>
