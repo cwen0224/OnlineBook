@@ -30,6 +30,7 @@ Options:
   --from-page <number>    First printed page to include (default: 1)
   --to-page <number>      Last printed page to include (default: last page)
   --translation <state>   English display: auto | closed | open (default: auto by language)
+  --legacy-panel          Keep the legacy English panel enabled for fallback auditing
   --p12-bars-test         Enable the p12–13 two-column bottom English-strip test
   --ten-spreads-test      Capture ten spreads of bottom strips at desktop and mobile sizes
   --viewport <size>       ten-spreads-test viewport: desktop | mobile | both (default: both)
@@ -61,6 +62,7 @@ function parseArgs(argv) {
     const flag = argv[i];
     if (flag === '--help' || flag === '-h') { options.help = true; continue; }
     if (flag === '--audit-only') { options.auditOnly = true; continue; }
+    if (flag === '--legacy-panel') { options.legacyPanel = true; continue; }
     if (flag === '--library') { options.library = true; continue; }
     if (flag === '--p12-bars-test') { options.p12BarsTest = true; continue; }
     if (flag === '--ten-spreads-test') { options.tenSpreadsTest = true; continue; }
@@ -138,15 +140,13 @@ async function loadPreviewPages(book, pageNumber) {
   return previews;
 }
 
-async function readExpectedStripTexts(fromPage, toPage) {
+async function readExpectedStripTexts(book, fromPage, toPage) {
   const data = JSON.parse(await fs.readFile(path.join(ROOT, 'text-placement-zones.json'), 'utf8'));
-  const pages = data.books?.penghu_shihu?.pages || [];
+  const pages = data.books?.[book]?.pages || [];
   return Object.fromEntries(Array.from({ length: toPage - fromPage + 1 }, (_, index) => {
     const pageNumber = index + fromPage;
     const page = pages.find((item) => item.page === pageNumber);
-    const text = page && Object.prototype.hasOwnProperty.call(page, 'bottomStripText')
-      ? (typeof page.bottomStripText === 'string' ? page.bottomStripText.trim() : '')
-      : (page?.zones || []).map((zone) => zone.englishText?.trim()).filter(Boolean).join('\n\n');
+    const text = typeof page?.bottomStripText === 'string' ? page.bottomStripText.trim() : '';
     return [String(pageNumber), text || null];
   }));
 }
@@ -436,7 +436,7 @@ async function main() {
       return;
     }
 
-    const readerUrl = `${baseUrl.replace(/\/$/, '')}/viewer.html?book=${encodeURIComponent(options.book)}&lang=${encodeURIComponent(options.lang)}${options.p12BarsTest || options.tenSpreadsTest ? '&stripSample=1' : ''}`;
+    const readerUrl = `${baseUrl.replace(/\/$/, '')}/viewer.html?book=${encodeURIComponent(options.book)}&lang=${encodeURIComponent(options.lang)}${options.legacyPanel ? '&legacy=1' : ''}`;
     await devtools.send('Page.navigate', { url: readerUrl });
     await waitFor(async () => devtools.evaluate(`(() => document.readyState === 'complete' && document.querySelectorAll('#book .leaf img').length > 0 && document.querySelector('#btn-next'))()`), 'reader initialization', 60000);
     await devtools.evaluate(`(async () => { await document.fonts.ready; return true; })()`);
@@ -525,7 +525,7 @@ async function main() {
             renderedStripCount: [...document.querySelectorAll('#page-english-strips .page-english-strip')]
               .filter(strip => getComputedStyle(strip).display !== 'none').length
           }))()`);
-          const expectedTexts = await readExpectedStripTexts(options.fromPage, options.toPage);
+          const expectedTexts = await readExpectedStripTexts(options.book, options.fromPage, options.toPage);
           const expectedCount = [options.fromPage, options.fromPage + 1].filter(page => expectedTexts[String(page)]).length;
           toggleEvidence = { initialState, closedDefaultVerified: !initialState.isOpen && initialState.label === '顯示英文' && initialState.renderedStripCount === 0, openState,
             openStateVerified: openState.isOpen && openState.label === '收合英文' && openState.renderedStripCount === expectedCount };
@@ -542,6 +542,14 @@ async function main() {
               const shouldCue = getComputedStyle(strip).overflowY === 'auto' && strip.scrollHeight > strip.clientHeight + 1;
               return shouldCue === strip.classList.contains('is-scrollable');
             }))()`), `scroll cue synchronization for spread ${visiblePages.join('-')}`, 5000);
+        }
+        const spreadStripTexts = await readExpectedStripTexts(options.book, Math.min(...visiblePages), Math.max(...visiblePages));
+        if (visiblePages.some(page => spreadStripTexts[String(page)])) {
+          await waitFor(async () => devtools.evaluate(`(() => {
+            const height = Number.parseFloat(document.body.style.getPropertyValue('--strip-preview-page-height')) || 0;
+            const stripTop = Number.parseFloat(document.body.style.getPropertyValue('--strip-preview-strip-top')) || 0;
+            return document.body.classList.contains('strip-page-open') && height > 0 && stripTop > 0;
+          })()`), `strip layout calculation for spread ${visiblePages.join('-')}`, 10000);
         }
         const pageBoxAudit = await devtools.evaluate(`(() => {
           const pages = ${JSON.stringify(visiblePages)};
@@ -614,7 +622,7 @@ async function main() {
           const compositionBottom = Math.max(bookRect.bottom, ...pages.map(page => page.stripBounds.bottom));
           const topSlack = Math.round(compositionTop - safeTop);
           const bottomSlack = Math.round(safeBottom - compositionBottom);
-          const expected = ${JSON.stringify(options.tenSpreadsTest ? await readExpectedStripTexts(options.fromPage, options.toPage) : null)};
+          const expected = ${JSON.stringify(options.tenSpreadsTest ? await readExpectedStripTexts(options.book, options.fromPage, options.toPage) : null)};
           const visible = ${JSON.stringify(visiblePages)};
           const expectedForSpread = expected ? visible.filter(page => page >= ${options.fromPage} && page <= ${toPage})
             .map(page => ({ page, text: expected[String(page)] || null })) : [];
@@ -644,6 +652,7 @@ async function main() {
             book: { top: Math.round(bookRect.top), bottom: Math.round(bookRect.bottom) },
             safeArea: { top: safeTop, bottom: Math.round(safeBottom), controlsBottom: Math.round(viewportHeight - controlsRect.bottom) },
             composition: { top: Math.round(compositionTop), bottom: Math.round(compositionBottom) },
+            layoutVariables: Object.fromEntries(['--strip-preview-height', '--strip-preview-scene-top', '--strip-preview-scene-bottom', '--strip-preview-strip-top', '--strip-preview-page-height', '--strip-preview-scale'].map(name => [name, document.body.style.getPropertyValue(name)])),
             verticalSlack: { top: topSlack, bottom: bottomSlack, balanceDelta: Math.abs(topSlack - bottomSlack) },
             bookInsideScene: bookRect.top >= sceneRect.top - 1 && bookRect.bottom <= sceneRect.bottom + 1,
             controlsVisible: controlsRect.top >= 0 && controlsRect.bottom <= innerHeight,
@@ -655,6 +664,11 @@ async function main() {
           englishOpen: document.body.classList.contains('page-english-open'),
           fallbackPanelOpen: document.body.classList.contains('translation-open'),
           legacyView: document.body.classList.contains('legacy-translation-view'),
+          legacyPanelPresent: Boolean(document.querySelector('#translation-panel #translation-content')),
+          legacyPanelVisible: getComputedStyle(document.querySelector('#translation-panel')).display !== 'none',
+          stripContainerPresent: Boolean(document.querySelector('#page-english-strips')),
+          stripContainerVisible: Boolean(document.querySelector('#page-english-strips') && getComputedStyle(document.querySelector('#page-english-strips')).display !== 'none'),
+          stripPageOpen: document.body.classList.contains('strip-page-open'),
           translationToggleLabel: document.querySelector('#translation-toggle')?.textContent?.trim() || '',
           uiLanguage: document.documentElement.lang,
           coffeeUi: Object.fromEntries(['#top-bar a', '#book-title', '#translation-toggle', '#page-indicator', '#btn-prev', '#spread-info', '#btn-next'].map(selector => {
@@ -702,7 +716,7 @@ async function main() {
     }
 
     const expectedStripTextsForAudit = options.tenSpreadsTest
-      ? await readExpectedStripTexts(options.fromPage, toPage)
+      ? await readExpectedStripTexts(options.book, options.fromPage, toPage)
       : {};
     const stripFailures = options.tenSpreadsTest ? states.flatMap((state) => {
       const first = state.visiblePages[0], last = state.visiblePages.at(-1);
@@ -717,6 +731,7 @@ async function main() {
         failures.push(`spread ${first}-${last}: explicit toggle-open strip evidence did not pass`);
       }
       if (state.fallbackPanelOpen) failures.push(`spread ${first}-${last}: legacy translation panel should remain hidden`);
+      if (!state.legacyPanelPresent || state.legacyView) failures.push(`spread ${first}-${last}: legacy panel DOM must remain available but legacy mode disabled`);
       if (state.uiLanguage !== 'zh-TW') failures.push(`spread ${first}-${last}: ten-spread test UI language is not zh-TW`);
       if (state.translationToggleLabel !== '收合英文') failures.push(`spread ${first}-${last}: Chinese UI toggle does not show the open/collapse state`);
       if (!layout) failures.push(`spread ${first}-${last}: strips missing`);
@@ -767,6 +782,9 @@ async function main() {
             && states.find((state) => state.visiblePages[0] === options.fromPage)?.toggleEvidence?.openStateVerified)
           : null,
         legacyPanelHidden: options.tenSpreadsTest,
+        legacyPanelImplementationPreserved: states.every(state => state.legacyPanelPresent),
+        legacyPanelHiddenByDefault: states.every(state => !state.legacyView && !state.fallbackPanelOpen),
+        stripNullPagesSuppressed: options.tenSpreadsTest ? states.every(state => state.stripLayout?.strips.every(strip => Boolean(strip.text))) : null,
         p24Suppressed: options.tenSpreadsTest ? Boolean(states.find(state => state.visiblePages[0] === 24)?.stripLayout?.suppressedPages.includes(24)) : null,
         p25TextExact: options.tenSpreadsTest ? Boolean(states.find(state => state.visiblePages[0] === 24)?.stripLayout?.strips.find(strip => strip.page === 25)?.text === expectedStripTextsForAudit['25']) : null,
         printedEnglishPages40to42Suppressed: options.tenSpreadsTest ? Boolean([40, 41, 42].every(page => {

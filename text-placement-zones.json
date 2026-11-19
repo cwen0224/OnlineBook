@@ -42,7 +42,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "Cover title only; other text and illustration leave no safe area."
-          ]
+          ],
+          "bottomStripText": "Algal Reef Defense\n\nText and illustrations by Yun-hsuan Zhang\n\nTaoyuan City 110th Annual Environmental Education Picture Book Creation Contest — Social Studies Group, First Place"
         },
         {
           "page": 2,
@@ -61,7 +62,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "Glossary too crowded for added labels; one species label omitted as uncertain."
-          ]
+          ],
+          "bottomStripText": "Little Fish Bobo; shrimp; shell; fish; Big Brother Crab; seaweed; sea turtle; Little Sister Hermit Crab; shell; red-meat hammerhead shark; Uncle Octopus; shell."
         },
         {
           "page": 3,
@@ -80,7 +82,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "Two coral taxon labels omitted pending reliable English names; no room below all labels."
-          ]
+          ],
+          "bottomStripText": "Chai-shan cup coral; shell; sea lily; seaweed; shell; moray eel; starfish; shell; Uncle Bird the Mail Carrier; Chai-shan cup coral; shell; shell."
         },
         {
           "page": 4,
@@ -123,7 +126,8 @@
           "translationStatus": "available",
           "reviewNotes": [
             "The safe text area is the lower-left peach field; the area immediately under the Chinese title/byline is too close to the bird and child. The translated title fits in the separate open field without covering Chinese or focal artwork."
-          ]
+          ],
+          "bottomStripText": "Algal Reef Defense\n\nText and illustrations by Yun-hsuan Zhang"
         },
         {
           "page": 5,
@@ -142,7 +146,8 @@
           "translationStatus": "available",
           "reviewNotes": [
             "Chinese fills upper page and reef art fills the rest."
-          ]
+          ],
+          "bottomStripText": "The Datan Algal Reef\n\nThis is the Datan Algal Reef in Taoyuan, one of the few remaining living shallow-water algal reefs in the world. Its porous terrain provides homes for many kinds of fish, shrimp, crabs, and shellfish. It nurtures nearly 100 kinds of living things and enriches the marine ecosystem, which is why it is called the “nursery of marine life.” Besides fish, shrimp, crabs, hermit crabs, octopuses, shellfish, and starfish, the reef is also home to precious and rare species such as moray eels, hammerhead sharks, sea lilies, Chai-shan cup corals, and green sea turtles."
         },
         {
           "page": 6,
@@ -161,7 +166,8 @@
           "translationStatus": "available",
           "reviewNotes": [
             "Chinese explanation is above full reef artwork; no safe aligned box."
-          ]
+          ],
+          "bottomStripText": "What is an algal reef? Unlike coral reefs, which are built by animals, algal reefs are built by plants. The Datan Algal Reef is formed mainly by crustose coralline algae. Through calcification, these algae deposit calcium carbonate and gradually build the reef. Research shows that it takes about ten years for the reef to grow just one centimetre. Our Datan Algal Reef has a history of more than 7,600 years."
         },
         {
           "page": 7,
@@ -185,7 +191,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-        "reviewNote": "The broad upper band is used for the complete page translation; runtime fit is verified at reader size."
+        "reviewNote": "The broad upper band is used for the complete page translation; runtime fit is verified at reader size.",
+          "bottomStripText": "Breaking News!\n\nOne sunny morning, Little Fish Bobo suddenly heard Uncle Bird the Mail Carrier shouting loudly: “Is anyone home? Is anyone home? There’s big news in today’s Datan Daily!”"
         },
         {
           "page": 8,
@@ -209,7 +216,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-        "reviewNote": "The left water area keeps the text clear of the newspaper and focal characters; runtime fit is verified."
+        "reviewNote": "The left water area keeps the text clear of the newspaper and focal characters; runtime fit is verified.",
+          "bottomStripText": "After delivering the newspaper to Bobo, Uncle Bird the Mail Carrier continued on to deliver mail at the next house. Bobo anxiously opened the bottle and took out the newspaper to read. The news in the Datan Daily startled him: “What? We’re being forced to move!”"
         },
         {
           "page": 9,
@@ -235,7 +243,8 @@
           "translationStatus": "available",
           "reviewNotes": [
             "Source text at top; reef animals fill the rest."
-          ]
+          ],
+          "bottomStripText": "Our Home Is in Danger!\n\nBobo immediately blew his horn and gathered the sea creatures of the Datan Algal Reef: “Big news—huge news! A third natural-gas receiving terminal is going to be built here. Our home is going to be destroyed!”\n\nThe residents were alarmed and frightened. They asked one another, “What should we do? We’ve lived here for so long—where can we go?”"
         },
         {
           "page": 10,
@@ -254,7 +263,8 @@
           "translationStatus": "available",
           "reviewNotes": [
             "Dense text, machinery, reef, and animals leave no safe region."
-          ]
+          ],
+          "bottomStripText": "As part of the energy-transition policy, an area near the Datan Algal Reef had been selected for development of a natural-gas receiving terminal. Developing the marine area of the algal-reef ecosystem would seriously damage and threaten its ecology. After living here for thousands of years, where could the algal-reef residents go?"
         },
         {
           "page": 11,
@@ -273,7 +283,8 @@
           "translationStatus": "available",
           "reviewNotes": [
             "Text reaches the horizon; stars and characters fill remaining space."
-          ]
+          ],
+          "bottomStripText": "The Fairy’s Magic\n\nThat night, Bobo was so worried about moving that he could not sleep. He and his friends looked up at the stars to clear their minds. Just then, a shooting star streaked across the distant sky. “Look quickly—it’s a shooting star!” Bobo cried excitedly."
         },
         {
           "page": 12,
@@ -292,7 +303,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "Supplied translation plus Bobo’s readable question; source lies beneath fairy over reef."
-          ]
+          ],
+          "bottomStripText": "Then something magical happened! The shooting star became a glowing fairy and appeared before them. “I heard all your worries. I’m the fairy who protects this algal reef, and I’m here to help you!”\n\nAfter hearing her, Bobo asked curiously, “How can you help us? We can live in the algal reef but not on land. Apart from moving to find a new reef, is there anything else we can do?”"
         },
         {
           "page": 13,
@@ -307,7 +319,8 @@
           "translationStatus": "no-text",
           "reviewNotes": [
             "Illustration only; no Chinese text, no narration added."
-          ]
+          ],
+          "bottomStripText": null
         },
         {
           "page": 14,
@@ -326,7 +339,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "Uses the supplied story translation and adds legible page-only details; the lower dark water/reef has no safe area."
-          ]
+          ],
+          "bottomStripText": "“That’s a good question!” the fairy said with a smile. She raised her wand and turned Bobo into a little boy. Little Sister Hermit Crab and Big Brother Crab, standing on the reef, watched in astonishment.\n\nThe fairy warned Bobo, “You have only three days as a human to seek help from people on land. You must return to the sea before sunset on the third day, or you will disappear forever!” After she finished speaking, the fairy vanished into the night sky."
         },
         {
           "page": 15,
@@ -343,7 +357,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-        "reviewNote": "The title and full page passage use the lower water strip; runtime fit is verified with page-local sizing."
+        "reviewNote": "The title and full page passage use the lower water strip; runtime fit is verified with page-local sizing.",
+          "bottomStripText": "The Algal Reef Rescue Team\n\nEarly the next morning, Bobo gathered Uncle Bird the Mail Carrier, Little Sister Hermit Crab, and Big Brother Crab. They formed the Algal Reef Rescue Team and planned their strategy."
         },
         {
           "page": 16,
@@ -367,7 +382,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "partial",
-        "reviewNote": "Short slogan is placed on the open orange field; runtime fit is verified."
+        "reviewNote": "Short slogan is placed on the open orange field; runtime fit is verified.",
+          "bottomStripText": "“Algal Reef Rescue Team—let’s go! Go! Go!” Bobo and the teammates shouted their slogan together, then sprang into action."
         },
         {
           "page": 17,
@@ -393,7 +409,8 @@
           "translationStatus": "available",
           "reviewNotes": [
             "A trial overlay of the 42-word passage overlaps the original Chinese at the top; below it, the page illustration leaves no safe region large enough for readable text."
-          ]
+          ],
+          "bottomStripText": "Bobo picked up a branch on the beach and wrote “SOS” messages for help. Uncle Octopus provided ink so Bobo could write them. Uncle Bird the Mail Carrier gathered his friends to deliver the messages, so more people could see their cry for help."
         },
         {
           "page": 18,
@@ -408,7 +425,8 @@
           "translationStatus": "no-text",
           "reviewNotes": [
             "Illustration only; no Chinese copy."
-          ]
+          ],
+          "bottomStripText": null
         },
         {
           "page": 19,
@@ -425,7 +443,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-        "reviewNote": "The wide upper sand band separates the Chinese heading from the main crab/shore scene; runtime fit is verified."
+        "reviewNote": "The wide upper sand band separates the Chinese heading from the main crab/shore scene; runtime fit is verified.",
+          "bottomStripText": "Under the blazing sun on the beach, Little Sister Hermit Crab, Big Brother Crab, and their friends dug a giant “SOS” sign, hoping people would notice it."
         },
         {
           "page": 20,
@@ -440,7 +459,8 @@
           "translationStatus": "no-text",
           "reviewNotes": [
             "Illustration only; no Chinese narrative text."
-          ]
+          ],
+          "bottomStripText": null
         },
         {
           "page": 21,
@@ -455,7 +475,8 @@
           "translationStatus": "no-text",
           "reviewNotes": [
             "Illustration only; no Chinese narrative text."
-          ]
+          ],
+          "bottomStripText": null
         },
         {
           "page": 22,
@@ -474,7 +495,8 @@
           "translationStatus": "available",
           "reviewNotes": [
             "Long copy approaches figures; no safe gap can hold it."
-          ]
+          ],
+          "bottomStripText": "Help Before Sunset!\n\nDay after day passed, and before they knew it, sunset on the third day had arrived. Bobo saw the sun about to sink into the sea and used all his remaining strength to shout, “Help! Help! Somebody, please come!”\n\nJust then, some people passing nearby heard him and looked toward Bobo. “Look! There’s a boy over there who needs help!” they called."
         },
         {
           "page": 23,
@@ -493,7 +515,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "Question translated from legible Chinese; source spans upper-left to horizon and people enter immediately below/right."
-          ]
+          ],
+          "bottomStripText": "Everyone Can Help!\n\nOnly then did people realize that the Datan Algal Reef, which was about to be developed, was home to countless sea creatures and a rich marine ecosystem. People began to reflect: must the energy transition come at the cost of this precious treasure? What can we do to conserve marine life and protect the Datan Algal Reef ecosystem?"
         },
         {
           "page": 24,
@@ -512,7 +535,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "Split from supplied passage; source is over lower-right reef/water."
-          ]
+          ],
+          "bottomStripText": "Besides caring for the algal-reef ecosystem and not throwing rubbish into the sea, we can use the far-reaching power of the internet to share information with our friends and family, so more people learn that precious life here needs all of us to protect it together."
         },
         {
           "page": 25,
@@ -531,7 +555,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "Continuation of supplied passage; Chinese overlays foreground."
-          ]
+          ],
+          "bottomStripText": "We can also use mass media to receive the latest news and information, and to share accurate information about conservation."
         },
         {
           "page": 26,
@@ -550,7 +575,8 @@
           "translationStatus": "available",
           "reviewNotes": [
             "Chinese lies over lower crowd/foreground."
-          ]
+          ],
+          "bottomStripText": "We can also take part in rallies and marches, bravely stand up for the algal-reef ecosystem, and uphold justice."
         },
         {
           "page": 27,
@@ -569,7 +595,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "Split from supplied passage; ballot illustration leaves no safe large region."
-          ]
+          ],
+          "bottomStripText": "We can bring our efforts together by signing petitions against development of the Datan Algal Reef, including construction of a natural-gas receiving terminal, and by holding a referendum to put ecological conservation into practice."
         },
         {
           "page": 28,
@@ -612,7 +639,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "A short transition phrase can be placed in the blank white band immediately below the centered Chinese line; the previous smaller preview area was insufficient, so this zone uses the verified larger band."
-          ]
+          ],
+          "bottomStripText": "After months of hard work…"
         },
         {
           "page": 29,
@@ -631,7 +659,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "Page-specific translation from readable Chinese; text at top and artwork begins below."
-          ]
+          ],
+          "bottomStripText": "It was another sunny morning. As usual, Uncle Bird the Mail Carrier set out to deliver letters to every home. He dipped his head into the sea and handed Bobo the bottle containing the Datan Daily. The algal-reef residents were stunned to see this, afraid that it might be more bad news…"
         },
         {
           "page": 30,
@@ -650,7 +679,8 @@
           "translationStatus": "available",
           "reviewNotes": [
             "Chinese fills upper-left; animals and reef fill remaining scene."
-          ]
+          ],
+          "bottomStripText": "But their plan had worked—they had successfully protected their home! All the residents cheered, delighted that they would not have to move. Bobo happily leapt out of the water and shouted, “Algal Reef Rescue Team—mission accomplished!” Uncle Bird the Mail Carrier, Little Sister Hermit Crab, and Big Brother Crab smiled at Bobo, relieved at last. Tonight, they could finally sleep soundly."
         },
         {
           "page": 31,
@@ -669,7 +699,8 @@
           "translationStatus": "partial",
           "reviewNotes": [
             "Contributor/printer names are provisional Mandarin romanizations; confirm official spellings. Credits panel has no safe overlay."
-          ]
+          ],
+          "bottomStripText": "Taoyuan City 110th Annual Environmental Education Picture Book Creation Contest\n\nTitle: Algal Reef Defense\nIssuer: Cheng Wen-tsan\nIssuing organization: Taoyuan City Government\nPublisher: Department of Environmental Protection, Taoyuan City Government\nText and illustrations: Yun-hsuan Zhang\nPrinter: Dingze Technology Co., Ltd.\nISBN: 978-626-7020-82-1 (hardcover)\nPublication date: April 2022 (ROC Year 111)"
         },
         {
           "page": 32,
@@ -688,7 +719,8 @@
           "translationStatus": "already-in-artwork",
           "reviewNotes": [
             "Agency name is printed bilingually beside barcode; no duplicate overlay."
-          ]
+          ],
+          "bottomStripText": null
         }
       ]
     },
@@ -718,7 +750,8 @@
             "endPage": 1,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "Sea Guest Stone Weir. Text and illustrations by Xie Hanyun and Ke Lanting. Winner, Parent-Child Group, First Prize, Taoyuan City 110th Anniversary Environmental Education Picture Book Creation Contest."
         },
         {
           "page": 2,
@@ -731,7 +764,8 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "no-text"
+          "translationStatus": "no-text",
+          "bottomStripText": null
         },
         {
           "page": 3,
@@ -772,7 +806,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-          "reviewNote": "The English title is translated from the printed Chinese heading; the creator credit follows the supplied English source."
+          "reviewNote": "The English title is translated from the printed Chinese heading; the creator credit follows the supplied English source.",
+          "bottomStripText": "Sea Guest Stone Weir. Text and illustrations by Xie Hanyun and Ke Lanting."
         },
         {
           "page": 4,
@@ -785,7 +820,8 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "no-text"
+          "translationStatus": "no-text",
+          "bottomStripText": null
         },
         {
           "page": 5,
@@ -818,7 +854,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-          "blockedReason": "The translation is a two-page scope, and current file-to-reader mapping does not confirm a single-page text assignment. The proposed 7%-high band cannot contain the full passage in any case."
+          "blockedReason": "The translation is a two-page scope, and current file-to-reader mapping does not confirm a single-page text assignment. The proposed 7%-high band cannot contain the full passage in any case.",
+          "bottomStripText": "In the simple, beautiful Xinwu area lived many Hakka people whose families had made their living from the sea. Grandma wore a floral-print shirt and a headscarf, and went to the vegetable garden to pull up a bright-red carrot. Though busy, she was happy! Her granddaughter, little Lili, was glad to help her water the vegetables."
         },
         {
           "page": 6,
@@ -842,7 +879,8 @@
             "endPage": 6,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "Lili said, “Grandma! These cabbages have grown so big and green. They must be delicious!”"
         },
         {
           "page": 7,
@@ -859,7 +897,8 @@
             "endPage": 7,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“Lili, just like your dad, you really like cabbage. Grandma will stir-fry some for you tonight.” Grandma picked a fresh cabbage for her."
         },
         {
           "page": 8,
@@ -883,7 +922,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-          "reviewNote": "The complete passage fits in the broad, unoccupied pink band below the Chinese dialogue and above the figures; the earlier narrow-band overflow assessment did not account for the full blank interval."
+          "reviewNote": "The complete passage fits in the broad, unoccupied pink band below the Chinese dialogue and above the figures; the earlier narrow-band overflow assessment did not account for the full blank interval.",
+          "bottomStripText": "Lili suddenly frowned, and tears rolled down like pearls. “What’s wrong? Are you thinking of your dad and mom again?” Grandma put both arms around Lili and comforted her."
         },
         {
           "page": 9,
@@ -901,7 +941,8 @@
             "endPage": 9,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "Grandma packed the vegetable basket on her back. Holding a bamboo basket in one hand and her granddaughter’s hand in the other, she mysteriously said, “I’m taking you somewhere fun.” “Where?” Lili stopped crying and asked curiously."
         },
         {
           "page": 10,
@@ -914,7 +955,8 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "no-text"
+          "translationStatus": "no-text",
+          "bottomStripText": null
         },
         {
           "page": 11,
@@ -932,7 +974,8 @@
             "endPage": 11,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "Lili asked, “Isn’t this where you often come to fish?” “Yes! Xinwu, along Taiwan’s coast, has the most stone weirs in Taiwan. This stone weir was bought by your great-grandparents.” Grandma began telling her the story of their family’s stone weir."
         },
         {
           "page": 12,
@@ -950,7 +993,8 @@
             "endPage": 12,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“Why are so many stones piled up in the stone weir?” Lili asked in puzzlement. “These are goose-egg stones. The big stones enclose the small ones, and that is how they are stacked,” Grandma said, looking at the weir."
         },
         {
           "page": 13,
@@ -967,7 +1011,8 @@
             "endPage": 13,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“A stone weir is a way of catching fish by using the rise and fall of the tide. When the tide rises, seawater carries fish into the weir; when the tide ebbs, the waves strike the weir. The big stones do not move, but the small stones make a clattering sound as the waves hit them, frightening the fish so they do not dare escape.” Grandma explained the Hakka stone weir to Lili bit by bit. “Wow! What a clever method—it sounds really interesting!” Lili couldn’t help admiring the wisdom of the people before her."
         },
         {
           "page": 14,
@@ -985,7 +1030,8 @@
             "endPage": 14,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "After school, A-Hai walked briskly, humming as he hurried toward his family’s stone weir to see how the catch was."
         },
         {
           "page": 15,
@@ -1009,7 +1055,8 @@
             "endPage": 15,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "At the stone weir, fish crowded together, their strong fishy smell filling the air. A-Hai couldn’t help grinning and saying, “What a great catch!” He strode forward eagerly."
         },
         {
           "page": 16,
@@ -1026,7 +1073,8 @@
             "endPage": 16,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "When the seawater rises with the tide, schools of fish swim into the stone weir; when the tide ebbs, the fishermen get busy catching them."
         },
         {
           "page": 17,
@@ -1043,7 +1091,8 @@
             "endPage": 17,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“Mom, school is out, so I came to help!” “Good, you really know how to help!” Everyone worked in perfect rhythm, scooping up fish and loading them into bamboo baskets, net after net and basket after basket. Though they were so busy they could hardly stop, they were overjoyed, knowing they would have a good catch today."
         },
         {
           "page": 18,
@@ -1060,7 +1109,8 @@
             "endPage": 18,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“Summer is the peak season for the stone weir—we can catch several thousand jin of fish in a single day!” “Wow! That’s a lot! You can’t possibly sell it all, can you?” “We’ll keep some to eat, give some to relatives and neighbors, or dry some to make dried fish.”"
         },
         {
           "page": 19,
@@ -1077,7 +1127,8 @@
             "endPage": 19,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“About how many kinds of fish can you catch at one time?” “With one net, we can catch thirty-some kinds of fish.” “What about in winter?” “There are fewer fish in winter, but we can still catch mullet!” Grandma kept talking about life at the Hakka stone weir, and Lili listened with great interest."
         },
         {
           "page": 20,
@@ -1094,7 +1145,8 @@
             "endPage": 20,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "After A-Hai graduated from high school, he came to the stone weir as usual. Trash of every kind rose and fell with the seawater. A-Hai said helplessly, “The ocean is getting more and more polluted, there’s more and more trash, and we’re catching fewer and fewer fish!” A-Hai scooped up the trash; after all that effort, he managed to catch just two fish."
         },
         {
           "page": 21,
@@ -1107,7 +1159,8 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "no-text"
+          "translationStatus": "no-text",
+          "bottomStripText": null
         },
         {
           "page": 22,
@@ -1124,7 +1177,8 @@
             "endPage": 22,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“Your dad was very dutiful. In every season, whether sunny or rainy, as soon as school let out he would come to the stone weir to see whether he could help. Even when there was no catch, he would still bring fish home. Now the environment is badly polluted, there are very few fish, and the stone-weir fishing culture is gradually disappearing. We can no longer make a living from fishing, so your dad had to leave here and work in the city.”"
         },
         {
           "page": 23,
@@ -1141,7 +1195,8 @@
             "endPage": 23,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“That really is sad!” Lili said. “I often remember the days when I used to catch fish at the stone weir. Those busy times are truly unforgettable! Now I still come here every day to look at the weir and catch fish—at least I can pay my respects.”"
         },
         {
           "page": 24,
@@ -1158,7 +1213,8 @@
             "endPage": 24,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“Grandma, I’ll help pick up the trash too.” Lili felt sorry for the decline of the Hakka stone-weir fishing culture and helped Grandma pick up the rubbish floating in the water."
         },
         {
           "page": 25,
@@ -1171,7 +1227,8 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "no-text"
+          "translationStatus": "no-text",
+          "bottomStripText": null
         },
         {
           "page": 26,
@@ -1188,7 +1245,8 @@
             "endPage": 26,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“It’s getting late. Let’s go home! Besides the delicious cabbage for dinner, we can also have fresh, tasty fish!”"
         },
         {
           "page": 27,
@@ -1205,7 +1263,8 @@
             "endPage": 27,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“Grandma, your story is wonderful! Will you take me fishing again tomorrow?” Lili was fascinated by the Hakka stone-weir story, and Grandma smiled and nodded. “Who built the stone weir? How do you repair it if it breaks? About how old is this weir? How many stone weirs are there in Xinwu? How do you figure out the time of the daily tides?” Lili fired off question after question, seeming to forget for a moment how much she missed her dad and mom."
         },
         {
           "page": 28,
@@ -1222,7 +1281,8 @@
             "endPage": 28,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "Taoyuan City 110th Anniversary Environmental Education Picture Book Creation Contest. Book title: Sea Guest Stone Weir. Issuer: Cheng Wen-tsan. Issuing organization: Taoyuan City Government. Publisher: Department of Environmental Protection, Taoyuan City Government. Text and illustrations: Xie Hanyun and Ke Lanting. Printer: Dingze Technology Co., Ltd. ISBN 978-626-7020-76-0 (deluxe edition). Publication date: April 2022 (ROC Year 111)."
         },
         {
           "page": 29,
@@ -1235,7 +1295,8 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "no-text"
+          "translationStatus": "no-text",
+          "bottomStripText": null
         },
         {
           "page": 30,
@@ -1248,7 +1309,8 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "no-text"
+          "translationStatus": "no-text",
+          "bottomStripText": null
         },
         {
           "page": 31,
@@ -1261,7 +1323,8 @@
           "englishTranslation": null,
           "englishWordCount": null,
           "translationScope": null,
-          "translationStatus": "no-text"
+          "translationStatus": "no-text",
+          "bottomStripText": null
         },
         {
           "page": 32,
@@ -1279,7 +1342,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-          "blockedReason": "The translation spans pages 14–15; it cannot be assigned to this single page without a verified split. The proposed 7%-high band is too small for the full text."
+          "blockedReason": "The translation spans pages 14–15; it cannot be assigned to this single page without a verified split. The proposed 7%-high band is too small for the full text.",
+          "bottomStripText": "Xinwu is the place in Taiwan with the most stone weirs. They once flourished. Today, as ocean pollution grows more serious, the catch is shrinking… and the Hakka stone-weir fishing culture is gradually fading. Come listen to Grandma tell the story of Hakka stone-weir fishing culture!"
         }
       ]
     },
@@ -1302,7 +1366,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-          "blockedReason": "The cover title is translatable, but the existing cover art/title leaves no verified, non-obstructive placement zone."
+          "blockedReason": "The cover title is translatable, but the existing cover art/title leaves no verified, non-obstructive placement zone.",
+          "bottomStripText": "Algal Reef Castle"
         },
         {
           "page": 2,
@@ -1318,7 +1383,8 @@
             "endPage": 2,
             "granularity": "reader-pages"
           },
-        "translationStatus": "available"
+        "translationStatus": "available",
+          "bottomStripText": "Xiaoxing, have you heard that there is a mysterious thousand-year-old algal-reef castle by the seashore in Xinwu, Taoyuan? Would you like to explore it together? Ah Yong said excitedly."
         },
         {
           "page": 3,
@@ -1341,7 +1407,8 @@
             "endPage": 3,
             "granularity": "reader-pages"
           },
-        "translationStatus": "available"
+        "translationStatus": "available",
+          "bottomStripText": "“Great! Maybe there will be interesting things to learn and creatures waiting for us to discover!” Xiaoxing clapped in agreement."
         },
         {
           "page": 4,
@@ -1381,7 +1448,8 @@
             "endPage": 4,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "Is this the algal-reef castle? It looks a little different from what I imagined. Ah Yong said to Xiaoxing, puzzled. “Yes, yes!” Xiaoxing nodded."
         },
         {
           "page": 5,
@@ -1404,7 +1472,8 @@
             "endPage": 5,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“Welcome to the Guanyin–Xinwu Algal Reef! This is our biggest and most magnificent algal-reef castle, home to many beautiful creatures. Come, I’ll introduce you to the environment and everyone!” He waved enthusiastically."
         },
         {
           "page": 6,
@@ -1428,7 +1497,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-        "reviewNote": "The short greeting uses the broad quiet background beneath the dialogue; browser fit is rechecked after applying the actual font and padding."
+        "reviewNote": "The short greeting uses the broad quiet background beneath the dialogue; browser fit is rechecked after applying the actual font and padding.",
+          "bottomStripText": "“Hello, Little Clam, Little Qian, and Little Hua!” Xiaoxing and Ah Yong greeted them happily."
         },
         {
           "page": 7,
@@ -1452,7 +1522,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-        "reviewNote": "The translation is placed in the narrow clear band below the Chinese and above the characters; runtime fit is verified."
+        "reviewNote": "The translation is placed in the narrow clear band below the Chinese and above the characters; runtime fit is verified.",
+          "bottomStripText": "“Why do you all look so sick? Are you hurt? There was so much discarded fishing net, plastic bottles, and glass bottles along the way. What happened?” Ah Yong asked Xiaoxing and the others worriedly."
         },
         {
           "page": 8,
@@ -1476,7 +1547,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-        "reviewNote": "The translation uses the open right-side sky band; runtime fit is verified with the page-sized overlay."
+        "reviewNote": "The translation uses the open right-side sky band; runtime fit is verified with the page-sized overlay.",
+          "bottomStripText": "“We built this castle layer by layer over 7,600 years, and it was very sturdy. But ever since the steel monster appeared, the castle has begun to be destroyed.”"
         },
         {
           "page": 9,
@@ -1500,7 +1572,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-        "reviewNote": "The box is moved to the right-side sky to avoid the crab and weir; verify full text fit at reader size."
+        "reviewNote": "The box is moved to the right-side sky to avoid the crab and weir; verify full text fit at reader size.",
+          "bottomStripText": "“There is so much human-made trash in the sea. It has damaged our environment. Look at my foot—it was pierced by glass!” Little Crab said angrily."
         },
         {
           "page": 10,
@@ -1513,7 +1586,8 @@
           "englishWordCount": null,
           "translationScope": null,
           "translationStatus": "no-text",
-          "blockedReason": "Full-page illustration with no visible Chinese narration or caption to translate."
+          "blockedReason": "Full-page illustration with no visible Chinese narration or caption to translate.",
+          "bottomStripText": null
         },
         {
           "page": 11,
@@ -1553,7 +1627,8 @@
             "endPage": 11,
             "granularity": "reader-pages"
           },
-          "translationStatus": "available"
+          "translationStatus": "available",
+          "bottomStripText": "“The seawater used to be so clean, and I was beautiful and lovable! But after wastewater from factories flowed into the sea, I became a green oyster.” Little Clam shook its head helplessly."
         },
         {
           "page": 12,
@@ -1570,7 +1645,8 @@
             "granularity": "reader-pages"
           },
         "translationStatus": "available",
-        "reviewNote": "The short, full-width top sky band is used for the translation; runtime line wrapping is verified at the minimum desktop font."
+        "reviewNote": "The short, full-width top sky band is used for the translation; runtime line wrapping is verified at the minimum desktop font.",
+          "bottomStripText": "“One day, I came out of my hole for a walk by the sea. I suddenly saw a plastic bottle and happily thought it was our new home, so I crawled inside. Who knew it would be so easy to get in and so hard to get out? My long mouth got stuck and was hurt.” Little Qian touched the injured mouth."
         },
         {
           "page": 13,
@@ -1594,7 +1670,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-          "blockedReason": "The right-side Chinese block extends to the lower edge and overlaps the illustrated reef area; no safe aligned placement is available."
+          "blockedReason": "The right-side Chinese block extends to the lower edge and overlaps the illustrated reef area; no safe aligned placement is available.",
+          "bottomStripText": "“While I was looking for lunch, a fishing net suddenly fell from the sky and tangled me up. I panicked and used all my strength to break free. The net was terrifying, and my beautiful tail was hurt too.” Little Hua looked at its injured tail."
         },
         {
           "page": 14,
@@ -1611,7 +1688,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "partial",
-          "blockedReason": "The final clause is clipped at the right edge; its meaning is supplied from the continuation on page 15."
+          "blockedReason": "The final clause is clipped at the right edge; its meaning is supplied from the continuation on page 15.",
+          "bottomStripText": "This place used to be so lively, and everyone was happy. The reef used to be clean and beautiful, with many living creatures living there happily. But now their home has been badly damaged, and the seawater is becoming more and more polluted. It’s getting harder to live here. “We’re really unhappy,” the little fish and shrimp said."
         },
         {
           "page": 15,
@@ -1628,7 +1706,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "partial",
-          "blockedReason": "The page begins mid-sentence; its opening is supplied from the preceding page. The crowded illustration leaves no safe nearby placement zone."
+          "blockedReason": "The page begins mid-sentence; its opening is supplied from the preceding page. The crowded illustration leaves no safe nearby placement zone.",
+          "bottomStripText": "The reef used to be clean and beautiful, with many living creatures living there happily. But now their home has been badly damaged, and the seawater is becoming more and more polluted. “It’s getting harder to live here,” sighed the little fish. “We really wish we could go back to the beautiful reef of the past!” The little fish and shrimp made a wish."
         },
         {
           "page": 16,
@@ -1645,7 +1724,8 @@
             "granularity": "reader-pages"
           },
         "translationStatus": "available",
-        "reviewNote": "The translated team name is in the adjacent open sky rather than over the flag lettering; runtime fit is verified."
+        "reviewNote": "The translated team name is in the adjacent open sky rather than over the flag lettering; runtime fit is verified.",
+          "bottomStripText": "Algal Reef Patrol Team"
         },
         {
           "page": 17,
@@ -1669,7 +1749,8 @@
             "granularity": "reader-pages"
           },
         "translationStatus": "available",
-        "reviewNote": "The English uses the upper-right sky only; it may cover decorative clouds/birds, so this is a lower-confidence compromise to keep the text off the Chinese and cleanup figures."
+        "reviewNote": "The English uses the upper-right sky only; it may cover decorative clouds/birds, so this is a lower-confidence compromise to keep the text off the Chinese and cleanup figures.",
+          "bottomStripText": "“Don’t be afraid. Let us help you!” Ah Yong told Xiaoxing. “Residents of Yong’an, your beautiful algal reef has suffered great damage. We need your help to protect it!” Ah Yong picked up a loudspeaker and called to the residents: “Let’s collect the fishing nets, plastic bottles, glass bottles, and other rubbish from the algal reef and sort it properly!” The residents replied, “We’ll form the Algal Reef Patrol Team and work together to protect the reef from further damage.”"
         },
         {
           "page": 18,
@@ -1686,7 +1767,8 @@
             "granularity": "reader-pages"
           },
         "translationStatus": "available",
-        "reviewNote": "The English is split into two page-local passages in the open left field; verify both boxes remain legible over the low-detail background."
+        "reviewNote": "The English is split into two page-local passages in the open left field; verify both boxes remain legible over the low-detail background.",
+          "bottomStripText": "“To prevent wastewater from polluting the algal reef, the Taoyuan Environmental Protection Bureau has also established a water-quality monitoring station to protect the reef’s marine life from pollution-related illness.” The residents of Yong’an said. “Little Bobo, Little Clam, Little Shrimp, Little Qian, and Little Hua, we all want to say: Ah Yong and Xiaoxing, thank you!” Ah Yong and Xiaoxing replied, “Hehehe, it was nothing!”"
         },
         {
           "page": 19,
@@ -1699,7 +1781,8 @@
           "englishWordCount": null,
           "translationScope": null,
           "translationStatus": "no-text",
-          "blockedReason": "Full-page illustration with no visible Chinese narration or caption to translate."
+          "blockedReason": "Full-page illustration with no visible Chinese narration or caption to translate.",
+          "bottomStripText": "Algal Reef Patrol Team"
         },
         {
           "page": 20,
@@ -1716,7 +1799,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-          "blockedReason": "The two Chinese profile speech bubbles and their labels occupy the page; adding separate English boxes would overlap the source text or character artwork."
+          "blockedReason": "The two Chinese profile speech bubbles and their labels occupy the page; adding separate English boxes would overlap the source text or character artwork.",
+          "bottomStripText": "Knowledge Corner: Introducing Special Species\n\nLittle Red Crab: Hello, everyone! I’m Little Red Crab. Although my name sounds cute, my scientific name is the handsome-sounding Ferocious Crab. I have a deep red and black body and bright red eyes, with one large claw and one small claw. I am one of the most numerous creatures in the algal reef, so I have lots of brothers and sisters. We mainly live in crevices among rocks near the shore. I’m an omnivore, and I love algae and little shrimp and crabs.\n\nLittle Rock Oyster: Hello, everyone! I’m the lovely rock oyster. My scientific name is the rock oyster. I have a gray-black shell. We live on rocks in shallow water near the coast. Since our homes differ, each of us has a different shape. We usually eat algae and tiny plankton. Eating algae helps us grow beautiful!"
         },
         {
           "page": 21,
@@ -1733,7 +1817,8 @@
             "granularity": "reader-pages"
           },
           "translationStatus": "available",
-          "blockedReason": "The two Chinese profile speech bubbles and their labels occupy the page; adding separate English boxes would overlap the source text or character artwork."
+          "blockedReason": "The two Chinese profile speech bubbles and their labels occupy the page; adding separate English boxes would overlap the source text or character artwork.",
+          "bottomStripText": "Little Flower Striped Fish: Hello, I’m Little Flower, a huashen chickenfish. Isn’t my species name unusual? It’s because I make a clucking sound like a chicken! My body is oval, with three curved black stripes along each side. I mainly live where algal reefs meet rivers and the sea. I like eating small fish, shrimp, and some algae.\n\nLittle Qian the Eel: Hehehe, it’s my turn at last! My species is called a moray eel. My body is long and round like a snake, with a flat fish-like tail, a mouth like a hook, and a row of sharp teeth. My body is white and gray with many round black spots, and the spots grow larger as I grow. I usually live in relatively shallow algal reefs and crevices. My favorite foods are small fish and some algae. Everyone, eat until you’re full so you can be as handsome and strong as I am!"
         }
       ]
     },
@@ -2987,6 +3072,389 @@
           "englishWordCount": 12,
           "translationScope": {"startPage":50,"endPage":50,"granularity":"page"},
           "translationStatus": "available"
+        }
+      ]
+    },
+    "nautilus": {
+      "pageCount": 23,
+      "sourceManifest": "book_nautilus_zh-TW.json",
+      "pages": [
+        {
+          "page": 1,
+          "image": "pages_nautilus_tw/page_001.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "The Heartbeat of Stone: The Chambered Nautilus"
+        },
+        {
+          "page": 2,
+          "image": "pages_nautilus_tw/page_002.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "Hey! Do you know what I am?\n\nI am the chambered nautilus.\nI am not a fossil!\nI am not a fossil!\nI am not a fossil!\n\nI have already been living on Earth for a very, very long time."
+        },
+        {
+          "page": 3,
+          "image": "pages_nautilus_tw/page_003.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "I appeared in the oceans about 400 to 500 million years ago—long before most dinosaurs, and even before the earliest dinosaurs appeared on Earth!\n\nLet’s take a closer look. How am I different from them?\n\nI am an ancient mollusk, and there’s no other one quite like me!"
+        },
+        {
+          "page": 4,
+          "image": "pages_nautilus_tw/page_004.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "The earliest written record of my name appears in a poem by the Southern Song poet Yang Wanli: “I’ll go into the sea to find a nautilus shell and bring it back to make a cup!”\n\nLater, the Tang poet Li Shangyin wrote:\n\n“A parrot-shell cup: thirty-six thousand days in a hundred years;\nthree hundred cups must be drunk each day!”\n\nWhat an extravagant image!"
+        },
+        {
+          "page": 5,
+          "image": "pages_nautilus_tw/page_005.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "The name “nautilus” may sound unfamiliar. In ancient Greece, people called a sailboat a nautilus. The shell of a nautilus looks a little like a boat with a sail.\n\nYou may be wondering: what do sailboats and nautiluses have in common?\n\nLet me explain…"
+        },
+        {
+          "page": 6,
+          "image": "pages_nautilus_tw/page_006.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "I’m the only living cephalopod with an external shell. Most of us live in the deep waters of the Indian and western Pacific Oceans, where the water is about 19–20°C.\n\nWe grow slowly. If nothing unusual happens, we may live for as long as 20 years!\n\nAmong cephalopods, I’m one of the longest-lived."
+        },
+        {
+          "page": 7,
+          "image": "pages_nautilus_tw/page_007.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "Although I look like an octopus or a squid, I’m actually very different from them."
+        },
+        {
+          "page": 8,
+          "image": "pages_nautilus_tw/page_008.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "First, an octopus has eight arms, while a squid has ten.\n\nI have about ninety tentacles.\n\nThey have suckers on them."
+        },
+        {
+          "page": 9,
+          "image": "pages_nautilus_tw/page_009.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "I have about sixty to ninety tentacles. They have no suckers, but they do have mucus.\n\nThe outer tentacles are used for grasping. There are nineteen pairs; around the mouth, males have twelve pairs and females have twenty-four to twenty-six pairs."
+        },
+        {
+          "page": 10,
+          "image": "pages_nautilus_tw/page_010.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "Also, my eyes are very simple compared with an octopus’s or squid’s. I have only one pair of simple eyes, with poor vision. I mainly use smell and touch to sense the world around me."
+        },
+        {
+          "page": 11,
+          "image": "pages_nautilus_tw/page_011.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "Finally, because octopuses and squids have no shell, they can move at great speed when escaping an enemy.\n\nBut I have a hard shell that can grow to 22 centimeters across, so I move very, very slowly."
+        },
+        {
+          "page": 12,
+          "image": "pages_nautilus_tw/page_012.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "I’m a favorite food of sharks and other large fish."
+        },
+        {
+          "page": 13,
+          "image": "pages_nautilus_tw/page_013.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "To protect myself, I can only live in deep water—about 50–300 meters below the surface—and rise slowly toward the shallows at dusk or dawn.\n\nI mainly eat small crustaceans, tiny fish, and shellfish found on the seafloor, as well as bits of dead marine animals.\n\nThere are many predators in the ocean."
+        },
+        {
+          "page": 14,
+          "image": "pages_nautilus_tw/page_014.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "Why can I float up and down in the sea?\n\nThat’s because the inside of my shell is divided into chambers of different sizes, arranged from large to small. The largest chamber is on the outside, and it is where my body lives. The other smaller chambers contain gas.\n\nWhen fluid flows into my chambers, my body becomes heavier, so I sink.\n\nWhen fluid flows back out, the chambers fill with gas, making my body lighter, so I can float back up.\n\nDiagram labels: Siphuncle; chambers (partitions)."
+        },
+        {
+          "page": 15,
+          "image": "pages_nautilus_tw/page_015.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "You may be wondering: how can I float up and down in the water?\n\nThe outer part of my shell has chambers arranged from large to small. The largest chamber is at the outside, and I can live in it. The other small chambers are filled with gas.\n\nWhen the gas in my chambers decreases, my body becomes heavier, and I sink.\n\nWhen the gas increases, my body becomes lighter, and I rise.\n\nWhen my body becomes heavier, I can sink.\n\nWhen my body becomes lighter, I can rise."
+        },
+        {
+          "page": 16,
+          "image": "pages_nautilus_tw/page_016.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "When the oxygen level in the water is low, I can stay still for a while to conserve energy.\n\nSo when an enemy attacks, I can quickly retreat into my shell to protect myself.\n\nMy main predators are large fish. Since I live in deep water, they can’t easily find me!"
+        },
+        {
+          "page": 17,
+          "image": "pages_nautilus_tw/page_017.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "A chambered nautilus lays eggs only once a year.\n\nIt takes about a year for the eggs to hatch, usually in a crevice among coral reefs or on a rock.\n\nIt takes around twelve months for me to mature—longer than it does for humans."
+        },
+        {
+          "page": 18,
+          "image": "pages_nautilus_tw/page_018.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "I believe many people have seen me at public aquariums.\n\nWe often swim around and around, as if dancing for everyone.\n\nSome people even want to raise us as pets.\n\nDid you know? There have been successful cases of breeding chambered nautiluses in captivity, but no effective method has yet been found to increase their population through breeding."
+        },
+        {
+          "page": 19,
+          "image": "pages_nautilus_tw/page_019.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "Please imagine this: if people keep catching and selling chambered nautiluses, what will happen if we keep being caught and sold?\n\nNo more!\n\nWe should protect the chambered nautilus and other precious marine animals, and safeguard their habitats!"
+        },
+        {
+          "page": 20,
+          "image": "pages_nautilus_tw/page_020.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "Therefore, I hope you’ll help spread the word about protecting the chambered nautilus!"
+        },
+        {
+          "page": 21,
+          "image": "pages_nautilus_tw/page_021.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "Now that you’ve read about me, it’s quiz time!\n\nCan you tell whether this picture shows a chambered nautilus?"
+        },
+        {
+          "page": 22,
+          "image": "pages_nautilus_tw/page_022.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "Oops! I forgot to tell you: the chambered nautilus has many different colors. Its color helps it camouflage itself from predators, so I deliberately changed colors.\n\nIn real life, my colors should be reddish brown and white."
+        },
+        {
+          "page": 23,
+          "image": "pages_nautilus_tw/page_023.webp",
+          "width": 1134,
+          "height": 1600,
+          "bottomStripText": "Have you heard of the SDGs?\n\nIn 2015, the United Nations adopted 17 Sustainable Development Goals (SDGs).\n\nGoal 14 is “Life Below Water.” It aims to conserve and sustainably use the oceans, seas, and marine resources.\n\nMarine conservation needs everyone’s support. Protecting marine life and ecosystems, and learning about marine ecology and laws, are goals you can help achieve!\n\nThe ocean is home to countless living things. Let’s work together to protect it, so marine resources can be used sustainably.\n\nPlease do your part as a responsible global citizen and protect our ocean and our planet.\n\nAll rights reserved. Reproduction is prohibited without permission."
+        }
+      ]
+    },
+    "chequbei": {
+      "pageCount": 30,
+      "sourceManifest": "book_chequbei_zh-TW.json",
+      "pages": [
+        {
+          "page": 1,
+          "image": "pages_chequbei_tw/page_001.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Protecting the Sea Rose — The Giant Clam\n\nCreated by Lin Kui-Ting"
+        },
+        {
+          "page": 2,
+          "image": "pages_chequbei_tw/page_002.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "To encourage students at all school levels to combine marine-science outreach with art and literature, this marine-science picture-book contest was held to inspire creativity. The works were judged primarily on the ideas they conveyed. Although the winning entries were reviewed by expert scholars to correct their scientific content, scientific information changes over time, and some details may differ slightly from current understanding. Readers and educators are encouraged to consult further sources to ensure that the science they share is accurate.\n\nThird Marine Science Picture-Book Creation Contest — Award-Winning Work"
+        },
+        {
+          "page": 3,
+          "image": "pages_chequbei_tw/page_003.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": null
+        },
+        {
+          "page": 4,
+          "image": "pages_chequbei_tw/page_004.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "At Hualien Harbor, on Taiwan’s east coast, the coastal plain is narrow. Along the shore are rich coral-reef communities and tropical fish, while the intertidal zone is home to many kinds of seaweeds, fish, shrimp, shellfish, and other marine life…\n\nMarine Tips\n1. Green sea-turtle shells are usually coffee-brown, reddish-brown, or olive, though colors vary by species and individual.\n2. The number of a jellyfish’s tentacles varies by species."
+        },
+        {
+          "page": 5,
+          "image": "pages_chequbei_tw/page_005.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "The intertidal zone is home to many kinds of seaweeds, fish, shrimp, shellfish, and other marine life. Among them is a group of clams known as the “roses of the sea.”"
+        },
+        {
+          "page": 6,
+          "image": "pages_chequbei_tw/page_006.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "At Hualien Harbor, on Taiwan’s east coast, the coastal plain is narrow. Along the shore are rich coral-reef communities and tropical fish, while the intertidal zone is home to many kinds of seaweeds, fish, shrimp, shellfish, and other marine life…"
+        },
+        {
+          "page": 7,
+          "image": "pages_chequbei_tw/page_007.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Since the east coast began to be developed, visitor numbers have risen year by year, leading to the removal of many giant clams from the local reefs. In the past, members of the local Amis community also harvested giant clams for food."
+        },
+        {
+          "page": 8,
+          "image": "pages_chequbei_tw/page_008.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "People make giant-clam shells into necklaces and other ornaments, or sell the clams to aquariums for display.\n\nPeople also remove and eat the adductor muscle (the clam meat) and the mantle (the mantle tissue)."
+        },
+        {
+          "page": 9,
+          "image": "pages_chequbei_tw/page_009.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Marine debris not only destroys the habitats of marine life; it can also cause animals to mistake trash for food and eat it."
+        },
+        {
+          "page": 10,
+          "image": "pages_chequbei_tw/page_010.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Environmental pollution is another reason giant clams are disappearing. Global warming raises seawater temperatures, putting marine life at risk."
+        },
+        {
+          "page": 11,
+          "image": "pages_chequbei_tw/page_011.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "One day, while diving, a local Amis man named Ajie suddenly discovered traces of giant clams. He remembered how his elders had often told him about the abundance, beauty, and importance of giant clams in the sea when he was young."
+        },
+        {
+          "page": 12,
+          "image": "pages_chequbei_tw/page_012.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Today, giant clams are becoming fewer and fewer. Some are even poached or traded, and piles of trash have taken over their home."
+        },
+        {
+          "page": 13,
+          "image": "pages_chequbei_tw/page_013.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Before we learn how local people began their conservation program, let’s first get to know these “roses of the sea”—giant clams.\n\nGiant clams (chē qú bèi in Chinese) are commonly called giant clams and, in Taiwan, “five-claw clams.” They live in the warm coral-reef waters of the Indian and Pacific Oceans. There are twelve giant-clam species worldwide. In Taiwan they are found in Penghu and along the east coast; seven species occur here: bear-paw (horse’s-hoof) clam, fluted or scaly giant clam, crocus or boring clam, small giant clam, giant clam, smooth or southern giant clam, and Noah’s giant clam.\n\nThey are bivalves that live in shallow coral-reef areas. Their elongated oval shells look much like those of ordinary clams. The shell is grayish white or ocher; the largest can exceed one meter and weigh about 500 kilograms, while even the smallest species reaches about 14 centimeters. Their wavy shells and vividly patterned, colorful mantles resemble beautiful petals, which is why they are called the “roses of the sea.”\n\nShell: Two valves, with an adductor muscle between them that controls opening and closing.\nFoot: Extends to attach the clam to rock or coral.\n\nMarine Tip: Scientific information changes over time; readers can consult related sources to learn more."
+        },
+        {
+          "page": 14,
+          "image": "pages_chequbei_tw/page_014.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Symbiotic algae: zooxanthellae.\n\nEyespots: Detect light along the edge of the mantle.\n\nMantle: The colorful, patterned tissue between the two shells is where zooxanthellae live and photosynthesize.\n\nCan you spot these seven kinds of giant clams in the wild?\n\nIn the past twenty years, Noah’s giant clams and small giant clams have been the most common and numerous. Only empty shells of the giant clam have been found on the seabed off Dongsha Atoll, and the smooth giant clam has not been seen. So only five kinds of giant clams are now found alive in the wild. Their average density there is very low—about fifteen per square kilometer. Restoration through captive breeding began in 2004, with groups also taking part in the work.\n\nIn diverse ecosystems, giant clams and corals are both animals that host symbiotic algae in their bodies. The algae provide nutrients through photosynthesis, enabling clams and corals to continue growing. Their shells and skeletons also add many suitable places for organisms to attach. This mutually beneficial relationship plays a direct and important role in stabilizing coral-reef ecosystems and indirectly supports many human uses as well.\n\nMarine Tip: Scientific information changes over time; readers are encouraged to consult further sources."
+        },
+        {
+          "page": 15,
+          "image": "pages_chequbei_tw/page_015.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Why do giant clams come in so many colors?\n\nTheir vivid colors have the same cause as coral: symbiotic zooxanthellae live inside them. Besides corals, sea anemones, radiolarians, flatworms, jellyfish, and giant clams also form partnerships with symbiotic algae. The clam provides a safe home for the algae; in return, photosynthesis produces sugars and other nutrients that supply about 90% of what the clam needs to grow, live, and reproduce. The remaining roughly 10% comes from filter-feeding. Most of a giant clam’s nourishment comes from the photosynthetic algae living with it, making it a mollusk that may not survive without sunlight.\n\nWhat are symbiotic algae?\n\nUntil 2004, it was difficult to classify these algae by appearance alone. Advances in molecular biology allowed scientists to identify many groups. Scientists once thought each host had a single, highly specialized algal partner. We now know that one giant clam can contain several groups at once: usually one is dominant while the others are less common. The mix also varies with clam species, habitat, region, and stage of growth.\n\nMarine Tip: Scientific information changes over time; readers are encouraged to consult further sources."
+        },
+        {
+          "page": 16,
+          "image": "pages_chequbei_tw/page_016.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "How do giant clams raise the next generation?\n\nGiant clams are hermaphrodites. During the breeding season they release sperm first and eggs afterward. About 10–12 hours after fertilization, the eggs develop and hatch into free-swimming larvae. After about 30–40 hours, the larvae develop shells and begin filter-feeding. After roughly 6–12 days, they become juvenile clams with a foot. As they grow, juveniles swim intermittently and gradually settle near the bottom, eventually becoming young clams.\n\nGiant clams grow very slowly at first; their growth rate increases after about a year, then slows again as they approach maturity. They reach about 21 cm after roughly three to four years.\n\nWorking together to protect giant clams\n\nYou may have heard that warmer seawater causes coral bleaching. Excessively warm water disrupts the symbiosis between zooxanthellae and coral. When the algae leave or die, the coral loses its bright colors. The same can happen to giant clams: without zooxanthellae they become bleached, with only their white shells remaining. If the algae do not return soon, prolonged bleaching can ultimately kill the clam.\n\nOther threats include human poaching. Giant-clam shells and pearls are prized for their beauty, putting clams at risk of overharvesting and theft.\n\nMarine Tip: Scientific information changes over time; readers are encouraged to consult further sources."
+        },
+        {
+          "page": 17,
+          "image": "pages_chequbei_tw/page_017.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "When Ajie returned home, he began thinking about how to protect this beautiful sea before it grew even more degraded. He gathered friends and people from the community to discuss ways to protect the ocean together."
+        },
+        {
+          "page": 18,
+          "image": "pages_chequbei_tw/page_018.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Giant Clam Conservation Plan\n1. Form a patrol team.\n2. Prohibit harvesting.\n3. Hold beach- and ocean-cleanup activities.\n\nThe community held an information session so local people could understand the plan and take part in conservation activities. Through summer-camp activities, children got to know giant clams firsthand. Experts were also invited to explain the subject and foster a vision of a sustainable ocean."
+        },
+        {
+          "page": 19,
+          "image": "pages_chequbei_tw/page_019.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Ajie also invited local residents to form a marine patrol team. Their first task was to clean up the giant clams’ home."
+        },
+        {
+          "page": 20,
+          "image": "pages_chequbei_tw/page_020.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "They organized beach-cleanup activities and put up signs. This brought local residents together to take part and helped visitors learn about the project."
+        },
+        {
+          "page": 21,
+          "image": "pages_chequbei_tw/page_021.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Another important task for the marine patrol team is to use photographs and video to count the giant clams in this sea area, map their locations, and monitor them."
+        },
+        {
+          "page": 22,
+          "image": "pages_chequbei_tw/page_022.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "After more than five months and over forty monitoring surveys, the team found 103 giant clams and created a record of them. Four species were found in this area: Noah’s giant clam, the small giant clam, the crocus clam, and the fluted giant clam."
+        },
+        {
+          "page": 23,
+          "image": "pages_chequbei_tw/page_023.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Noah’s Giant Clam\nThe mantle has a blue, green, or brown base color with droplet-shaped markings; the eyespots along the edge are sparse. The shell has five to seven radiating folds, with scales on the folds and large byssal openings.\n\nCrocus Clam\nThe mantle has a blue, green, or brown base color with spots or patches, and the eyespots along the edge are dense. The mantle has one dark or light ring pattern. The shell’s radiating folds bear scales, and the byssal openings are elongated ovals."
+        },
+        {
+          "page": 24,
+          "image": "pages_chequbei_tw/page_024.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Fluted Giant Clam\nThe mantle has a blue, green, or brown base color with patch-like markings, and the eyespots along the edge are sparse. The shell has four to five radiating folds with well-developed scales, and the byssal openings are conspicuous.\n\nSmall Giant Clam\nThe mantle has a blue, green, or brown base color with spots or patches, and the eyespots along the edge are dense. The shell has four to six radiating folds with scales, and the byssal openings are large."
+        },
+        {
+          "page": 25,
+          "image": "pages_chequbei_tw/page_025.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Along the shore, signs were put up and patrols conducted regularly. If visitors or residents were found harvesting giant clams, the team patiently explained the rules and encouraged them to join the conservation effort. Challenges remained: some community members did not understand the need for protection, and poachers still slipped in."
+        },
+        {
+          "page": 26,
+          "image": "pages_chequbei_tw/page_026.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "When everyone was feeling discouraged, a fierce storm suddenly struck. Some giant clams were poached, and many other marine creatures were also threatened. This made the community feel more deeply the vulnerability of nature and the importance of caring for it. More people then joined the marine patrol team voluntarily, helping keep watch over the giant clams and marine life."
+        },
+        {
+          "page": 27,
+          "image": "pages_chequbei_tw/page_027.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Through everyone’s continued efforts, giant clams were no longer being poached. Baby giant clams gradually began to appear, and their numbers slowly increased…"
+        },
+        {
+          "page": 28,
+          "image": "pages_chequbei_tw/page_028.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "With everyone’s ongoing care and restoration work, the marine environment became cleaner, and marine life and coral reefs became healthier too."
+        },
+        {
+          "page": 29,
+          "image": "pages_chequbei_tw/page_029.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Protect Giant Clams\nGiant Clams Live Here — Protect Them\nLocal Giant-Clam Conservation Plan for the Shitiping Sea Area\n\nYour small contribution can bring great rewards for giant clams and this marine area. Let’s join hands and become “citizen scientists” together!"
+        },
+        {
+          "page": 30,
+          "image": "pages_chequbei_tw/page_030.webp",
+          "width": 2339,
+          "height": 1654,
+          "bottomStripText": "Since the end of 2022, community members have worked together to protect the clams and keep watch over them. Though they faced many challenges, they did not lose heart. Each trial made them more determined, so that the giant clams in this East Coast harbor community can live safely and sustainably."
         }
       ]
     }

@@ -187,7 +187,7 @@
             z-index: 450;
             left: 50%;
             bottom: var(--strip-preview-bottom, 56px);
-            transform: translateX(-50%);
+            transform: translateX(-50%) scale(var(--strip-preview-scale, 1));
             width: min(90vw, 1224px);
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -271,8 +271,13 @@
         .page-english-strip::-webkit-scrollbar-thumb { background: rgba(255,250,243,.28); border-radius: 8px; }
         body:not(.strip-preview) .page-english-strips { display: none; }
         body.strip-preview:not(.page-english-open) .page-english-strips { display: none; }
-        body.strip-preview #hint { display: none; }
+        body.strip-page-open #hint { display: none; }
+        body.strip-page-open .page-english-box { display: none !important; }
         body.strip-preview .page-english-box { display: none !important; }
+        body.strip-preview.strip-page-open .page-english-strips {
+            top: var(--strip-preview-strip-top, auto);
+            bottom: auto;
+        }
         @media (max-width: 640px) {
             .page-english-box { padding: 8px; font-size: clamp(11px, 3.2vw, 16px); }
             body.strip-preview {
@@ -280,9 +285,7 @@
                 --strip-preview-gap: 12px;
             }
             body.strip-preview #controls { bottom: 20px; }
-            body.strip-preview.page-english-open .page-english-strips {
-                top: var(--strip-preview-strip-top, auto);
-                bottom: auto;
+            body.strip-preview.strip-page-open .page-english-strips {
                 transform: translateX(-50%) scale(var(--strip-preview-scale, 1));
             }
             .page-english-strips { width: 96vw; gap: 6px; }
@@ -527,8 +530,8 @@
     // A language in the link is an intentional choice; otherwise restore the last choice.
     const lang = params.get('lang') || savedLanguage || 'zh-TW';
     try { localStorage.setItem(LANGUAGE_PREFERENCE_KEY, lang); } catch (_) { /* Storage may be unavailable in private mode. */ }
-    const stripPreview = bookKey === 'penghu_shihu' && params.get('stripSample') === '1';
-    document.body.classList.toggle('strip-preview', stripPreview);
+    let hasPageEnglishStrips = false;
+    document.body.classList.toggle('strip-preview', hasPageEnglishStrips);
 
     const i18n = {
         'zh-TW': {
@@ -578,6 +581,8 @@
         if (response.ok) {
             const placementData = await response.json();
             placementPages = placementData.books?.[bookKey]?.pages || [];
+            hasPageEnglishStrips = placementPages.some((page) => typeof page.bottomStripText === 'string' && page.bottomStripText.trim());
+            document.body.classList.toggle('strip-preview', hasPageEnglishStrips);
             const placementEntries = placementPages
                 .filter((page) => page.englishTranslation && page.translationScope?.granularity === 'reader-pages')
                 .map((page) => ({
@@ -658,7 +663,7 @@
     }
 
     function renderPageEnglishStrips() {
-        if (!stripPreview) return;
+        if (!hasPageEnglishStrips) return;
         const strips = document.createElement('div');
         strips.id = 'page-english-strips';
         strips.className = 'page-english-strips';
@@ -668,13 +673,14 @@
 
     let stripCueObserver = null;
     function updatePageEnglishStrips() {
-        if (!stripPreview) return;
+        if (!hasPageEnglishStrips) return;
         const strips = document.getElementById('page-english-strips');
         if (!strips) return;
         stripCueObserver?.disconnect();
         stripCueObserver = null;
         strips.replaceChildren();
         if (!englishOpen) {
+            document.body.classList.remove('strip-page-open');
             const previousHeight = Number.parseFloat(getComputedStyle(document.body).getPropertyValue('--strip-preview-height')) || 0;
             document.body.style.setProperty('--strip-preview-height', '0px');
             document.body.style.removeProperty('--strip-preview-scene-top');
@@ -686,13 +692,26 @@
             return;
         }
         const [firstPage, lastPage] = visiblePrintedPages();
-        for (const pageNumber of new Set([firstPage, lastPage])) {
-            const maxStripPage = bookKey === 'penghu_shihu' ? 50 : 43;
-            if (pageNumber < 4 || pageNumber > maxStripPage) continue;
+        const hasVisibleStrip = [firstPage, lastPage].some((pageNumber) => {
             const page = placementPages.find((item) => item.page === pageNumber);
-            const pageText = page && Object.prototype.hasOwnProperty.call(page, 'bottomStripText')
-                ? (typeof page.bottomStripText === 'string' ? page.bottomStripText.trim() : '')
-                : (page?.zones || []).map((zone) => zone.englishText?.trim()).filter(Boolean).join('\n\n');
+            return typeof page?.bottomStripText === 'string' && page.bottomStripText.trim();
+        });
+        document.body.classList.toggle('strip-page-open', hasVisibleStrip);
+        if (!hasVisibleStrip || !englishOpen) {
+            const previousHeight = Number.parseFloat(getComputedStyle(document.body).getPropertyValue('--strip-preview-height')) || 0;
+            document.body.style.setProperty('--strip-preview-height', '0px');
+            document.body.style.removeProperty('--strip-preview-scene-top');
+            document.body.style.removeProperty('--strip-preview-scene-bottom');
+            document.body.style.removeProperty('--strip-preview-strip-top');
+            document.body.style.removeProperty('--strip-preview-page-height');
+            document.body.style.setProperty('--strip-preview-scale', '1');
+            if (previousHeight > 1) requestAnimationFrame(rebuildBookForAvailableSpace);
+            return;
+        }
+        for (const pageNumber of new Set([firstPage, lastPage])) {
+            if (pageNumber < 1) continue;
+            const page = placementPages.find((item) => item.page === pageNumber);
+            const pageText = typeof page?.bottomStripText === 'string' ? page.bottomStripText.trim() : '';
             if (!pageText) continue;
             const strip = document.createElement('div');
             strip.className = 'page-english-strip';
@@ -726,7 +745,7 @@
             strips.querySelectorAll('.page-english-strip').forEach((strip) => stripCueObserver.observe(strip));
         }
         setTimeout(syncStripScrollCues, 140);
-        requestAnimationFrame(() => {
+        {
             const previousHeight = Number.parseFloat(getComputedStyle(document.body).getPropertyValue('--strip-preview-height')) || 0;
             strips.querySelectorAll('.page-english-strip').forEach((strip) => {
                 strip.classList.toggle('is-scrollable', strip.scrollHeight > strip.clientHeight + 1);
@@ -737,14 +756,48 @@
                 mobileLayoutChanged = positionMobileStripComposition(strips);
                 measuredHeight = Math.ceil(strips.getBoundingClientRect().height);
             } else {
+                mobileLayoutChanged = positionDesktopStripComposition(strips);
                 measuredHeight = Math.ceil(strips.getBoundingClientRect().height);
             }
             document.body.style.setProperty('--strip-preview-height', `${measuredHeight}px`);
             if (mobileLayoutChanged || Math.abs(measuredHeight - previousHeight) > 1) {
-                rebuildBookForAvailableSpace();
+                setTimeout(rebuildBookForAvailableSpace, 0);
             }
             requestAnimationFrame(syncStripScrollCues);
-        });
+        }
+    }
+
+    function positionDesktopStripComposition(strips) {
+        const bodyStyle = document.body.style;
+        const scene = document.getElementById('scene');
+        const controlsRect = document.getElementById('controls').getBoundingClientRect();
+        const safeTop = 48;
+        const safeBottom = controlsRect.top - 16;
+        const safeHeight = Math.max(0, safeBottom - safeTop);
+        const gap = 24;
+        const naturalPageHeight = scene.clientWidth * 0.96 * PAGE_RATIO / 2;
+        const naturalStripHeight = strips.offsetHeight;
+        const scale = Math.min(1, Math.max(0.1, (safeHeight - gap) / Math.max(1, naturalPageHeight + gap + naturalStripHeight)));
+        const pageHeight = naturalPageHeight * scale;
+        const stripHeight = naturalStripHeight * scale;
+        const groupHeight = pageHeight + gap + stripHeight;
+        const pageTop = safeTop + Math.max(0, (safeHeight - groupHeight) / 2);
+        const pageBottom = pageTop + pageHeight;
+        const sceneHeight = pageHeight / 0.94;
+        const letterbox = (sceneHeight - pageHeight) / 2;
+        const next = {
+            '--strip-preview-scene-top': `${pageTop - letterbox}px`,
+            '--strip-preview-scene-bottom': `${window.innerHeight - pageBottom - letterbox}px`,
+            '--strip-preview-strip-top': `${pageBottom + gap}px`,
+            '--strip-preview-page-height': `${pageHeight}px`,
+            '--strip-preview-scale': String(scale),
+        };
+        let changed = false;
+        for (const [property, value] of Object.entries(next)) {
+            if (bodyStyle.getPropertyValue(property).trim() !== value) changed = true;
+            bodyStyle.setProperty(property, value);
+        }
+        return changed;
     }
 
     function positionMobileStripComposition(strips) {
@@ -852,7 +905,7 @@
         updatePageEnglishStrips();
     }
 
-    if (translationEntries.length) {
+    if (translationEntries.length || hasPageEnglishStrips) {
         translationToggle.style.display = 'inline-block';
         translationToggle.addEventListener('click', () => {
             setTranslationOpen(!englishOpen);
@@ -907,7 +960,7 @@
         const availW = sceneRect.width;
         const availH = sceneRect.height;
 
-        if (stripPreview && window.matchMedia('(max-width: 640px)').matches && document.body.classList.contains('page-english-open')) {
+        if (hasPageEnglishStrips && document.body.classList.contains('strip-page-open')) {
             const previewPageHeight = Number.parseFloat(document.body.style.getPropertyValue('--strip-preview-page-height'));
             if (previewPageHeight > 0) {
                 const leafH = Math.floor(previewPageHeight);
