@@ -7,7 +7,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import net from 'node:net';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const BOOKS = ['zaojiao', 'shigo', 'zaojiao_story', 'penghu_shihu'];
+const BOOKS = ['zaojiao', 'shigo', 'zaojiao_story', 'penghu_shihu', 'nautilus', 'chequbei'];
 const DEFAULTS = {
   lang: 'zh-TW', width: 1440, height: 1000, fromPage: 1,
   translation: 'auto',
@@ -22,6 +22,7 @@ Required:
   --book <key>            ${BOOKS.join(' | ')}
 
 Options:
+  --library               Capture and audit the six-card book library
   --lang <zh-TW|en>       Reader language (default: ${DEFAULTS.lang})
   --out <directory>       Screenshot output directory (default: OS temp directory)
   --width <pixels>        Browser viewport width (default: ${DEFAULTS.width})
@@ -29,6 +30,9 @@ Options:
   --from-page <number>    First printed page to include (default: 1)
   --to-page <number>      Last printed page to include (default: last page)
   --translation <state>   English display: auto | closed | open (default: auto by language)
+  --p12-bars-test         Enable the p12–13 two-column bottom English-strip test
+  --ten-spreads-test      Capture ten spreads of bottom strips at desktop and mobile sizes
+  --viewport <size>       ten-spreads-test viewport: desktop | mobile | both (default: both)
   --preview-page <number> Overlay page text plus any annotated facing-page text
   --audit-only            Measure overlay fit without writing screenshots
   --base-url <url>        Use an already-running site instead of starting a local server
@@ -39,6 +43,7 @@ Examples:
   node tools/capture-book-pages.mjs --book penghu_shihu --lang en
   node tools/capture-book-pages.mjs --book zaojiao --from-page 5 --to-page 10 --translation open
   node tools/capture-book-pages.mjs --book penghu_shihu --lang en --preview-page 13
+  node tools/capture-book-pages.mjs --book penghu_shihu --ten-spreads-test --out .english-preview/run-name
 `);
 }
 
@@ -50,11 +55,15 @@ function parseArgs(argv) {
     ['--width', 'width'], ['--height', 'height'], ['--from-page', 'fromPage'],
     ['--to-page', 'toPage'], ['--translation', 'translation'],
     ['--base-url', 'baseUrl'], ['--chrome', 'chrome'], ['--preview-page', 'previewPage'],
+    ['--viewport', 'viewport'],
   ]);
   for (let i = 0; i < argv.length; i += 1) {
     const flag = argv[i];
     if (flag === '--help' || flag === '-h') { options.help = true; continue; }
     if (flag === '--audit-only') { options.auditOnly = true; continue; }
+    if (flag === '--library') { options.library = true; continue; }
+    if (flag === '--p12-bars-test') { options.p12BarsTest = true; continue; }
+    if (flag === '--ten-spreads-test') { options.tenSpreadsTest = true; continue; }
     const key = names.get(flag);
     if (!key) throw new Error(`Unknown option: ${flag}`);
     if (!argv[i + 1] || argv[i + 1].startsWith('--')) throw new Error(`Missing value for ${flag}`);
@@ -65,6 +74,22 @@ function parseArgs(argv) {
   if (!BOOKS.includes(options.book)) throw new Error(`--book must be one of: ${BOOKS.join(', ')}`);
   if (!['zh-TW', 'en'].includes(options.lang)) throw new Error('--lang must be zh-TW or en');
   if (!['auto', 'open', 'closed'].includes(options.translation)) throw new Error('--translation must be auto, open or closed');
+  if (options.p12BarsTest && (options.book !== 'penghu_shihu' || options.lang !== 'en')) {
+    throw new Error('--p12-bars-test requires --book penghu_shihu --lang en');
+  }
+  if (options.tenSpreadsTest) {
+    if (options.book !== 'penghu_shihu') throw new Error('--ten-spreads-test requires --book penghu_shihu');
+    if (!explicitlySet.has('fromPage')) options.fromPage = 4;
+    if (!explicitlySet.has('toPage')) options.toPage = 23;
+    options.viewport ||= 'both';
+    if (!['desktop', 'mobile', 'both'].includes(options.viewport)) throw new Error('--viewport must be desktop, mobile or both');
+    if (Number(options.toPage) - Number(options.fromPage) !== 19 || Number(options.fromPage) % 2 !== 0) {
+      throw new Error('--ten-spreads-test requires exactly ten spreads, from an even page through the following odd page (for example --from-page 24 --to-page 43)');
+    }
+    options.lang = options.lang || 'zh-TW';
+  } else if (options.viewport !== undefined) {
+    throw new Error('--viewport is only available with --ten-spreads-test');
+  }
   if (options.previewPage !== undefined) {
     options.previewPage = Number(options.previewPage);
     if (!Number.isInteger(options.previewPage) || options.previewPage < 1) throw new Error('--preview-page must be a positive integer');
@@ -111,6 +136,19 @@ async function loadPreviewPages(book, pageNumber) {
     throw new Error(`Page ${pageNumber} needs page-specific English text and a placement zone in text-placement-zones.json.`);
   }
   return previews;
+}
+
+async function readExpectedStripTexts(fromPage, toPage) {
+  const data = JSON.parse(await fs.readFile(path.join(ROOT, 'text-placement-zones.json'), 'utf8'));
+  const pages = data.books?.penghu_shihu?.pages || [];
+  return Object.fromEntries(Array.from({ length: toPage - fromPage + 1 }, (_, index) => {
+    const pageNumber = index + fromPage;
+    const page = pages.find((item) => item.page === pageNumber);
+    const text = page && Object.prototype.hasOwnProperty.call(page, 'bottomStripText')
+      ? (typeof page.bottomStripText === 'string' ? page.bottomStripText.trim() : '')
+      : (page?.zones || []).map((zone) => zone.englishText?.trim()).filter(Boolean).join('\n\n');
+    return [String(pageNumber), text || null];
+  }));
 }
 
 async function addPreviewOverlay(devtools, preview) {
@@ -255,6 +293,63 @@ async function main() {
   catch (error) { console.error(error.message); console.error('Use --help for usage.'); process.exitCode = 2; return; }
   if (options.help) { help(); return; }
 
+  if (options.tenSpreadsTest && options.viewport === 'both') {
+    const outDir = path.resolve(options.out || path.join(ROOT, '.english-preview', `shihu-ten-spreads-${new Date().toISOString().replace(/[:.]/g, '-')}`));
+    await fs.mkdir(outDir, { recursive: true });
+    const childArgs = process.argv.slice(2).filter((value, index, args) => {
+      if (value === '--viewport') return false;
+      if (index > 0 && args[index - 1] === '--viewport') return false;
+      return true;
+    });
+    for (const viewport of ['desktop', 'mobile']) {
+      await new Promise((resolve, reject) => {
+        const child = spawn(process.execPath, [process.argv[1], ...childArgs, '--viewport', viewport, '--out', outDir], {
+          cwd: ROOT, stdio: 'inherit', windowsHide: true,
+        });
+        child.once('error', reject);
+        child.once('exit', (code) => code === 0 ? resolve() : reject(new Error(`${viewport} ten-spread capture exited with ${code}`)));
+      });
+    }
+    const desktop = JSON.parse(await fs.readFile(path.join(outDir, 'desktop-manifest.json'), 'utf8'));
+    const mobile = JSON.parse(await fs.readFile(path.join(outDir, 'mobile-manifest.json'), 'utf8'));
+    const audit = {
+      requestedSpreads: Array.from({ length: 10 }, (_, index) => [options.fromPage + index * 2, options.fromPage + index * 2 + 1]),
+      expectedScreenshotCount: 20,
+      actualScreenshotCount: desktop.screenshots.length + mobile.screenshots.length,
+      desktop: desktop.audit,
+      mobile: mobile.audit,
+      browserErrors: [...desktop.diagnostics, ...mobile.diagnostics],
+    };
+    audit.passed = audit.actualScreenshotCount === audit.expectedScreenshotCount
+      && audit.desktop.passed && audit.mobile.passed && audit.browserErrors.length === 0
+      && desktop.screenshots.map((state) => state.visiblePages.join('-')).join(',') === Array.from({ length: 10 }, (_, index) => `${options.fromPage + index * 2}-${options.fromPage + index * 2 + 1}`).join(',')
+      && mobile.screenshots.map((state) => state.visiblePages.join('-')).join(',') === Array.from({ length: 10 }, (_, index) => `${options.fromPage + index * 2}-${options.fromPage + index * 2 + 1}`).join(',');
+    const index = { book: 'penghu_shihu', storyPages: [options.fromPage, options.toPage], language: 'zh-TW', screenshots: [...desktop.screenshots, ...mobile.screenshots], auditFile: 'audit.json' };
+    await fs.writeFile(path.join(outDir, 'manifest.json'), `${JSON.stringify(index, null, 2)}\n`, 'utf8');
+    await fs.writeFile(path.join(outDir, 'audit.json'), `${JSON.stringify(audit, null, 2)}\n`, 'utf8');
+    await fs.writeFile(path.join(outDir, 'audit.txt'), [
+      `Ten-spread audit (${options.fromPage}–${options.toPage}): ${audit.passed ? 'PASS' : 'FAIL'}`,
+      `Spreads: ${audit.requestedSpreads.map(([a, b]) => `${a}-${b}`).join(', ')}`,
+      `Screenshots: ${audit.actualScreenshotCount}/${audit.expectedScreenshotCount}`,
+      `Desktop: ${audit.desktop.passed ? 'PASS' : 'FAIL'} (${audit.desktop.failures.length} layout/text issues; ${desktop.diagnostics.length} browser errors)`,
+      `Mobile: ${audit.mobile.passed ? 'PASS' : 'FAIL'} (${audit.mobile.failures.length} layout/text issues; ${mobile.diagnostics.length} browser errors)`,
+      ...[...audit.desktop.failures.map((item) => `DESKTOP: ${item}`), ...audit.mobile.failures.map((item) => `MOBILE: ${item}`)],
+    ].join('\n') + '\n', 'utf8');
+    console.log(`Ten-spread index: ${path.join(outDir, 'manifest.json')}`);
+    console.log(`Audit: ${path.join(outDir, 'audit.txt')}`);
+    if (!audit.passed) process.exitCode = 1;
+    return;
+  }
+
+  if (options.tenSpreadsTest) {
+    options.width = options.width !== DEFAULTS.width ? options.width : options.viewport === 'mobile' ? 390 : 1440;
+    options.height = options.height !== DEFAULTS.height ? options.height : options.viewport === 'mobile' ? 844 : 1000;
+    options.lang = 'zh-TW';
+    options.fromPage = Number(options.fromPage);
+    options.toPage = Number(options.toPage);
+    options.translation = 'auto';
+  }
+
   const previews = options.previewPage ? await loadPreviewPages(options.book, options.previewPage) : [];
   const chromePath = await findChrome(options.chrome);
   const outDir = path.resolve(options.out || path.join(os.tmpdir(), 'OnlineBook-captures', options.book, options.lang));
@@ -307,22 +402,80 @@ async function main() {
       width: options.width, height: options.height, deviceScaleFactor: 1, mobile: false,
     });
 
-    const readerUrl = `${baseUrl.replace(/\/$/, '')}/viewer.html?book=${encodeURIComponent(options.book)}&lang=${encodeURIComponent(options.lang)}`;
+    if (options.library) {
+      await devtools.send('Page.navigate', { url: `${baseUrl.replace(/\/$/, '')}/index.html` });
+      await waitFor(async () => devtools.evaluate(`(() => document.readyState === 'complete' && document.querySelectorAll('.book-link').length === 6)()`), 'six-card library');
+      await devtools.evaluate(`(async () => { await document.fonts.ready; await Promise.all([...document.images].map(image => image.decode().catch(() => {}))); return true; })()`);
+      if (options.lang === 'en') await devtools.evaluate(`document.querySelector('#btn-en').click()`);
+      const expectedFeaturedTitle = options.lang === 'en' ? 'Guardians of the Sea Rose: Giant Clam' : '守護海中玫瑰—硨磲貝';
+      const layout = await devtools.evaluate(`(() => {
+        const shelf = document.querySelector('#entrance-overlay > div:nth-of-type(2)');
+        const cards = [...document.querySelectorAll('.book-link')];
+        const bounds = element => { const r = element.getBoundingClientRect(); return {left:Math.round(r.left),top:Math.round(r.top),right:Math.round(r.right),bottom:Math.round(r.bottom),width:Math.round(r.width),height:Math.round(r.height)}; };
+        const shelfBox = bounds(shelf);
+        const cardBoxes = cards.map(bounds);
+        const mobile = matchMedia('(max-width: 700px)').matches;
+        const featuredTitle = document.querySelector('[data-book="chequbei"] .b-title')?.textContent.trim() || '';
+        return { cardCount: cards.length, columns: getComputedStyle(shelf).gridTemplateColumns, mobile,
+          featuredTitle, featuredTitleMatches: featuredTitle === ${JSON.stringify(expectedFeaturedTitle)},
+          viewport: {width: innerWidth,height: innerHeight}, shelf: shelfBox, cards: cardBoxes,
+          noHorizontalOverflow: document.documentElement.scrollWidth <= innerWidth,
+          cardsInsideShelf: cardBoxes.every(card => card.left >= shelfBox.left - 1 && card.right <= shelfBox.right + 1),
+          desktopThreeRows: mobile || new Set(cardBoxes.map(card => card.top)).size === 3,
+          mobileSingleColumn: !mobile || new Set(cardBoxes.map(card => card.left)).size === 1 };
+      })()`);
+      const file = `library-${options.width <= 700 ? 'mobile' : 'desktop'}.png`;
+      const screenshot = await devtools.send('Page.captureScreenshot', { format: 'png', fromSurface: true, captureBeyondViewport: false });
+      await fs.writeFile(path.join(outDir, file), Buffer.from(screenshot.data, 'base64'));
+      const manifest = { page: 'library', viewport: {width: options.width,height: options.height}, layout, diagnostics: devtools.diagnostics,
+        passed: layout.cardCount === 6 && layout.featuredTitleMatches && layout.noHorizontalOverflow && layout.cardsInsideShelf
+          && layout.desktopThreeRows && layout.mobileSingleColumn && devtools.diagnostics.length === 0 };
+      await fs.writeFile(path.join(outDir, `library-${options.width <= 700 ? 'mobile' : 'desktop'}-manifest.json`), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+      console.log(`Captured library → ${path.join(outDir, file)} (${manifest.passed ? 'layout PASS' : 'layout FAIL'}; ${devtools.diagnostics.length} browser errors)`);
+      if (!manifest.passed) process.exitCode = 1;
+      return;
+    }
+
+    const readerUrl = `${baseUrl.replace(/\/$/, '')}/viewer.html?book=${encodeURIComponent(options.book)}&lang=${encodeURIComponent(options.lang)}${options.p12BarsTest || options.tenSpreadsTest ? '&stripSample=1' : ''}`;
     await devtools.send('Page.navigate', { url: readerUrl });
     await waitFor(async () => devtools.evaluate(`(() => document.readyState === 'complete' && document.querySelectorAll('#book .leaf img').length > 0 && document.querySelector('#btn-next'))()`), 'reader initialization', 60000);
     await devtools.evaluate(`(async () => { await document.fonts.ready; return true; })()`);
     await waitFor(async () => devtools.evaluate(`(() => !document.querySelector('#loading-screen')?.isConnected)()`), 'book loading screen dismissal', 60000);
 
+    let initialToggleEvidence = null;
     {
       const toggleExists = await devtools.evaluate(`Boolean(document.querySelector('#translation-toggle') && getComputedStyle(document.querySelector('#translation-toggle')).display !== 'none')`);
       if (!toggleExists) console.warn('This book has no English panel toggle; capturing with the panel unavailable.');
       else {
-        const panelIsOpen = await devtools.evaluate(`document.body.classList.contains('page-english-open')`);
-        const shouldBeOpen = options.translation === 'auto'
-          ? options.lang === 'en'
-          : options.translation === 'open';
-        if (options.translation !== 'auto' && panelIsOpen !== shouldBeOpen) {
-          await devtools.evaluate(`document.querySelector('#translation-toggle').click()`);
+        if (options.tenSpreadsTest) {
+          initialToggleEvidence = await devtools.evaluate(`(() => {
+            const strips = document.querySelector('#page-english-strips');
+            return {
+              uiLanguage: document.documentElement.lang,
+              isOpen: document.body.classList.contains('page-english-open'),
+              label: document.querySelector('#translation-toggle')?.textContent.trim() || '',
+              renderedStripCount: [...(strips?.querySelectorAll('.page-english-strip') || [])]
+                .filter(strip => getComputedStyle(strip).display !== 'none').length,
+              stripsHidden: !strips || getComputedStyle(strips).display === 'none'
+            };
+          })()`);
+          initialToggleEvidence.closedDefaultVerified = initialToggleEvidence.uiLanguage === 'zh-TW'
+            && !initialToggleEvidence.isOpen
+            && initialToggleEvidence.label === '顯示英文'
+            && initialToggleEvidence.renderedStripCount === 0
+            && initialToggleEvidence.stripsHidden;
+          if (!initialToggleEvidence.closedDefaultVerified) {
+            throw new Error(`Ten-spread test must start zh-TW with English closed and strips hidden: ${JSON.stringify(initialToggleEvidence)}`);
+          }
+          // Keep the true default-closed state through navigation to the first target spread.
+        } else {
+          const panelIsOpen = await devtools.evaluate(`document.body.classList.contains('page-english-open')`);
+          const shouldBeOpen = options.translation === 'auto'
+            ? options.lang === 'en'
+            : options.translation === 'open';
+          if (panelIsOpen !== shouldBeOpen) {
+            await devtools.evaluate(`document.querySelector('#translation-toggle').click()`);
+          }
         }
       }
     }
@@ -350,38 +503,175 @@ async function main() {
           await Promise.all(imgs.map(img => img.decode().catch(() => {})));
           return true;
         })()`), `images for ${visiblePages.join('-')}`, 30000);
+        let toggleEvidence = null;
+        if (options.tenSpreadsTest && visiblePages[0] === options.fromPage) {
+          const initialState = await devtools.evaluate(`(() => ({
+            isOpen: document.body.classList.contains('page-english-open'),
+            label: document.querySelector('#translation-toggle')?.textContent.trim() || '',
+            renderedStripCount: [...document.querySelectorAll('#page-english-strips .page-english-strip')]
+              .filter(strip => getComputedStyle(strip).display !== 'none').length
+          }))()`);
+          if (initialState.isOpen || initialState.label !== '顯示英文' || initialState.renderedStripCount !== 0) {
+            throw new Error(`Expected zh-TW default-closed state at spread ${options.fromPage}-${options.fromPage + 1} before clicking: ${JSON.stringify(initialState)}`);
+          }
+          await devtools.evaluate(`document.querySelector('#translation-toggle').click()`);
+          await waitFor(async () => devtools.evaluate(`(() => document.body.classList.contains('page-english-open')
+            && document.querySelector('#translation-toggle')?.textContent.trim() === '收合英文')()`), 'user-toggle open English strips');
+          await waitFor(async () => devtools.evaluate(`(() => [...document.querySelectorAll('#page-english-strips .page-english-strip')]
+            .some(strip => strip.dataset.page === '${options.fromPage + 1}' && getComputedStyle(strip).display !== 'none'))()`), 'English toggle to render first-spread strip');
+          const openState = await devtools.evaluate(`(() => ({
+            isOpen: document.body.classList.contains('page-english-open'),
+            label: document.querySelector('#translation-toggle')?.textContent.trim() || '',
+            renderedStripCount: [...document.querySelectorAll('#page-english-strips .page-english-strip')]
+              .filter(strip => getComputedStyle(strip).display !== 'none').length
+          }))()`);
+          const expectedTexts = await readExpectedStripTexts(options.fromPage, options.toPage);
+          const expectedCount = [options.fromPage, options.fromPage + 1].filter(page => expectedTexts[String(page)]).length;
+          toggleEvidence = { initialState, closedDefaultVerified: !initialState.isOpen && initialState.label === '顯示英文' && initialState.renderedStripCount === 0, openState,
+            openStateVerified: openState.isOpen && openState.label === '收合英文' && openState.renderedStripCount === expectedCount };
+        }
+        if (options.tenSpreadsTest) {
+          await waitFor(async () => devtools.evaluate(`(() => {
+            const container = document.querySelector('#page-english-strips');
+            const rendered = Math.ceil(container?.getBoundingClientRect().height || 0);
+            const reserved = Number.parseFloat(getComputedStyle(document.body).getPropertyValue('--strip-preview-height')) || 0;
+            return document.body.classList.contains('page-english-open') && Math.abs(rendered - reserved) <= 1;
+          })()`), `strip space reservation for spread ${visiblePages.join('-')}`);
+          await waitFor(async () => devtools.evaluate(`(() => [...document.querySelectorAll('#page-english-strips .page-english-strip')]
+            .every(strip => {
+              const shouldCue = getComputedStyle(strip).overflowY === 'auto' && strip.scrollHeight > strip.clientHeight + 1;
+              return shouldCue === strip.classList.contains('is-scrollable');
+            }))()`), `scroll cue synchronization for spread ${visiblePages.join('-')}`, 5000);
+        }
         const pageBoxAudit = await devtools.evaluate(`(() => {
           const pages = ${JSON.stringify(visiblePages)};
           return pages.flatMap(page => {
             const img = [...document.querySelectorAll('#book img')].find(item => item.alt === '第' + page + '頁');
             const face = img?.closest('.face');
-            return [...(face?.querySelectorAll('.page-english-box') || [])]
+            const boxes = [...(face?.querySelectorAll('.page-english-box') || [])];
+            return boxes
               .filter(box => getComputedStyle(box).display !== 'none')
-              .map(box => ({
-                page,
-                label: box.getAttribute('aria-label'),
-                width: Math.round(box.clientWidth),
-                height: Math.round(box.clientHeight),
-                fontSize: getComputedStyle(box).fontSize,
-                scrollWidth: Math.round(box.scrollWidth),
-                scrollHeight: Math.round(box.scrollHeight),
-                fits: box.scrollWidth <= box.clientWidth + 1 && box.scrollHeight <= box.clientHeight + 1
-              }));
+              .map(box => {
+                const rect = box.getBoundingClientRect();
+                return {
+                  page,
+                  label: box.getAttribute('aria-label'),
+                  width: Math.round(box.clientWidth),
+                  height: Math.round(box.clientHeight),
+                  bounds: { left: Math.round(rect.left), top: Math.round(rect.top), right: Math.round(rect.right), bottom: Math.round(rect.bottom) },
+                  fontSize: getComputedStyle(box).fontSize,
+                  scrollWidth: Math.round(box.scrollWidth),
+                  scrollHeight: Math.round(box.scrollHeight),
+                  fits: box.scrollWidth <= box.clientWidth + 1 && box.scrollHeight <= box.clientHeight + 1
+                };
+              });
           });
+        })()`);
+        const stripLayout = await devtools.evaluate(`(() => {
+          const container = document.querySelector('#page-english-strips');
+          if (!container || getComputedStyle(container).display === 'none') return null;
+          const strips = [...container.querySelectorAll('.page-english-strip')];
+          const controlsRect = document.querySelector('#controls').getBoundingClientRect();
+          const viewportHeight = window.innerHeight;
+          const pages = strips.map(strip => {
+            const page = Number(strip.dataset.page);
+            const paragraph = strip.querySelector('.page-english-strip-text p');
+            const blankParagraph = strip.querySelector('.page-english-strip-text .empty-paragraph');
+            const paragraphStyle = paragraph ? getComputedStyle(paragraph) : null;
+            const blankParagraphRect = blankParagraph?.getBoundingClientRect();
+            const paragraphGapRatio = paragraphStyle && blankParagraphRect
+              ? blankParagraphRect.height / parseFloat(paragraphStyle.lineHeight)
+              : null;
+            const image = [...document.querySelectorAll('#book img')].find(item => item.alt === '第' + page + '頁');
+            const pageRect = image?.getBoundingClientRect();
+            const stripRect = strip.getBoundingClientRect();
+            return {
+              page,
+              text: strip.dataset.englishText || strip.textContent.trim(),
+              stripBounds: { left: Math.round(stripRect.left), top: Math.round(stripRect.top), right: Math.round(stripRect.right), bottom: Math.round(stripRect.bottom) },
+              pageBounds: pageRect ? { left: Math.round(pageRect.left), top: Math.round(pageRect.top), right: Math.round(pageRect.right), bottom: Math.round(pageRect.bottom) } : null,
+              gapBelowPage: pageRect ? Math.round(stripRect.top - pageRect.bottom) : null,
+              outsideBook: Boolean(pageRect && stripRect.top >= pageRect.bottom),
+              overflowY: getComputedStyle(strip).overflowY,
+              canScroll: getComputedStyle(strip).overflowY === 'auto' && strip.scrollHeight > strip.clientHeight + 1,
+              textAlign: getComputedStyle(strip.querySelector('.page-english-strip-text') || strip).textAlign,
+              textAlignLast: getComputedStyle(strip.querySelector('.page-english-strip-text') || strip).textAlignLast,
+              paragraphGapRatio,
+              ordinaryParagraphMarginTop: paragraph ? getComputedStyle(paragraph).marginTop : null,
+              hasScrollCue: strip.classList.contains('is-scrollable'),
+              fits: strip.scrollWidth <= strip.clientWidth + 1 && (strip.scrollHeight <= strip.clientHeight + 1 || getComputedStyle(strip).overflowY === 'auto'),
+              scrollWidth: Math.round(strip.scrollWidth), clientWidth: Math.round(strip.clientWidth),
+              scrollHeight: Math.round(strip.scrollHeight), clientHeight: Math.round(strip.clientHeight),
+              fontSize: getComputedStyle(strip).fontSize
+            };
+          });
+          const containerRect = container.getBoundingClientRect();
+          const sceneRect = document.querySelector('#scene').getBoundingClientRect();
+          const bookRect = document.querySelector('#book').getBoundingClientRect();
+          const safeTop = 48;
+          const safeBottom = controlsRect.top - 12;
+          const compositionTop = Math.min(bookRect.top, ...pages.map(page => page.stripBounds.top));
+          const compositionBottom = Math.max(bookRect.bottom, ...pages.map(page => page.stripBounds.bottom));
+          const topSlack = Math.round(compositionTop - safeTop);
+          const bottomSlack = Math.round(safeBottom - compositionBottom);
+          const expected = ${JSON.stringify(options.tenSpreadsTest ? await readExpectedStripTexts(options.fromPage, options.toPage) : null)};
+          const visible = ${JSON.stringify(visiblePages)};
+          const expectedForSpread = expected ? visible.filter(page => page >= ${options.fromPage} && page <= ${toPage})
+            .map(page => ({ page, text: expected[String(page)] || null })) : [];
+          const textMatches = expected ? expectedForSpread.every((item) => {
+            const actual = pages.find((page) => page.page === item.page)?.text || null;
+            return actual === item.text;
+          }) && strips.length === expectedForSpread.filter((item) => item.text).length : null;
+          return {
+            strips: pages,
+            stripTop: Math.round(containerRect.top), stripBottom: Math.round(containerRect.bottom),
+            gapToControls: Math.round(controlsRect.top - containerRect.bottom),
+            allOutsideBook: pages.every(page => page.outsideBook),
+            allFit: pages.every(page => page.fits),
+            allLeftAligned: pages.every(page => page.textAlign === 'left' && page.textAlignLast === 'left'),
+            paragraphGapsHalfLine: pages.filter(page => page.paragraphGapRatio !== null)
+              .every(page => Math.abs(page.paragraphGapRatio - 0.5) <= 0.015),
+            ordinaryParagraphMarginsUnchanged: pages.every(page => page.ordinaryParagraphMarginTop === '0px'),
+            scrollablePagesHaveCue: pages.every(page => page.canScroll === page.hasScrollCue),
+            textMatches,
+            suppressedPages: expectedForSpread.filter(item => !item.text).map(item => item.page),
+            p43ScrollEvidence: pages.find(page => page.page === 43)
+              ? { overflowY: pages.find(page => page.page === 43).overflowY, scrollHeight: pages.find(page => page.page === 43).scrollHeight,
+                  clientHeight: pages.find(page => page.page === 43).clientHeight, canScroll: pages.find(page => page.page === 43).canScroll,
+                  hasScrollCue: pages.find(page => page.page === 43).hasScrollCue }
+              : null,
+            scene: { top: Math.round(sceneRect.top), bottom: Math.round(sceneRect.bottom) },
+            book: { top: Math.round(bookRect.top), bottom: Math.round(bookRect.bottom) },
+            safeArea: { top: safeTop, bottom: Math.round(safeBottom), controlsBottom: Math.round(viewportHeight - controlsRect.bottom) },
+            composition: { top: Math.round(compositionTop), bottom: Math.round(compositionBottom) },
+            verticalSlack: { top: topSlack, bottom: bottomSlack, balanceDelta: Math.abs(topSlack - bottomSlack) },
+            bookInsideScene: bookRect.top >= sceneRect.top - 1 && bookRect.bottom <= sceneRect.bottom + 1,
+            controlsVisible: controlsRect.top >= 0 && controlsRect.bottom <= innerHeight,
+            controlsInsideViewport: controlsRect.left >= 0 && controlsRect.right <= innerWidth,
+            controlsGap: Math.round(controlsRect.top - containerRect.bottom)
+          };
         })()`);
         const translationState = await devtools.evaluate(`({
           englishOpen: document.body.classList.contains('page-english-open'),
-          fallbackPanelOpen: document.body.classList.contains('translation-open')
+          fallbackPanelOpen: document.body.classList.contains('translation-open'),
+          legacyView: document.body.classList.contains('legacy-translation-view'),
+          translationToggleLabel: document.querySelector('#translation-toggle')?.textContent?.trim() || '',
+          uiLanguage: document.documentElement.lang,
+          coffeeUi: Object.fromEntries(['#top-bar a', '#book-title', '#translation-toggle', '#page-indicator', '#btn-prev', '#spread-info', '#btn-next'].map(selector => {
+            const element = document.querySelector(selector);
+            const style = element ? getComputedStyle(element) : null;
+            return [selector, style ? { background: style.backgroundColor, borderRadius: style.borderRadius, color: style.color } : null];
+          }))
         })`);
         const label = visiblePages.length === 1 ? `page-${String(visiblePages[0]).padStart(3, '0')}` : `spread-${String(visiblePages[0]).padStart(3, '0')}-${String(visiblePages[1]).padStart(3, '0')}`;
         let file = null;
         if (!options.auditOnly) {
-          file = `${options.book}-${options.lang}-${options.translation}-${label}.png`;
+          file = `${options.book}-${options.lang}-${options.translation}-${options.viewport || 'single'}-${label}.png`;
           const screenshot = await devtools.send('Page.captureScreenshot', { format: 'png', fromSurface: true, captureBeyondViewport: false });
           await fs.writeFile(path.join(outDir, file), Buffer.from(screenshot.data, 'base64'));
           console.log(`Captured ${visiblePages.join('–')} → ${path.join(outDir, file)}`);
         }
-        states.push({ visiblePages, file, width: options.width, height: options.height, ...translationState, pageBoxAudit });
+        states.push({ visiblePages, file, width: options.width, height: options.height, ...translationState, initialToggleEvidence, toggleEvidence, pageBoxAudit, stripLayout });
         if (options.auditOnly) console.log(`Audited ${visiblePages.join('–')}: ${pageBoxAudit.length} visible English box(es)`);
         const visiblePreviews = previews.filter((preview) => visiblePages.includes(preview.page));
         if (visiblePreviews.length && !options.auditOnly) {
@@ -411,19 +701,105 @@ async function main() {
       }
     }
 
+    const expectedStripTextsForAudit = options.tenSpreadsTest
+      ? await readExpectedStripTexts(options.fromPage, toPage)
+      : {};
+    const stripFailures = options.tenSpreadsTest ? states.flatMap((state) => {
+      const first = state.visiblePages[0], last = state.visiblePages.at(-1);
+      const expectedPages = [first, last].filter((page) => page >= options.fromPage && page <= toPage);
+      const layout = state.stripLayout;
+      const failures = [];
+      if (!state.englishOpen) failures.push(`spread ${first}-${last}: English toggle is closed while strips are required open`);
+      if (!state.initialToggleEvidence?.closedDefaultVerified) {
+        failures.push(`spread ${first}-${last}: Chinese initial default must be closed with strips hidden`);
+      }
+      if (first === options.fromPage && !state.toggleEvidence?.openStateVerified) {
+        failures.push(`spread ${first}-${last}: explicit toggle-open strip evidence did not pass`);
+      }
+      if (state.fallbackPanelOpen) failures.push(`spread ${first}-${last}: legacy translation panel should remain hidden`);
+      if (state.uiLanguage !== 'zh-TW') failures.push(`spread ${first}-${last}: ten-spread test UI language is not zh-TW`);
+      if (state.translationToggleLabel !== '收合英文') failures.push(`spread ${first}-${last}: Chinese UI toggle does not show the open/collapse state`);
+      if (!layout) failures.push(`spread ${first}-${last}: strips missing`);
+      else {
+        if (!layout.allOutsideBook) failures.push(`spread ${first}-${last}: a strip overlaps its book page`);
+        if (!layout.allFit) failures.push(`spread ${first}-${last}: strip text overflows its strip`);
+        if (!layout.allLeftAligned) failures.push(`spread ${first}-${last}: strip text or card content is not left aligned`);
+        if (!layout.paragraphGapsHalfLine) failures.push(`spread ${first}-${last}: paragraph blank-line spacing is not half the normal line height`);
+        if (!layout.ordinaryParagraphMarginsUnchanged) failures.push(`spread ${first}-${last}: ordinary paragraph margins changed`);
+        if (!layout.scrollablePagesHaveCue) failures.push(`spread ${first}-${last}: scrollable strip lacks its visible scroll cue or cue is shown unnecessarily`);
+        if (!layout.textMatches) failures.push(`spread ${first}-${last}: text does not match per-page zone text or expected strip count`);
+        if (!layout.bookInsideScene) failures.push(`spread ${first}-${last}: book exceeds reserved scene bounds`);
+        if (!layout.controlsVisible) failures.push(`spread ${first}-${last}: navigation controls clipped by viewport`);
+        if (!layout.controlsInsideViewport) failures.push(`spread ${first}-${last}: navigation controls extend beyond viewport width`);
+        if (layout.gapToControls < 0) failures.push(`spread ${first}-${last}: strip collides with navigation controls`);
+        if (options.viewport === 'mobile') {
+          const { top, bottom, balanceDelta } = layout.verticalSlack;
+          if (top < 16 || bottom < 16 || balanceDelta > 24) {
+            failures.push(`spread ${first}-${last}: mobile book+strip group is not vertically balanced in safe area (top ${top}px, bottom ${bottom}px, delta ${balanceDelta}px)`);
+          }
+          if (layout.safeArea.controlsBottom < 16) {
+            failures.push(`spread ${first}-${last}: controls bottom safe margin below 16px (${layout.safeArea.controlsBottom}px)`);
+          }
+        }
+        if (options.viewport === 'mobile' && layout.strips.some((strip) => strip.gapBelowPage < 8 || strip.gapBelowPage > 24)) {
+          failures.push(`spread ${first}-${last}: mobile page-to-strip gap outside 8–24px (${layout.strips.map((strip) => `${strip.page}:${strip.gapBelowPage}px`).join(', ')})`);
+        }
+      const expectedStripCount = expectedPages.filter((page) => expectedStripTextsForAudit[String(page)]).length;
+        if (layout.strips.length !== expectedStripCount) failures.push(`spread ${first}-${last}: expected ${expectedStripCount} separate per-page strip(s)`);
+        if (layout.strips.some((strip) => !expectedStripTextsForAudit[String(strip.page)])) failures.push(`spread ${first}-${last}: strip rendered for a page with no expected English`);
+        if (first <= 43 && last >= 43 && (!layout.p43ScrollEvidence?.canScroll
+          || layout.p43ScrollEvidence.overflowY !== 'auto'
+          || layout.p43ScrollEvidence.scrollHeight <= layout.p43ScrollEvidence.clientHeight
+          || !layout.p43ScrollEvidence.hasScrollCue)) {
+          failures.push('page 43: audit did not prove scrollHeight > clientHeight, overflow-y auto, and a visible scroll cue');
+        }
+      }
+      return failures;
+    }) : [];
+    const diagnostics = devtools.diagnostics;
+    const audit = {
+      passed: stripFailures.length === 0 && diagnostics.length === 0,
+      failures: stripFailures,
+      assertions: {
+        englishOpen: options.tenSpreadsTest,
+        chineseDefaultClosedAndExplicitOpenVerified: options.tenSpreadsTest
+          ? Boolean(states.find((state) => state.visiblePages[0] === options.fromPage)?.initialToggleEvidence?.closedDefaultVerified
+            && states.find((state) => state.visiblePages[0] === options.fromPage)?.toggleEvidence?.openStateVerified)
+          : null,
+        legacyPanelHidden: options.tenSpreadsTest,
+        p24Suppressed: options.tenSpreadsTest ? Boolean(states.find(state => state.visiblePages[0] === 24)?.stripLayout?.suppressedPages.includes(24)) : null,
+        p25TextExact: options.tenSpreadsTest ? Boolean(states.find(state => state.visiblePages[0] === 24)?.stripLayout?.strips.find(strip => strip.page === 25)?.text === expectedStripTextsForAudit['25']) : null,
+        printedEnglishPages40to42Suppressed: options.tenSpreadsTest ? Boolean([40, 41, 42].every(page => {
+          const state = states.find(item => item.visiblePages.includes(page));
+          return state?.stripLayout?.suppressedPages.includes(page);
+        })) : null,
+        p43ScrollEvidence: options.tenSpreadsTest ? states.find(state => state.visiblePages.includes(43))?.stripLayout?.p43ScrollEvidence || null : null,
+        uiLanguage: options.tenSpreadsTest ? 'zh-TW' : options.lang,
+        mobilePageToStripGapPx: options.tenSpreadsTest && options.viewport === 'mobile' ? [8, 24] : null,
+        mobileControlsBottomSafeMarginMinPx: options.tenSpreadsTest && options.viewport === 'mobile' ? 16 : null,
+        mobileCompositionSlackBalanceDeltaMaxPx: options.tenSpreadsTest && options.viewport === 'mobile' ? 24 : null,
+        mobileBookAndStripBalancedBetweenHeaderAndNavigation: options.tenSpreadsTest && options.viewport === 'mobile',
+      },
+    };
     const manifest = {
       book: options.book, language: options.lang, translationPanel: options.translation,
       viewport: { width: options.width, height: options.height },
       requestedPageRange: { from: options.fromPage, to: toPage },
       previewPages: previews.map(({ page, wordCount, zoneId }) => ({ page, wordCount, zoneId })),
       screenshots: states,
-      diagnostics: devtools.diagnostics,
+      diagnostics,
+      audit,
     };
-    await fs.writeFile(path.join(outDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+    const manifestName = options.tenSpreadsTest ? `${options.viewport}-manifest.json` : 'manifest.json';
+    await fs.writeFile(path.join(outDir, manifestName), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+    if (options.tenSpreadsTest) {
+      await fs.writeFile(path.join(outDir, `${options.viewport}-audit.json`), `${JSON.stringify(audit, null, 2)}\n`, 'utf8');
+      if (!audit.passed) process.exitCode = 1;
+    }
     console.log(options.auditOnly
       ? `Audited ${states.length} reader state(s); ${devtools.diagnostics.length} browser error(s).`
       : `Finished ${states.length} screenshot(s); ${devtools.diagnostics.length} browser error(s).`);
-    console.log(`Index: ${path.join(outDir, 'manifest.json')}`);
+    console.log(`Index: ${path.join(outDir, manifestName)}`);
     if (devtools.diagnostics.length) process.exitCode = 1;
   } finally {
     try { devtools?.socket.close(); } catch { /* Already closed. */ }

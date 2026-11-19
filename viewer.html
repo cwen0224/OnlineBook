@@ -7,6 +7,13 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        :root {
+            --coffee-glass: rgba(112, 74, 45, 0.5);
+            --coffee-glass-hover: rgba(112, 74, 45, 0.72);
+            --coffee-glass-border: rgba(255, 244, 226, 0.34);
+            --coffee-glass-text: rgba(255, 250, 243, 0.92);
+        }
+
         body {
             background: url('bg_optimized.webp') center/cover fixed;
             min-height: 100vh;
@@ -28,40 +35,52 @@
             pointer-events: none;
         }
         #top-bar a {
-            color: rgba(255,255,255,0.78);
+            color: var(--coffee-glass-text);
             text-decoration: none;
             font-size: 0.82rem;
             display: flex; align-items: center; gap: 6px;
             position: absolute; top: 0; left: 0;
             padding: 9px 18px 10px 16px;
             border-radius: 0 0 18px 18px;
-            border: 1px solid rgba(255,255,255,0.18); border-top: 0;
-            background: rgba(8,8,18,0.58);
+            border: 1px solid var(--coffee-glass-border); border-top: 0;
+            background: var(--coffee-glass);
             backdrop-filter: blur(10px);
             transition: all 0.22s ease;
             pointer-events: auto;
         }
-        #top-bar a:hover { background: rgba(8,8,18,0.78); color: white; }
+        #top-bar a:hover { background: var(--coffee-glass-hover); color: white; }
         #book-title {
             position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            color: rgba(255,255,255,0.78); font-size: 0.78rem; letter-spacing: 0.02em;
-            padding: 7px 14px 9px; border-radius: 0 0 18px 18px; background: rgba(8,8,18,0.45);
+            color: var(--coffee-glass-text); font-size: 0.78rem; letter-spacing: 0.02em;
+            padding: 7px 14px 9px; border-radius: 0 0 18px 18px;
+            border: 1px solid var(--coffee-glass-border); border-top: 0;
+            background: var(--coffee-glass);
             backdrop-filter: blur(10px);
         }
-        #page-indicator { color: rgba(255,255,255,0.72); font-size: 0.78rem; letter-spacing: 1px; min-width: 110px; text-align: center; padding: 9px 16px 10px 12px; }
-        #reader-actions { position: absolute; top: 0; right: 0; display: flex; align-items: center; gap: 0; min-width: 110px; justify-content: flex-end; pointer-events: auto; background: rgba(8,8,18,0.58); border: 1px solid rgba(255,255,255,0.18); border-top: 0; border-radius: 0 0 18px 18px; backdrop-filter: blur(10px); }
+        #page-indicator {
+            color: var(--coffee-glass-text); font-size: 0.78rem; letter-spacing: 1px;
+            min-width: 110px; text-align: center; padding: 9px 16px 10px 12px;
+            border: 1px solid var(--coffee-glass-border); border-top: 0;
+            border-radius: 0 0 18px 18px; background: var(--coffee-glass); backdrop-filter: blur(10px);
+        }
+        #reader-actions {
+            position: absolute; top: 0; right: 0; display: flex; align-items: flex-start;
+            gap: 8px; min-width: 110px; justify-content: flex-end; pointer-events: auto;
+        }
         .top-action {
             display: none;
-            color: rgba(255,255,255,0.82);
-            background: transparent;
-            border: 0; border-right: 1px solid rgba(255,255,255,0.16);
-            border-radius: 0;
+            color: var(--coffee-glass-text);
+            background: var(--coffee-glass);
+            border: 1px solid var(--coffee-glass-border); border-top: 0;
+            border-radius: 0 0 18px 18px;
             padding: 9px 12px 10px 16px;
             font: inherit;
             font-size: 0.78rem;
             cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: background 0.2s ease, color 0.2s ease;
         }
-        .top-action:hover { background: rgba(255,255,255,0.1); color: white; }
+        .top-action:hover { background: var(--coffee-glass-hover); color: white; }
 
         /* ── Scene ── */
         #scene {
@@ -151,10 +170,126 @@
             pointer-events: auto;
         }
         body.page-english-open .page-english-box { display: flex; }
+        body.legacy-translation-view .page-english-box { display: none !important; }
         .page-english-box::-webkit-scrollbar { width: 5px; }
         .page-english-box::-webkit-scrollbar-thumb { background: rgba(255,250,243,.3); border-radius: 8px; }
+        body.strip-preview {
+            --strip-preview-height: 0px;
+            --strip-preview-bottom: 56px;
+            --strip-preview-gap: 12px;
+        }
+        body.strip-preview #scene {
+            top: var(--strip-preview-scene-top, 40px);
+            bottom: var(--strip-preview-scene-bottom, calc(var(--strip-preview-height) + var(--strip-preview-bottom) + var(--strip-preview-gap)));
+        }
+        .page-english-strips {
+            position: fixed;
+            z-index: 450;
+            left: 50%;
+            bottom: var(--strip-preview-bottom, 56px);
+            transform: translateX(-50%);
+            width: min(90vw, 1224px);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 10px;
+            pointer-events: none;
+            transform-origin: top center;
+        }
+        .page-english-strip {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            min-width: 0;
+            box-sizing: border-box;
+            max-height: min(32vh, 280px);
+            padding: 10px 16px;
+            border: 1px solid rgba(255, 244, 226, 0.24);
+            border-radius: 14px;
+            background: var(--coffee-glass);
+            color: #fffaf3;
+            font-size: clamp(16px, 1.25vw, 20px);
+            line-height: 1.42;
+            text-align: left !important;
+            justify-self: stretch;
+            overflow-y: auto;
+            overflow-wrap: anywhere;
+            text-shadow: 0 1px 2px rgba(0,0,0,.35);
+            white-space: normal;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,250,243,.32) transparent;
+        }
+        .page-english-strip-text {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            text-align: left !important;
+            text-align-last: left !important;
+            white-space: normal;
+        }
+        .page-english-strip-text p {
+            margin: 0;
+            line-height: inherit;
+            white-space: pre-line;
+        }
+        .page-english-strip-text .empty-paragraph {
+            height: .71em;
+            margin: 0;
+            padding: 0;
+            line-height: 0;
+        }
+        .page-english-strip.is-scrollable { padding-bottom: 34px; }
+        .page-english-strip.is-scrollable::before {
+            content: '';
+            position: absolute;
+            z-index: 1;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 42px;
+            background: linear-gradient(to bottom, rgba(112,74,45,0), rgba(112,74,45,.86));
+            pointer-events: none;
+        }
+        .page-english-strip.is-scrollable::after {
+            content: '↓ Scroll';
+            position: absolute;
+            z-index: 2;
+            right: 8px;
+            bottom: 5px;
+            padding: 2px 8px;
+            border: 1px solid rgba(255,244,226,.2);
+            border-radius: 999px;
+            background: rgba(76,49,31,.74);
+            color: rgba(255,250,243,.88);
+            font-size: 11px;
+            line-height: 1.35;
+            letter-spacing: .02em;
+            text-shadow: 0 1px 2px rgba(0,0,0,.4);
+            pointer-events: none;
+        }
+        .page-english-strip::-webkit-scrollbar { width: 5px; }
+        .page-english-strip::-webkit-scrollbar-thumb { background: rgba(255,250,243,.28); border-radius: 8px; }
+        body:not(.strip-preview) .page-english-strips { display: none; }
+        body.strip-preview:not(.page-english-open) .page-english-strips { display: none; }
+        body.strip-preview #hint { display: none; }
+        body.strip-preview .page-english-box { display: none !important; }
         @media (max-width: 640px) {
             .page-english-box { padding: 8px; font-size: clamp(11px, 3.2vw, 16px); }
+            body.strip-preview {
+                --strip-preview-bottom: 54px;
+                --strip-preview-gap: 12px;
+            }
+            body.strip-preview #controls { bottom: 20px; }
+            body.strip-preview.page-english-open .page-english-strips {
+                top: var(--strip-preview-strip-top, auto);
+                bottom: auto;
+                transform: translateX(-50%) scale(var(--strip-preview-scale, 1));
+            }
+            .page-english-strips { width: 96vw; gap: 6px; }
+            .page-english-strip { max-height: min(36vh, 300px); padding: 9px 10px; font-size: clamp(14px, 4vw, 16px); line-height: 1.38; }
+            .page-english-strip-text .empty-paragraph { height: .69em; }
+            .page-english-strip.is-scrollable { padding-bottom: 34px; }
+            .page-english-strip.is-scrollable::after { right: 6px; bottom: 4px; }
         }
 
         /* Subtle spine-edge shadow only — no overlay gradients */
@@ -198,25 +333,30 @@
             z-index: 500;
         }
         .ctrl-btn {
-            background: rgba(8,8,18,0.58);
+            background: var(--coffee-glass);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.18);
-            color: white;
+            border: 1px solid var(--coffee-glass-border);
+            color: var(--coffee-glass-text);
             padding: 10px 26px 9px;
             border-radius: 18px 18px 0 0;
             border-bottom: 0;
             font-size: 0.88rem;
             cursor: pointer;
-            transition: all 0.22s ease;
+            transition: background 0.22s ease, border-color 0.22s ease, color 0.22s ease;
             letter-spacing: 1px;
         }
         .ctrl-btn:hover:not(:disabled) {
-            background: rgba(8,8,18,0.8);
-            border-color: rgba(255,255,255,0.25);
+            background: var(--coffee-glass-hover);
+            border-color: rgba(255,244,226,0.48);
             transform: none;
         }
         .ctrl-btn:disabled { opacity: 0.22; cursor: not-allowed; }
-        #spread-info { color: rgba(255,255,255,0.72); font-size: 0.78rem; min-width: 90px; text-align: center; padding: 10px 14px 9px; border-radius: 18px 18px 0 0; background: rgba(8,8,18,0.45); backdrop-filter: blur(10px); }
+        #spread-info {
+            color: var(--coffee-glass-text); font-size: 0.78rem; min-width: 90px;
+            text-align: center; padding: 10px 14px 9px;
+            border: 1px solid var(--coffee-glass-border); border-bottom: 0;
+            border-radius: 18px 18px 0 0; background: var(--coffee-glass); backdrop-filter: blur(10px);
+        }
 
         /* ── Loading ── */
         #loading-screen {
@@ -313,8 +453,21 @@
             #top-bar { top: 0; left: 0; right: 0; }
             #top-bar a { padding: 7px 10px; }
             #book-title { display: none; }
-            #controls { bottom: 0; gap: 8px; }
-            .ctrl-btn { padding: 8px 16px; }
+            #controls { bottom: 0; width: 100vw; gap: 5px; min-height: 46px; }
+            .ctrl-btn {
+                flex: 0 0 auto;
+                white-space: nowrap;
+                letter-spacing: 0;
+                font-size: 0.74rem;
+                padding: 8px 10px;
+            }
+            #spread-info {
+                flex: 0 0 auto;
+                min-width: 0;
+                white-space: nowrap;
+                font-size: 0.68rem;
+                padding: 8px 6px;
+            }
             #translation-panel { width: min(88vw, 420px); }
             body.translation-bottom #translation-panel { bottom: 0; width: auto; height: calc(min(42vh, 300px) + 64px); }
             body.translation-bottom #translation-content { width: 92vw; padding: 22px 20px 78px; }
@@ -366,16 +519,20 @@
     // ── Params & Localization ──
     const params  = new URLSearchParams(location.search);
     const bookKey = params.get('book') || 'zaojiao';
+    const legacyPanelEnabled = params.get('legacy') === '1';
+    document.body.classList.toggle('legacy-translation-view', legacyPanelEnabled);
     const LANGUAGE_PREFERENCE_KEY = 'onlinebook.language';
     let savedLanguage = null;
     try { savedLanguage = localStorage.getItem(LANGUAGE_PREFERENCE_KEY); } catch (_) { /* Keep the default below. */ }
     // A language in the link is an intentional choice; otherwise restore the last choice.
     const lang = params.get('lang') || savedLanguage || 'zh-TW';
     try { localStorage.setItem(LANGUAGE_PREFERENCE_KEY, lang); } catch (_) { /* Storage may be unavailable in private mode. */ }
+    const stripPreview = bookKey === 'penghu_shihu' && params.get('stripSample') === '1';
+    document.body.classList.toggle('strip-preview', stripPreview);
 
     const i18n = {
         'zh-TW': {
-            titles: { zaojiao: '社會系列・藻礁保衛戰', shigo: '親子系列・海客石滬', zaojiao_story: '桃園戶海系列・藻礁繪本', penghu_shihu: '桃園戶海系列・石滬爺爺說故事' },
+            titles: { zaojiao: '社會系列・藻礁保衛戰', shigo: '親子系列・海客石滬', zaojiao_story: '桃園戶海系列・藻礁繪本', penghu_shihu: '桃園戶海系列・石滬爺爺說故事', nautilus: '桃園戶海系列・活化石的心聲—鸚鵡螺', chequbei: '桃園戶海系列・守護海中玫瑰—硨磲貝' },
             loading: '正在準備繪本內容...',
             prev: '← 上一頁',
             next: '下一頁 →',
@@ -387,7 +544,7 @@
             closeEnglish: '關閉英文翻譯'
         },
         'en': {
-            titles: { zaojiao: 'Social Series: Algal Reef Defense', shigo: 'Parenting Series: Shigo Stone Weir', zaojiao_story: 'Taoyuan Coastal Series: Algal Reef Picture Book', penghu_shihu: 'Taoyuan Coastal Series: Grandpa Stone Weir Tells a Story' },
+            titles: { zaojiao: 'Social Series: Algal Reef Defense', shigo: 'Parenting Series: Shigo Stone Weir', zaojiao_story: 'Taoyuan Coastal Series: Algal Reef Picture Book', penghu_shihu: 'Taoyuan Coastal Series: Grandpa Stone Weir Tells a Story', nautilus: 'Taoyuan Coastal Series: Voice of a Living Fossil: The Nautilus', chequbei: 'Taoyuan Coastal Series: Guardians of the Sea Rose: Giant Clam' },
             loading: 'Preparing book content...',
             prev: '← Prev',
             next: 'Next →',
@@ -417,7 +574,7 @@
     // Both supplied translations start after four cover / front-matter scans.
     const translationPageOffset = bookKey === 'zaojiao' ? 4 : bookKey === 'penghu_shihu' ? 3 : 0;
     try {
-        const response = await fetch('text-placement-zones.json?v=20261115-page-boxes');
+        const response = await fetch('text-placement-zones.json?v=20261115-coffee-overlays');
         if (response.ok) {
             const placementData = await response.json();
             placementPages = placementData.books?.[bookKey]?.pages || [];
@@ -485,6 +642,7 @@
             if (width <= 0 || height <= 0) continue;
             const box = document.createElement('div');
             box.className = 'page-english-box';
+            box.dataset.page = String(pageNumber);
             const zoneText = zone.englishText || (page.zones.length === 1 ? page.englishTranslation : '');
             if (!zoneText) continue;
             box.textContent = zoneText;
@@ -497,6 +655,135 @@
             box.style.clipPath = `polygon(${points.map(([x, y]) => `${((x - left) / width) * 100}% ${((y - top) / height) * 100}%`).join(', ')})`;
             face.append(box);
         }
+    }
+
+    function renderPageEnglishStrips() {
+        if (!stripPreview) return;
+        const strips = document.createElement('div');
+        strips.id = 'page-english-strips';
+        strips.className = 'page-english-strips';
+        document.body.append(strips);
+        updatePageEnglishStrips();
+    }
+
+    let stripCueObserver = null;
+    function updatePageEnglishStrips() {
+        if (!stripPreview) return;
+        const strips = document.getElementById('page-english-strips');
+        if (!strips) return;
+        stripCueObserver?.disconnect();
+        stripCueObserver = null;
+        strips.replaceChildren();
+        if (!englishOpen) {
+            const previousHeight = Number.parseFloat(getComputedStyle(document.body).getPropertyValue('--strip-preview-height')) || 0;
+            document.body.style.setProperty('--strip-preview-height', '0px');
+            document.body.style.removeProperty('--strip-preview-scene-top');
+            document.body.style.removeProperty('--strip-preview-scene-bottom');
+            document.body.style.removeProperty('--strip-preview-strip-top');
+            document.body.style.removeProperty('--strip-preview-page-height');
+            document.body.style.setProperty('--strip-preview-scale', '1');
+            if (previousHeight > 1) requestAnimationFrame(rebuildBookForAvailableSpace);
+            return;
+        }
+        const [firstPage, lastPage] = visiblePrintedPages();
+        for (const pageNumber of new Set([firstPage, lastPage])) {
+            const maxStripPage = bookKey === 'penghu_shihu' ? 50 : 43;
+            if (pageNumber < 4 || pageNumber > maxStripPage) continue;
+            const page = placementPages.find((item) => item.page === pageNumber);
+            const pageText = page && Object.prototype.hasOwnProperty.call(page, 'bottomStripText')
+                ? (typeof page.bottomStripText === 'string' ? page.bottomStripText.trim() : '')
+                : (page?.zones || []).map((zone) => zone.englishText?.trim()).filter(Boolean).join('\n\n');
+            if (!pageText) continue;
+            const strip = document.createElement('div');
+            strip.className = 'page-english-strip';
+            strip.dataset.page = String(pageNumber);
+            strip.dataset.englishText = pageText;
+            strip.style.gridColumn = pageNumber % 2 === 0 ? '1' : '2';
+            const stripText = document.createElement('div');
+            stripText.className = 'page-english-strip-text';
+            const paragraphs = pageText.split(/\n\s*\n/);
+            paragraphs.forEach((paragraph, index) => {
+                const paragraphElement = document.createElement('p');
+                paragraphElement.textContent = paragraph;
+                stripText.append(paragraphElement);
+                if (index < paragraphs.length - 1) {
+                    const blankParagraph = document.createElement('p');
+                    blankParagraph.className = 'empty-paragraph';
+                    blankParagraph.setAttribute('aria-hidden', 'true');
+                    stripText.append(blankParagraph);
+                }
+            });
+            strip.append(stripText);
+            strip.setAttribute('lang', 'en');
+            strip.setAttribute('aria-label', `English translation for page ${pageNumber}`);
+            strips.append(strip);
+        }
+        const syncStripScrollCues = () => strips.querySelectorAll('.page-english-strip').forEach((strip) => {
+            strip.classList.toggle('is-scrollable', strip.scrollHeight > strip.clientHeight + 1);
+        });
+        if ('ResizeObserver' in window) {
+            stripCueObserver = new ResizeObserver(() => requestAnimationFrame(syncStripScrollCues));
+            strips.querySelectorAll('.page-english-strip').forEach((strip) => stripCueObserver.observe(strip));
+        }
+        setTimeout(syncStripScrollCues, 140);
+        requestAnimationFrame(() => {
+            const previousHeight = Number.parseFloat(getComputedStyle(document.body).getPropertyValue('--strip-preview-height')) || 0;
+            strips.querySelectorAll('.page-english-strip').forEach((strip) => {
+                strip.classList.toggle('is-scrollable', strip.scrollHeight > strip.clientHeight + 1);
+            });
+            let measuredHeight;
+            let mobileLayoutChanged = false;
+            if (window.matchMedia('(max-width: 640px)').matches) {
+                mobileLayoutChanged = positionMobileStripComposition(strips);
+                measuredHeight = Math.ceil(strips.getBoundingClientRect().height);
+            } else {
+                measuredHeight = Math.ceil(strips.getBoundingClientRect().height);
+            }
+            document.body.style.setProperty('--strip-preview-height', `${measuredHeight}px`);
+            if (mobileLayoutChanged || Math.abs(measuredHeight - previousHeight) > 1) {
+                rebuildBookForAvailableSpace();
+            }
+            requestAnimationFrame(syncStripScrollCues);
+        });
+    }
+
+    function positionMobileStripComposition(strips) {
+        const bodyStyle = document.body.style;
+        const scene = document.getElementById('scene');
+        const controls = document.getElementById('controls');
+        const controlsRect = controls.getBoundingClientRect();
+        const safeTop = 48;
+        const controlsGap = 12;
+        const safeBottom = controlsRect.top - controlsGap;
+        const safeHeight = Math.max(0, safeBottom - safeTop);
+        const gap = 12;
+        const naturalStripHeight = strips.offsetHeight;
+        const naturalPageHeight = scene.clientWidth * 0.96 * PAGE_RATIO / 2;
+        const compositionHeight = naturalPageHeight + gap + naturalStripHeight;
+        const scale = Math.min(1, Math.max(0.05, (safeHeight - gap) / Math.max(1, compositionHeight)));
+        const pageHeight = naturalPageHeight * scale;
+        const renderedStripHeight = naturalStripHeight * scale;
+        const groupHeight = pageHeight + gap + renderedStripHeight;
+        const slack = Math.max(0, (safeHeight - groupHeight) / 2);
+        const pageTop = safeTop + slack;
+        const pageBottom = pageTop + pageHeight;
+        const stripTop = pageBottom + gap;
+        const sceneHeight = pageHeight / 0.94;
+        const sceneLetterbox = (sceneHeight - pageHeight) / 2;
+        const next = {
+            '--strip-preview-scene-top': `${pageTop - sceneLetterbox}px`,
+            '--strip-preview-scene-bottom': `${window.innerHeight - pageBottom - sceneLetterbox}px`,
+            '--strip-preview-strip-top': `${stripTop}px`,
+            '--strip-preview-page-height': `${pageHeight}px`,
+            '--strip-preview-scale': String(scale),
+        };
+        let changed = false;
+        for (const [property, value] of Object.entries(next)) {
+            const current = bodyStyle.getPropertyValue(property).trim();
+            if (current !== value) changed = true;
+            bodyStyle.setProperty(property, value);
+        }
+        return changed;
     }
 
     function fitPageEnglishBoxes() {
@@ -527,9 +814,7 @@
             const entryEnd = entry.readerEnd ?? entry.end + translationPageOffset;
             return entryStart <= last && entryEnd >= first;
         });
-        const hasSafePageBox = placementPages.some((page) => page.page >= first
-            && page.page <= last && page.zones?.length && page.englishTranslation);
-        const shouldShowFallbackPanel = englishOpen && !hasSafePageBox && activeEntries.length > 0;
+        const shouldShowFallbackPanel = legacyPanelEnabled && englishOpen && activeEntries.length > 0;
         const panelWasOpen = translationPanel.classList.contains('is-open');
         translationPanel.classList.toggle('is-open', shouldShowFallbackPanel);
         document.body.classList.toggle('translation-open', shouldShowFallbackPanel);
@@ -564,6 +849,7 @@
         translationToggle.setAttribute('aria-expanded', String(isOpen));
         updateTranslationToggleLabel(isOpen);
         updateTranslation();
+        updatePageEnglishStrips();
     }
 
     if (translationEntries.length) {
@@ -607,7 +893,7 @@
 
     const TOTAL_PAGES  = pagesData.length;
     // Bump this whenever page image assets are regenerated so visitors do not see stale scans.
-    const IMAGE_VERSION = '20261024-assets-v6';
+    const IMAGE_VERSION = '20261119-chequbei-v1';
     const imageUrl = (page) => `${page.image}?v=${IMAGE_VERSION}`;
     const TOTAL_LEAVES = Math.ceil(TOTAL_PAGES / 2);
     // This book has no back cover after its final spread, so do not expose a blank page.
@@ -620,6 +906,15 @@
         const sceneRect = document.getElementById('scene').getBoundingClientRect();
         const availW = sceneRect.width;
         const availH = sceneRect.height;
+
+        if (stripPreview && window.matchMedia('(max-width: 640px)').matches && document.body.classList.contains('page-english-open')) {
+            const previewPageHeight = Number.parseFloat(document.body.style.getPropertyValue('--strip-preview-page-height'));
+            if (previewPageHeight > 0) {
+                const leafH = Math.floor(previewPageHeight);
+                const leafW = Math.floor(leafH / PAGE_RATIO);
+                return { leafW, leafH, spreadW: leafW * 2, spreadH: leafH };
+            }
+        }
 
         // Spread is 2 pages wide
         // Spread W / Spread H = 2 / PAGE_RATIO
@@ -799,6 +1094,7 @@
         document.getElementById('btn-prev').disabled = (flipped === 0);
         document.getElementById('btn-next').disabled = (flipped >= MAX_FLIPPED_LEAVES);
         if (englishOpen) updateTranslation();
+        updatePageEnglishStrips();
         if (USE_INCREMENTAL_PRELOAD) preloadPageRange(flipped * 2, PRELOAD_AHEAD);
     }
 
@@ -991,6 +1287,7 @@
     }
 
     // ── Init ──
+    renderPageEnglishStrips();
     buildBook();
     if (translationPanel.classList.contains('is-open')) {
         translationPlacement = resolveTranslationPlacement(firstPage, visiblePrintedPages());
