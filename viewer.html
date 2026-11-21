@@ -109,6 +109,7 @@
          */
         #book {
             position: relative;
+            flex: 0 0 auto;
             transform-style: preserve-3d;
             /* slight tilt for depth feel */
             transform: rotateX(4deg);
@@ -117,6 +118,14 @@
         body.focus-mode #book { transform: rotateX(0deg); }
         body.focus-mode #scene { perspective: none; }
         body.focus-mode .face.back { display: none; }
+        body.focus-mode .leaf { display: none; }
+        body.focus-mode .leaf.focus-visible { display: block; }
+        body.focus-mode .leaf.focus-current { z-index: 20 !important; }
+        body.focus-mode .leaf.focus-companion { z-index: 10 !important; }
+        body.focus-mode .leaf.focus-transition { display: block; }
+        body.focus-mode #book.focus-panning { transition: transform 360ms cubic-bezier(.22,.75,.25,1); }
+        @media (max-width: 640px) { body.focus-mode .leaf.focus-companion { opacity: .78; } }
+        @media (prefers-reduced-motion: reduce) { body.focus-mode #book.focus-panning { transition-duration: 0.01ms; } }
 
         /*
          * Each .leaf sits on the RIGHT half of the book.
@@ -893,7 +902,7 @@
         const safeHeight = Math.max(0, safeBottom - safeTop);
         const gap = 12;
         const naturalStripHeight = strips.offsetHeight;
-        const naturalPageHeight = scene.clientWidth * 0.94 * PAGE_RATIO / (readingMode === 'focus' ? 1 : 2);
+        const naturalPageHeight = scene.clientWidth * (readingMode === 'focus' ? 0.54 : 0.94) * PAGE_RATIO / (readingMode === 'focus' ? 1 : 2);
         const compositionHeight = naturalPageHeight + gap + naturalStripHeight;
         const scale = Math.min(1, Math.max(0.05, (safeHeight - gap) / Math.max(1, compositionHeight)));
         const pageHeight = naturalPageHeight * scale;
@@ -939,7 +948,7 @@
     function visiblePrintedPages() {
         const flipped = leaves.filter(l => l.angle === -180).length;
         if (readingMode === 'focus') {
-            const page = Math.min(flipped + 1, TOTAL_PAGES);
+            const page = Math.min(focusPage, TOTAL_PAGES);
             return [page, page];
         }
         // The first sheet's front (page 1) is the only printed face visible on
@@ -1049,9 +1058,10 @@
         const availH = sceneRect.height;
 
         if (readingMode === 'focus') {
-            const leafH = Math.floor(Math.min(availH * 0.94, availW * 0.94 * PAGE_RATIO));
+            const focusWidthRatio = window.matchMedia('(max-width: 640px)').matches ? 0.84 : 0.54;
+            const leafH = Math.floor(Math.min(availH * 0.94, availW * focusWidthRatio * PAGE_RATIO));
             const leafW = Math.floor(leafH / PAGE_RATIO);
-            return { leafW, leafH, spreadW: leafW, spreadH: leafH };
+            return { leafW, leafH, spreadW: leafW * 2, spreadH: leafH };
         }
 
         if (hasPageEnglishStrips && document.body.classList.contains('strip-page-open')) {
@@ -1087,6 +1097,8 @@
     const leftBg  = document.getElementById('left-bg');
     const leaves  = [];
     let isDragging = false, currentDragLeaf = null, dragPointerId = null;
+    let focusPage = 1;
+    let navigationBusy = false;
     let startX = 0, lastX = 0, startAngle = 0;
     let bookRect = {};
     let zoomScale = 1, panX = 0, panY = 0;
@@ -1104,7 +1116,10 @@
 
     function applyBookViewport() {
         clampPan();
-        book.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoomScale}) rotateX(${readingMode === 'focus' ? 0 : 4}deg)`;
+        const focusOffset = readingMode === 'focus' && focusPage > 1
+            ? (focusPage % 2 === 0 ? 1 : -1) * (book.offsetWidth / 4)
+            : 0;
+        book.style.transform = `translate3d(${panX + focusOffset}px, ${panY}px, 0) scale(${zoomScale}) rotateX(${readingMode === 'focus' ? 0 : 4}deg)`;
     }
 
     function touchPoints() {
@@ -1126,6 +1141,61 @@
         isDragging = false;
         currentDragLeaf = null;
         dragPointerId = null;
+    }
+
+    function focusSpreadFlipCount(page = focusPage) {
+        if (page <= 1) return 0;
+        const leftPage = page % 2 === 0 ? page : page - 1;
+        return Math.floor(leftPage / 2);
+    }
+
+    function focusCompanionPage(page = focusPage) {
+        if (page <= 1) return null;
+        const companion = page % 2 === 0 ? page + 1 : page - 1;
+        return companion <= TOTAL_PAGES ? companion : null;
+    }
+
+    function updateFocusVisibility(extraPages = []) {
+        if (readingMode !== 'focus') return;
+        const companion = focusCompanionPage();
+        const visible = new Set([focusPage, companion, ...extraPages].filter(Boolean));
+        leaves.forEach((leaf, index) => {
+            const page = index + 1;
+            leaf.el.classList.toggle('focus-visible', visible.has(page));
+            leaf.el.classList.toggle('focus-current', page === focusPage);
+            leaf.el.classList.toggle('focus-companion', page === companion);
+            leaf.el.classList.toggle('focus-transition', extraPages.includes(page));
+        });
+    }
+
+    function focusLeftAnchor(page = focusPage) {
+        return page <= 1 ? 1 : (page % 2 === 0 ? page : page - 1);
+    }
+
+    function focusLeaf(page = focusPage) {
+        return leaves[page - 1]?.el || null;
+    }
+
+    function faceForPage(page, mode = readingMode, pageLeaves = leaves) {
+        if (mode === 'focus') return pageLeaves[page - 1]?.el.querySelector('.face.front') || null;
+        if (page === 1) return pageLeaves[0]?.el.querySelector('.face.front') || null;
+        const leafIndex = page % 2 === 0 ? page / 2 - 1 : (page - 1) / 2;
+        const face = page % 2 === 0 ? '.face.back' : '.face.front';
+        return pageLeaves[leafIndex]?.el.querySelector(face) || null;
+    }
+
+    function makeModeZoomGhost(face, rect) {
+        if (!face || !rect || rect.width <= 0 || rect.height <= 0) return null;
+        const ghost = face.cloneNode(true);
+        ghost.classList.add('mode-zoom-ghost');
+        Object.assign(ghost.style, {
+            position: 'fixed', left: `${rect.left}px`, top: `${rect.top}px`,
+            width: `${rect.width}px`, height: `${rect.height}px`,
+            margin: '0', transform: 'none', transformOrigin: 'top left',
+            backfaceVisibility: 'visible', webkitBackfaceVisibility: 'visible',
+            zIndex: '350', pointerEvents: 'none', overflow: 'hidden', opacity: '1'
+        });
+        return ghost;
     }
 
     function beginPinchGesture() {
@@ -1160,7 +1230,9 @@
             leaf.style.width  = leafW + 'px';
             leaf.style.height = leafH + 'px';
             // Leaves sit on the RIGHT half (spine = left edge of leaf = center of book)
-            leaf.style.left = (readingMode === 'focus' ? 0 : leafW) + 'px';
+            const pageNumber = i + 1;
+            const focusPageLeft = pageNumber === 1 ? leafW / 2 : (pageNumber % 2 === 0 ? 0 : leafW);
+            leaf.style.left = (readingMode === 'focus' ? focusPageLeft : leafW) + 'px';
             leaf.style.top  = '0px';
 
             const frontPage = pagesData[readingMode === 'focus' ? i : i * 2];
@@ -1198,7 +1270,8 @@
 
         // Assign the initial stack only after every leaf exists so the cover
         // uses the final leaf count and stays above the later pages on first paint.
-        leaves.forEach(obj => setTransform(obj, 0));
+        leaves.forEach(obj => setTransform(obj, readingMode === 'focus' ? 0 : (obj.index < focusSpreadFlipCount() ? -180 : 0)));
+        if (readingMode === 'focus') updateFocusVisibility();
 
         fitPageEnglishBoxes();
         updateUI();
@@ -1227,15 +1300,15 @@
     function updateUI() {
         const flipped = leaves.filter(l => l.angle === -180).length;
         if (readingMode === 'focus') {
-            const page = Math.min(flipped + 1, TOTAL_PAGES);
+            const page = Math.min(focusPage, TOTAL_PAGES);
             const text = lang === 'en' ? `Page ${page} / ${TOTAL_PAGES}` : `第 ${page} 頁 / 共 ${TOTAL_PAGES} 頁`;
             document.getElementById('page-indicator').textContent = text;
             document.getElementById('spread-info').textContent = text;
-            document.getElementById('btn-prev').disabled = flipped === 0;
-            document.getElementById('btn-next').disabled = flipped >= TOTAL_PAGES - 1;
+            document.getElementById('btn-prev').disabled = focusPage <= 1 || navigationBusy;
+            document.getElementById('btn-next').disabled = focusPage >= TOTAL_PAGES || navigationBusy;
             if (englishOpen) updateTranslation();
             updatePageEnglishStrips();
-            if (USE_INCREMENTAL_PRELOAD) preloadPageRange(flipped + 1, PRELOAD_AHEAD);
+            if (USE_INCREMENTAL_PRELOAD) preloadPageRange(focusPage - 1, PRELOAD_AHEAD);
             return;
         }
         const leftPage  = flipped * 2;
@@ -1257,8 +1330,8 @@
 
         document.getElementById('page-indicator').textContent = spreadText;
         document.getElementById('spread-info').textContent    = spreadText;
-        document.getElementById('btn-prev').disabled = (flipped === 0);
-        document.getElementById('btn-next').disabled = (flipped >= MAX_FLIPPED_LEAVES);
+        document.getElementById('btn-prev').disabled = (flipped === 0 || navigationBusy);
+        document.getElementById('btn-next').disabled = (flipped >= MAX_FLIPPED_LEAVES || navigationBusy);
         if (englishOpen) updateTranslation();
         updatePageEnglishStrips();
         if (USE_INCREMENTAL_PRELOAD) preloadPageRange(flipped * 2, PRELOAD_AHEAD);
@@ -1266,6 +1339,9 @@
 
     // ── Flip ──
     function flipTo(obj, targetAngle, dur = 440) {
+        if (navigationBusy) return;
+        navigationBusy = true;
+        updateUI();
         if (USE_INCREMENTAL_PRELOAD && targetAngle === -180) {
             preloadPageRange((obj.index + 1) * (readingMode === 'focus' ? 1 : 2), PRELOAD_AHEAD);
         }
@@ -1274,33 +1350,121 @@
         setTimeout(() => {
             obj.el.style.transition = '';
             setTransform(obj, targetAngle); // commit
+            navigationBusy = false;
             updateUI();
         }, dur + 10);
     }
 
+    async function navigateFocus(targetPage) {
+        if (navigationBusy || readingMode !== 'focus' || targetPage < 1 || targetPage > TOTAL_PAGES || targetPage === focusPage) return;
+        const fromPage = focusPage;
+        const sameSpread = focusSpreadFlipCount(fromPage) === focusSpreadFlipCount(targetPage);
+        navigationBusy = true;
+        updateUI();
+        if (USE_INCREMENTAL_PRELOAD) {
+            const needed = [targetPage, focusCompanionPage(targetPage)].filter(Boolean);
+            await Promise.all(needed.map(page => preloadPageRange(page - 1, 1)));
+        }
+
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (sameSpread) {
+            focusPage = targetPage;
+            updateFocusVisibility();
+            book.classList.add('focus-panning');
+            applyBookViewport();
+            if (!reducedMotion) await new Promise(resolve => setTimeout(resolve, 370));
+            book.classList.remove('focus-panning');
+        } else {
+            const direction = targetPage > fromPage ? 1 : -1;
+            const outgoingLeaf = focusLeaf(fromPage);
+            const incomingLeaf = focusLeaf(targetPage);
+            const transitionalPages = [fromPage, focusCompanionPage(fromPage), targetPage, focusCompanionPage(targetPage)].filter(Boolean);
+            focusPage = targetPage;
+            updateFocusVisibility(transitionalPages);
+            book.classList.add('focus-panning');
+            applyBookViewport();
+            if (!reducedMotion && outgoingLeaf && incomingLeaf) {
+                const duration = 430;
+                const outgoing = outgoingLeaf.animate([
+                    { transform: 'rotateY(0deg) translateX(0)', opacity: 1 },
+                    { transform: `rotateY(${direction > 0 ? -72 : 72}deg) translateX(${direction * -36}px)`, opacity: .2 }
+                ], { duration, easing: 'cubic-bezier(.25,.8,.25,1)', fill: 'both' });
+                const incoming = incomingLeaf.animate([
+                    { transform: `translateX(${direction * 48}px)`, opacity: .2 },
+                    { transform: 'translateX(0)', opacity: 1 }
+                ], { duration, easing: 'cubic-bezier(.25,.8,.25,1)', fill: 'both' });
+                await Promise.all([outgoing.finished.catch(() => {}), incoming.finished.catch(() => {})]);
+                outgoing.cancel();
+                incoming.cancel();
+            }
+            book.classList.remove('focus-panning');
+            updateFocusVisibility();
+        }
+        navigationBusy = false;
+        updateUI();
+    }
+
     document.getElementById('btn-next').addEventListener('click', () => {
+        if (readingMode === 'focus') { navigateFocus(focusPage + 1); return; }
         const maxFlips = readingMode === 'focus' ? TOTAL_PAGES - 1 : MAX_FLIPPED_LEAVES;
         const next = leaves.find(l => l.angle === 0 && l.index < maxFlips);
         if (next) flipTo(next, -180);
     });
     document.getElementById('btn-prev').addEventListener('click', () => {
+        if (readingMode === 'focus') { navigateFocus(focusPage - 1); return; }
         const prev = [...leaves].reverse().find(l => l.angle === -180);
         if (prev) flipTo(prev, 0);
     });
+    book.addEventListener('click', event => {
+        if (readingMode !== 'focus' || navigationBusy) return;
+        const leaf = event.target.closest('.leaf.focus-companion');
+        if (leaf) navigateFocus(Number(leaf.dataset.index) + 1);
+    });
     readingModeToggle.addEventListener('click', () => {
-        const visiblePage = visiblePrintedPages()[0];
+        if (navigationBusy) return;
+        const anchorPage = readingMode === 'focus' ? focusLeftAnchor() : visiblePrintedPages()[0];
+        // Visual interpolation follows the currently focused page when zooming
+        // out, while reading state still anchors to the spread's left page.
+        const visualPage = readingMode === 'focus' ? focusPage : anchorPage;
+        const sourceFace = faceForPage(visualPage);
+        const sourceRect = sourceFace?.getBoundingClientRect();
+        const ghost = makeModeZoomGhost(sourceFace, sourceRect);
+        navigationBusy = true;
         readingMode = readingMode === 'focus' ? 'spread' : 'focus';
+        focusPage = anchorPage;
         try { localStorage.setItem(READING_MODE_KEY, readingMode); } catch (_) { /* Preference is optional. */ }
         document.body.classList.toggle('focus-mode', readingMode === 'focus');
         updateReadingModeToggle();
-        const flipped = readingMode === 'focus' ? visiblePage - 1 : (visiblePage === 1 ? 0 : Math.floor(visiblePage / 2));
         buildBook();
-        leaves.forEach((leaf, index) => setTransform(leaf, index < flipped ? -180 : 0));
+        const flipped = anchorPage === 1 ? 0 : Math.floor(anchorPage / 2);
+        leaves.forEach((leaf, index) => setTransform(leaf, readingMode === 'focus' ? 0 : (index < flipped ? -180 : 0)));
+        updateFocusVisibility();
         updateUI();
+        const targetFace = faceForPage(visualPage);
+        const targetRect = targetFace?.getBoundingClientRect();
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!reducedMotion && ghost && targetRect?.width > 0 && targetRect?.height > 0) {
+            document.body.append(ghost);
+            const animation = ghost.animate([
+                { left: `${sourceRect.left}px`, top: `${sourceRect.top}px`, width: `${sourceRect.width}px`, height: `${sourceRect.height}px` },
+                { left: `${targetRect.left}px`, top: `${targetRect.top}px`, width: `${targetRect.width}px`, height: `${targetRect.height}px` }
+            ], { duration: 360, easing: 'ease-in-out', fill: 'both' });
+            animation.finished.catch(() => {}).finally(() => {
+                animation.cancel();
+                ghost.remove();
+                navigationBusy = false;
+                updateUI();
+            });
+        } else {
+            ghost?.remove();
+            navigationBusy = false;
+            updateUI();
+        }
     });
 
     // ── Drag ──
     book.addEventListener('pointerdown', e => {
+        if (navigationBusy) return;
         if (e.pointerType === 'touch') {
             activeTouchPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
             if (activeTouchPointers.size >= 2) {
@@ -1311,6 +1475,7 @@
         }
         const leafEl = e.target.closest('.leaf');
         if (!leafEl) return;
+        if (readingMode === 'focus') return; // focus changes use a click on the companion or navigation controls
         const obj = leaves[parseInt(leafEl.dataset.index)];
         if (obj.angle === 0 && obj.index >= (readingMode === 'focus' ? TOTAL_PAGES - 1 : MAX_FLIPPED_LEAVES)) return;
         if (USE_INCREMENTAL_PRELOAD && obj.angle === 0) {
