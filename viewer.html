@@ -1186,43 +1186,78 @@
         return pageLeaves[leafIndex]?.el.querySelector(face) || null;
     }
 
-    function makeModeZoomGhost(sourceFace, sourceRect, page) {
-        if (!sourceFace || !sourceRect || sourceRect.width <= 0 || sourceRect.height <= 0) return null;
-        const ghost = sourceFace.cloneNode(true);
-        // A back-face clone would inherit `display:none` in focus mode and
-        // also keep its 180° face transform. Render every moving clone as a
-        // flat, front-facing page independent of the destination book mode.
-        ghost.classList.remove('back');
-        ghost.classList.add('front');
-        ghost.classList.add('mode-zoom-ghost');
-        ghost.dataset.page = String(page);
-        Object.assign(ghost.style, {
-            position: 'fixed', left: `${sourceRect.left}px`, top: `${sourceRect.top}px`,
-            width: `${sourceRect.width}px`, height: `${sourceRect.height}px`,
-            margin: '0', transform: 'none', translate: 'none', scale: 'none',
-            transformOrigin: 'top left', backfaceVisibility: 'visible',
-            webkitBackfaceVisibility: 'visible', zIndex: '350', pointerEvents: 'none',
-            overflow: 'hidden', opacity: '1'
-        });
-        return ghost;
+    function printedSpreadPages(page) {
+        if (page <= 1) return [1];
+        const leftPage = page % 2 === 0 ? page : page - 1;
+        return [leftPage, leftPage + 1].filter(number => number <= TOTAL_PAGES);
     }
 
-    function animateModeZoomGhost(ghost, targetFace, duration = 380) {
-        if (!ghost || !targetFace) return null;
-        const targetRect = targetFace.getBoundingClientRect();
-        if (targetRect.width <= 0 || targetRect.height <= 0) return null;
-        const originalVisibility = targetFace.style.visibility;
-        targetFace.style.visibility = 'hidden';
-        document.body.append(ghost);
-        const animation = ghost.animate([
-            { left: ghost.style.left, top: ghost.style.top, width: ghost.style.width, height: ghost.style.height },
-            { left: `${targetRect.left}px`, top: `${targetRect.top}px`, width: `${targetRect.width}px`, height: `${targetRect.height}px` }
+    function rectUnion(rectangles) {
+        if (!rectangles.length) return null;
+        const left = Math.min(...rectangles.map(rect => rect.left));
+        const top = Math.min(...rectangles.map(rect => rect.top));
+        const right = Math.max(...rectangles.map(rect => rect.right));
+        const bottom = Math.max(...rectangles.map(rect => rect.bottom));
+        return { left, top, right, bottom, width: right - left, height: bottom - top };
+    }
+
+    function makeModeZoomGhost(pages) {
+        const visiblePages = pages.filter(item => item.face && item.rect?.width > 0 && item.rect?.height > 0);
+        const bounds = rectUnion(visiblePages.map(item => item.rect));
+        if (!bounds || bounds.width <= 0 || bounds.height <= 0) return null;
+        const ghost = document.createElement('div');
+        ghost.className = 'mode-zoom-ghost-spread';
+        Object.assign(ghost.style, {
+            position: 'fixed', left: `${bounds.left}px`, top: `${bounds.top}px`,
+            width: `${bounds.width}px`, height: `${bounds.height}px`,
+            margin: '0', transform: 'none', overflow: 'visible',
+            zIndex: '350', pointerEvents: 'none'
+        });
+
+        for (const { page, face, rect } of visiblePages) {
+            const ghostPage = face.cloneNode(true);
+            // A back-face clone would inherit `display:none` in focus mode and
+            // retain its 180° transform. Keep each scan flat and front-facing.
+            ghostPage.classList.remove('back');
+            ghostPage.classList.add('front', 'mode-zoom-ghost-page');
+            ghostPage.dataset.page = String(page);
+            const sourceLeaf = face.closest('.leaf');
+            ghostPage.style.position = 'absolute';
+            ghostPage.style.left = `${((rect.left - bounds.left) / bounds.width) * 100}%`;
+            ghostPage.style.top = `${((rect.top - bounds.top) / bounds.height) * 100}%`;
+            ghostPage.style.width = `${(rect.width / bounds.width) * 100}%`;
+            ghostPage.style.height = `${(rect.height / bounds.height) * 100}%`;
+            ghostPage.style.margin = '0';
+            ghostPage.style.transform = 'none';
+            ghostPage.style.transformOrigin = 'top left';
+            ghostPage.style.backfaceVisibility = 'visible';
+            ghostPage.style.webkitBackfaceVisibility = 'visible';
+            ghostPage.style.opacity = sourceLeaf ? getComputedStyle(sourceLeaf).opacity : '1';
+            ghostPage.querySelectorAll('*').forEach(node => { node.style.pointerEvents = 'none'; });
+            ghost.append(ghostPage);
+        }
+        return { element: ghost, pages: visiblePages, bounds };
+    }
+
+    function animateModeZoomGhost(ghostSpread, targetPages, duration = 380) {
+        if (!ghostSpread || !targetPages.length) return null;
+        const targetFaces = targetPages.map(({ page }) => faceForPage(page));
+        if (targetFaces.some(face => !face)) return null;
+        const targetRects = targetFaces.map(face => face.getBoundingClientRect());
+        const targetBounds = rectUnion(targetRects);
+        if (!targetBounds || targetBounds.width <= 0 || targetBounds.height <= 0) return null;
+        const originalVisibility = targetFaces.map(face => face.style.visibility);
+        targetFaces.forEach(face => { face.style.visibility = 'hidden'; });
+        document.body.append(ghostSpread.element);
+        const animation = ghostSpread.element.animate([
+            { left: `${ghostSpread.bounds.left}px`, top: `${ghostSpread.bounds.top}px`, width: `${ghostSpread.bounds.width}px`, height: `${ghostSpread.bounds.height}px` },
+            { left: `${targetBounds.left}px`, top: `${targetBounds.top}px`, width: `${targetBounds.width}px`, height: `${targetBounds.height}px` }
         ], { duration, easing: 'cubic-bezier(.22,.75,.25,1)', fill: 'both' });
         return {
             animation,
             cleanup() {
-                targetFace.style.visibility = originalVisibility;
-                ghost.remove();
+                targetFaces.forEach((face, index) => { face.style.visibility = originalVisibility[index]; });
+                ghostSpread.element.remove();
             }
         };
     }
@@ -1456,9 +1491,12 @@
         // for focus -> spread remains the currently focused page (e.g. p3
         // travels into the right slot while the indicator anchors at p2).
         const visualPage = readingMode === 'focus' ? focusPage : anchorPage;
-        const sourceFace = faceForPage(visualPage);
-        const sourceRect = sourceFace?.getBoundingClientRect();
-        const ghost = makeModeZoomGhost(sourceFace, sourceRect, visualPage);
+        const visualSpreadPages = printedSpreadPages(visualPage);
+        const sourcePages = visualSpreadPages.map(page => {
+            const face = faceForPage(page);
+            return { page, face, rect: face?.getBoundingClientRect() };
+        });
+        const ghostSpread = makeModeZoomGhost(sourcePages);
         navigationBusy = true;
         modeTransitionInProgress = true;
         readingMode = readingMode === 'focus' ? 'spread' : 'focus';
@@ -1476,9 +1514,9 @@
         leaves.forEach((leaf, index) => setTransform(leaf, readingMode === 'focus' ? 0 : (index < flipped ? -180 : 0)));
         updateFocusVisibility();
         updateUI();
-        const targetFace = faceForPage(visualPage);
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const transition = reducedMotion ? null : animateModeZoomGhost(ghost, targetFace);
+        const targetPages = visualSpreadPages.map(page => ({ page }));
+        const transition = reducedMotion ? null : animateModeZoomGhost(ghostSpread, targetPages);
         if (transition) {
             transition.animation.finished.catch(() => {}).finally(() => {
                 transition.animation.cancel();
@@ -1488,7 +1526,7 @@
                 updateUI();
             });
         } else {
-            ghost?.remove();
+            ghostSpread?.element.remove();
             modeTransitionInProgress = false;
             navigationBusy = false;
             updateUI();

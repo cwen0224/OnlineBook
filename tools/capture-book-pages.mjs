@@ -394,16 +394,33 @@ async function runFocusNavigationAudit(devtools, readerUrl, outDir, actualTotal,
     return readExpected(mode,pages,label);
   }
   async function transitionMode(mode, pages, label, visualPage) {
+    const pairPages=visualPage<=1?[1]:[visualPage%2===0?visualPage:visualPage-1,visualPage%2===0?visualPage+1:visualPage].filter(page=>page<=actualTotal);
     const readRect = (markTarget = false) => devtools.evaluate(`(() => {
       const image=[...document.querySelectorAll('#book img')].find(item=>item.alt==='第${visualPage}頁');
       const face=image?.closest('.face');
       if (!face) return null;
       if (${markTarget ? 'true' : 'false'}) face.dataset.modeAuditToken='${label}';
-      const visual=document.querySelector('.mode-zoom-ghost[data-page="${visualPage}"]')||face;
-      const rect=visual.getBoundingClientRect(), style=getComputedStyle(visual);
+      const ghostPage=document.querySelector('.mode-zoom-ghost-page[data-page="${visualPage}"]');
+      const ghostGroup=ghostPage?.parentElement;
+      const pageRects=${JSON.stringify(pairPages)}.map(page=>{
+        const ghost=document.querySelector('.mode-zoom-ghost-page[data-page="'+page+'"]');
+        const target=[...document.querySelectorAll('#book img')].find(item=>item.alt==='第'+page+'頁')?.closest('.face');
+        const box=(ghost||target)?.getBoundingClientRect();
+        return box?{left:box.left,right:box.right,top:box.top,bottom:box.bottom}:null;
+      }).filter(Boolean).sort((a,b)=>a.left-b.left);
+      const union=pageRects.length?{
+        left:Math.min(...pageRects.map(box=>box.left)),right:Math.max(...pageRects.map(box=>box.right)),
+        top:Math.min(...pageRects.map(box=>box.top)),bottom:Math.max(...pageRects.map(box=>box.bottom)),
+        width:Math.max(...pageRects.map(box=>box.right))-Math.min(...pageRects.map(box=>box.left)),
+        height:Math.max(...pageRects.map(box=>box.bottom))-Math.min(...pageRects.map(box=>box.top))
+      }:null;
+      const visual=ghostGroup||face;
+      const rect=ghostGroup?ghostGroup.getBoundingClientRect():union;
+      const style=getComputedStyle(visual);
       return {left:rect.left,top:rect.top,width:rect.width,height:rect.height,
         translate:style.translate,scale:style.scale,
         animations:visual.getAnimations().filter(item=>item.playState==='running').length,
+        seamGap:pageRects.length<2?0:pageRects[1].left-pageRects[0].right,
         targetIdentityPreserved:face.dataset.modeAuditToken==='${label}'};
     })()`);
     const start=await readRect();
@@ -433,6 +450,8 @@ async function runFocusNavigationAudit(devtools, readerUrl, outDir, actualTotal,
     if (!probe.settlesNearTarget) failures.push(`${label}: animation tail does not settle continuously onto the final page geometry`);
     if (!probe.sawRunningAnimation) failures.push(`${label}: no page-face animation was observed in sampled frames`);
     if (samples.some(sample=>sample && !sample.targetIdentityPreserved)) failures.push(`${label}: destination face was replaced during the mode transition`);
+    probe.keepsPagesJoined=[...samples,end].every(sample=>sample && Math.abs(sample.seamGap)<=3);
+    if (!probe.keepsPagesJoined) failures.push(`${label}: pages separated during the mode transition (seam gap ${[...samples,end].map(sample=>sample?.seamGap).join(', ')})`);
     return {state,probe};
   }
   await readExpected('focus',[1],'cover');
@@ -464,6 +483,7 @@ async function runFocusNavigationAudit(devtools, readerUrl, outDir, actualTotal,
     zoomInP2Continuous:Boolean(zoomInP2.intermediate && zoomInP2.settlesNearTarget && zoomInP2.sawRunningAnimation),
     zoomOutP2Continuous:Boolean(zoomOutP2.intermediate && zoomOutP2.settlesNearTarget && zoomOutP2.sawRunningAnimation),
     zoomInP2AfterP2ToggleContinuous:Boolean(zoomInP2AfterP2.intermediate && zoomInP2AfterP2.settlesNearTarget && zoomInP2AfterP2.sawRunningAnimation),
+    allModeTransitionPagesStayJoined:Boolean([zoomOutP3,zoomInP2,zoomOutP2,zoomInP2AfterP2].every(probe=>probe.keepsPagesJoined)),
   };
   for (const [name,passed] of Object.entries(assertions)) if (!passed) failures.push(`${name}: expected focus companion, navigation target, or left-page anchor was not observed`);
   return {passed:failures.length===0,assertions,failures,states,transitionProbes:{zoomOutP3,zoomInP2,zoomOutP2,zoomInP2AfterP2},captures};
