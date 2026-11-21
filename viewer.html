@@ -1194,8 +1194,11 @@
             book.appendChild(leaf);
             const obj = { el: leaf, index: i, angle: 0, w: leafW };
             leaves.push(obj);
-            setTransform(obj, 0);
         }
+
+        // Assign the initial stack only after every leaf exists so the cover
+        // uses the final leaf count and stays above the later pages on first paint.
+        leaves.forEach(obj => setTransform(obj, 0));
 
         fitPageEnglishBoxes();
         updateUI();
