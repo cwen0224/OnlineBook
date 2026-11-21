@@ -867,10 +867,17 @@
         const safeBottom = controlsRect.top - 16;
         const safeHeight = Math.max(0, safeBottom - safeTop);
         const gap = 27;
-        const renderedBookHeight = document.getElementById('book').getBoundingClientRect().height;
-        const naturalPageHeight = renderedBookHeight > 1
-            ? renderedBookHeight
-            : scene.clientWidth * 0.96 * PAGE_RATIO / 2;
+        // Always calculate the unconstrained page size from the viewport.
+        // Using the current rendered book height here feeds the already
+        // strip-constrained size back into the next layout pass, preventing
+        // the book from recovering its space when English text is resized.
+        const viewportSceneHeight = Math.max(0, window.innerHeight - 40);
+        const naturalPageHeight = readingMode === 'focus'
+            ? Math.min(
+                viewportSceneHeight * 0.94,
+                scene.clientWidth * (window.matchMedia('(max-width: 640px)').matches ? 0.84 : 0.54) * PAGE_RATIO
+            )
+            : Math.min(viewportSceneHeight * 0.94, scene.clientWidth * 0.96 * PAGE_RATIO / 2);
         const naturalStripHeight = strips.offsetHeight;
         const pageHeight = Math.min(naturalPageHeight, Math.max(1, safeHeight - gap - naturalStripHeight));
         const groupHeight = pageHeight + gap + naturalStripHeight;
@@ -890,7 +897,9 @@
             if (bodyStyle.getPropertyValue(property).trim() !== value) changed = true;
             bodyStyle.setProperty(property, value);
         }
-        return changed || Math.abs(pageHeight - naturalPageHeight) > 1;
+        // A page being smaller than its unconstrained size is expected when
+        // the strips reserve room; it is not a reason to rebuild again.
+        return changed;
     }
 
     function positionMobileStripComposition(strips) {
