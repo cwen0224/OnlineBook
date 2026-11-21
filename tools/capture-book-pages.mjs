@@ -393,6 +393,48 @@ async function runFocusNavigationAudit(devtools, readerUrl, outDir, actualTotal,
     await devtools.evaluate(`document.querySelector(${JSON.stringify(button)}).click()`);
     return readExpected(mode,pages,label);
   }
+  async function transitionMode(mode, pages, label, visualPage) {
+    const readRect = (markTarget = false) => devtools.evaluate(`(() => {
+      const image=[...document.querySelectorAll('#book img')].find(item=>item.alt==='第${visualPage}頁');
+      const face=image?.closest('.face');
+      if (!face) return null;
+      if (${markTarget ? 'true' : 'false'}) face.dataset.modeAuditToken='${label}';
+      const visual=document.querySelector('.mode-zoom-ghost[data-page="${visualPage}"]')||face;
+      const rect=visual.getBoundingClientRect(), style=getComputedStyle(visual);
+      return {left:rect.left,top:rect.top,width:rect.width,height:rect.height,
+        translate:style.translate,scale:style.scale,
+        animations:visual.getAnimations().filter(item=>item.playState==='running').length,
+        targetIdentityPreserved:face.dataset.modeAuditToken==='${label}'};
+    })()`);
+    const start=await readRect();
+    await devtools.evaluate(`document.querySelector('#reading-mode-toggle').click()`);
+    await readRect(true);
+    const samples=[];
+    for (const pause of [95,95,95]) {
+      await delay(pause);
+      samples.push(await readRect());
+      if (samples.length===2 && !auditOnly) {
+        const screenshot=await devtools.send('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:false});
+        const file=`focus-mode-transition-${label}-mid.png`;
+        await fs.writeFile(path.join(outDir,file),Buffer.from(screenshot.data,'base64'));
+        captures.push({label:`${label}-mid`,file});
+      }
+    }
+    const state=await readExpected(mode,pages,label);
+    const end=await readRect();
+    const distance=(a,b)=>a&&b?Math.hypot(a.left-b.left,a.top-b.top,a.width-b.width,a.height-b.height):Infinity;
+    const startToEnd=distance(start,end);
+    const midToEnd=distance(samples[1],end);
+    const probe={visualPage,start,samples,end,startToEnd,midToEnd,
+      intermediate:midToEnd>1 && midToEnd<startToEnd,
+      settlesNearTarget:distance(samples[2],end)<24,
+      sawRunningAnimation:samples.some(sample=>sample?.animations>0)};
+    if (!probe.intermediate) failures.push(`${label}: page ${visualPage} did not move through an intermediate geometry`);
+    if (!probe.settlesNearTarget) failures.push(`${label}: animation tail does not settle continuously onto the final page geometry`);
+    if (!probe.sawRunningAnimation) failures.push(`${label}: no page-face animation was observed in sampled frames`);
+    if (samples.some(sample=>sample && !sample.targetIdentityPreserved)) failures.push(`${label}: destination face was replaced during the mode transition`);
+    return {state,probe};
+  }
   await readExpected('focus',[1],'cover');
   const p2=await move('#btn-next','focus',[2],'focus-p2');
   const p3=await move('#btn-next','focus',[3],'focus-p3');
@@ -401,14 +443,10 @@ async function runFocusNavigationAudit(devtools, readerUrl, outDir, actualTotal,
   const p4=await move('#btn-next','focus',[4],'focus-p4-cross-spread');
   const p3Back=await move('#btn-prev','focus',[3],'focus-p3-cross-spread-back');
 
-  await devtools.evaluate(`document.querySelector('#reading-mode-toggle').click()`);
-  const spreadFromP3=await readExpected('spread',[2,3],'spread-anchor-from-p3');
-  await devtools.evaluate(`document.querySelector('#reading-mode-toggle').click()`);
-  const focusFromAnchor=await readExpected('focus',[2],'focus-left-anchor-after-p3-toggle');
-  await devtools.evaluate(`document.querySelector('#reading-mode-toggle').click()`);
-  const spreadFromP2State=await readExpected('spread',[2,3],'spread-anchor-from-p2');
-  await devtools.evaluate(`document.querySelector('#reading-mode-toggle').click()`);
-  const focusFromP2=await readExpected('focus',[2],'focus-left-anchor-after-p2-toggle');
+  const {state:spreadFromP3,probe:zoomOutP3}=await transitionMode('spread',[2,3],'spread-anchor-from-p3',3);
+  const {state:focusFromAnchor,probe:zoomInP2}=await transitionMode('focus',[2],'focus-left-anchor-after-p3-toggle',2);
+  const {state:spreadFromP2State,probe:zoomOutP2}=await transitionMode('spread',[2,3],'spread-anchor-from-p2',2);
+  const {state:focusFromP2,probe:zoomInP2AfterP2}=await transitionMode('focus',[2],'focus-left-anchor-after-p2-toggle',2);
 
   const assertions={
     focusP2HasP3Companion:Boolean(p2.companionVisible),
@@ -422,9 +460,13 @@ async function runFocusNavigationAudit(devtools, readerUrl, outDir, actualTotal,
       && p3Back.visiblePages.includes(2)),
     modeAnchorP3ToSpread23ToFocus2:Boolean(spreadFromP3.pageIndicatorMatches && focusFromAnchor.pageIndicatorMatches),
     modeAnchorP2ToSpread23ToFocus2:Boolean(spreadFromP2State.pageIndicatorMatches && focusFromP2.pageIndicatorMatches),
+    zoomOutP3Continuous:Boolean(zoomOutP3.intermediate && zoomOutP3.settlesNearTarget && zoomOutP3.sawRunningAnimation),
+    zoomInP2Continuous:Boolean(zoomInP2.intermediate && zoomInP2.settlesNearTarget && zoomInP2.sawRunningAnimation),
+    zoomOutP2Continuous:Boolean(zoomOutP2.intermediate && zoomOutP2.settlesNearTarget && zoomOutP2.sawRunningAnimation),
+    zoomInP2AfterP2ToggleContinuous:Boolean(zoomInP2AfterP2.intermediate && zoomInP2AfterP2.settlesNearTarget && zoomInP2AfterP2.sawRunningAnimation),
   };
   for (const [name,passed] of Object.entries(assertions)) if (!passed) failures.push(`${name}: expected focus companion, navigation target, or left-page anchor was not observed`);
-  return {passed:failures.length===0,assertions,failures,states,captures};
+  return {passed:failures.length===0,assertions,failures,states,transitionProbes:{zoomOutP3,zoomInP2,zoomOutP2,zoomInP2AfterP2},captures};
 }
 
 async function main() {
