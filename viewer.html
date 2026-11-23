@@ -219,7 +219,7 @@
             grid-template-columns: minmax(0, 1fr);
         }
         body.focus-mode .page-english-strip {
-            max-height: min(38vh, 360px);
+            height: clamp(140px, 25vh, 300px);
             font-size: calc(clamp(17px, 1.45vw, 23px) * var(--english-text-scale, 1));
             line-height: 1.5;
         }
@@ -230,7 +230,7 @@
             justify-content: flex-start;
             min-width: 0;
             box-sizing: border-box;
-            max-height: min(32vh, 280px);
+            height: clamp(110px, 18vh, 220px);
             padding: 10px 16px;
             border: 1px solid rgba(255, 244, 226, 0.24);
             border-radius: 14px;
@@ -241,6 +241,9 @@
             text-align: left !important;
             justify-self: stretch;
             overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
             /* The fixed strip container is pointer-transparent so the book
                remains interactive; opt the scrollable card back into hit testing. */
             pointer-events: auto;
@@ -317,7 +320,8 @@
                 transform: translateX(-50%) scale(var(--strip-preview-scale, 1));
             }
             .page-english-strips { width: 96vw; gap: 6px; }
-            .page-english-strip { max-height: min(36vh, 300px); padding: 9px 10px; font-size: clamp(14px, 4vw, 16px); line-height: 1.38; }
+            .page-english-strip { height: min(36vh, 300px); padding: 9px 10px; font-size: clamp(14px, 4vw, 16px); line-height: 1.38; }
+            body.focus-mode .page-english-strip { height: min(36vh, 300px); }
             .page-english-strip-text .empty-paragraph { height: .69em; }
             .page-english-strip.is-scrollable { padding-bottom: 34px; }
             .page-english-strip.is-scrollable::after { right: 6px; bottom: 4px; }
@@ -763,10 +767,11 @@
         if (!hasPageEnglishStrips || legacyPanelEnabled) return;
         const strips = document.getElementById('page-english-strips');
         if (!strips) return;
-        stripCueObserver?.disconnect();
-        stripCueObserver = null;
-        strips.replaceChildren();
         if (!englishOpen) {
+            stripCueObserver?.disconnect();
+            stripCueObserver = null;
+            strips.replaceChildren();
+            strips.dataset.renderSignature = '';
             document.body.classList.remove('strip-page-open');
             const previousHeight = Number.parseFloat(getComputedStyle(document.body).getPropertyValue('--strip-preview-height')) || 0;
             document.body.style.setProperty('--strip-preview-height', '0px');
@@ -785,6 +790,10 @@
         });
         document.body.classList.toggle('strip-page-open', hasVisibleStrip);
         if (!hasVisibleStrip || !englishOpen) {
+            stripCueObserver?.disconnect();
+            stripCueObserver = null;
+            strips.replaceChildren();
+            strips.dataset.renderSignature = '';
             const previousHeight = Number.parseFloat(getComputedStyle(document.body).getPropertyValue('--strip-preview-height')) || 0;
             document.body.style.setProperty('--strip-preview-height', '0px');
             document.body.style.removeProperty('--strip-preview-scene-top');
@@ -795,39 +804,51 @@
             if (previousHeight > 1) scheduleBookRebuild();
             return;
         }
-        for (const pageNumber of new Set([firstPage, lastPage])) {
-            if (pageNumber < 1) continue;
-            const page = placementPages.find((item) => item.page === pageNumber);
-            const pageText = typeof page?.bottomStripText === 'string' ? page.bottomStripText.trim() : '';
-            if (!pageText) continue;
-            const strip = document.createElement('div');
-            strip.className = 'page-english-strip';
-            strip.dataset.page = String(pageNumber);
-            strip.dataset.englishText = pageText;
-            strip.style.gridColumn = readingMode === 'focus' ? '1' : (pageNumber % 2 === 0 ? '1' : '2');
-            const stripText = document.createElement('div');
-            stripText.className = 'page-english-strip-text';
-            const paragraphs = pageText.split(/\n\s*\n/);
-            paragraphs.forEach((paragraph, index) => {
-                const paragraphElement = document.createElement('p');
-                paragraphElement.textContent = paragraph;
-                stripText.append(paragraphElement);
-                if (index < paragraphs.length - 1) {
-                    const blankParagraph = document.createElement('p');
-                    blankParagraph.className = 'empty-paragraph';
-                    blankParagraph.setAttribute('aria-hidden', 'true');
-                    stripText.append(blankParagraph);
-                }
-            });
-            strip.append(stripText);
-            strip.setAttribute('lang', 'en');
-            strip.setAttribute('aria-label', `English translation for page ${pageNumber}`);
-            strips.append(strip);
+        const visibleEntries = [...new Set([firstPage, lastPage])]
+            .filter((pageNumber) => pageNumber >= 1)
+            .map((pageNumber) => {
+                const page = placementPages.find((item) => item.page === pageNumber);
+                const pageText = typeof page?.bottomStripText === 'string' ? page.bottomStripText.trim() : '';
+                return pageText ? { pageNumber, pageText } : null;
+            })
+            .filter(Boolean);
+        const renderSignature = `${readingMode}:${JSON.stringify(visibleEntries)}`;
+        const rebuildStrips = strips.dataset.renderSignature !== renderSignature;
+        if (rebuildStrips) {
+            stripCueObserver?.disconnect();
+            stripCueObserver = null;
+            strips.replaceChildren();
+            for (const { pageNumber, pageText } of visibleEntries) {
+                const strip = document.createElement('div');
+                strip.className = 'page-english-strip';
+                strip.dataset.page = String(pageNumber);
+                strip.dataset.englishText = pageText;
+                strip.style.gridColumn = readingMode === 'focus' ? '1' : (pageNumber % 2 === 0 ? '1' : '2');
+                const stripText = document.createElement('div');
+                stripText.className = 'page-english-strip-text';
+                const paragraphs = pageText.split(/\n\s*\n/);
+                paragraphs.forEach((paragraph, index) => {
+                    const paragraphElement = document.createElement('p');
+                    paragraphElement.textContent = paragraph;
+                    stripText.append(paragraphElement);
+                    if (index < paragraphs.length - 1) {
+                        const blankParagraph = document.createElement('p');
+                        blankParagraph.className = 'empty-paragraph';
+                        blankParagraph.setAttribute('aria-hidden', 'true');
+                        stripText.append(blankParagraph);
+                    }
+                });
+                strip.append(stripText);
+                strip.setAttribute('lang', 'en');
+                strip.setAttribute('aria-label', `English translation for page ${pageNumber}`);
+                strips.append(strip);
+            }
+            strips.dataset.renderSignature = renderSignature;
         }
         const syncStripScrollCues = () => strips.querySelectorAll('.page-english-strip').forEach((strip) => {
             strip.classList.toggle('is-scrollable', strip.scrollHeight > strip.clientHeight + 1);
         });
-        if ('ResizeObserver' in window) {
+        if (rebuildStrips && 'ResizeObserver' in window) {
             stripCueObserver = new ResizeObserver(() => requestAnimationFrame(syncStripScrollCues));
             strips.querySelectorAll('.page-english-strip').forEach((strip) => stripCueObserver.observe(strip));
         }
@@ -1108,6 +1129,8 @@
     const leftBg  = document.getElementById('left-bg');
     const leaves  = [];
     let isDragging = false, currentDragLeaf = null, dragPointerId = null;
+    let focusSwipe = null;
+    let suppressFocusClickUntil = 0;
     let focusPage = 1;
     let navigationBusy = false;
     let startX = 0, lastX = 0, startAngle = 0;
@@ -1489,7 +1512,7 @@
         if (prev) flipTo(prev, 0);
     });
     book.addEventListener('click', event => {
-        if (readingMode !== 'focus' || navigationBusy) return;
+        if (readingMode !== 'focus' || navigationBusy || Date.now() < suppressFocusClickUntil) return;
         const leaf = event.target.closest('.leaf.focus-companion');
         if (leaf) navigateFocus(Number(leaf.dataset.index) + 1);
     });
@@ -1555,7 +1578,11 @@
         }
         const leafEl = e.target.closest('.leaf');
         if (!leafEl) return;
-        if (readingMode === 'focus') return; // focus changes use a click on the companion or navigation controls
+        if (readingMode === 'focus') {
+            focusSwipe = { pointerId: e.pointerId, startX: e.clientX, startY: e.clientY, x: e.clientX, y: e.clientY };
+            try { leafEl.setPointerCapture(e.pointerId); } catch (_) { /* Pointer may already be released. */ }
+            return;
+        }
         const obj = leaves[parseInt(leafEl.dataset.index)];
         if (obj.angle === 0 && obj.index >= (readingMode === 'focus' ? TOTAL_PAGES - 1 : MAX_FLIPPED_LEAVES)) return;
         if (USE_INCREMENTAL_PRELOAD && obj.angle === 0) {
@@ -1587,6 +1614,12 @@
             e.preventDefault();
             return;
         }
+        if (focusSwipe?.pointerId === e.pointerId) {
+            focusSwipe.x = e.clientX;
+            focusSwipe.y = e.clientY;
+            if (Math.abs(focusSwipe.x - focusSwipe.startX) > 8) e.preventDefault();
+            return;
+        }
         if (!isDragging || !currentDragLeaf || e.pointerId !== dragPointerId) return;
         e.preventDefault();
         lastX = e.clientX;
@@ -1614,6 +1647,16 @@
     };
 
     const endPointer = (e) => {
+        if (focusSwipe?.pointerId === e.pointerId) {
+            const swipe = focusSwipe;
+            focusSwipe = null;
+            const deltaX = swipe.x - swipe.startX;
+            const deltaY = swipe.y - swipe.startY;
+            if (Math.abs(deltaX) >= 48 && Math.abs(deltaX) > Math.abs(deltaY) * 1.15) {
+                suppressFocusClickUntil = Date.now() + 500;
+                navigateFocus(focusPage + (deltaX < 0 ? 1 : -1));
+            }
+        }
         if (e.pointerType === 'touch') {
             activeTouchPointers.delete(e.pointerId);
             if (isPinching && activeTouchPointers.size < 2) isPinching = false;

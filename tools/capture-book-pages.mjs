@@ -32,6 +32,7 @@ Options:
   --to-page <number>      Last printed page to include (default: last page)
   --capture-pages <list>  Capture selected printed pages only (for example 1,2,3,43,50)
   --focus-interaction-test Exercise late-page drag, keyboard, preload, and left-page mode anchoring
+  --spread-interaction-test Verify page-drag flipping with English strips open
   --focus-navigation-test Audit focus companions, 2↔3, 3↔4, and left-page mode anchors
   --translation <state>   English display: auto | closed | open (default: auto by language)
   --legacy-panel          Keep the legacy English panel enabled for fallback auditing
@@ -70,6 +71,7 @@ function parseArgs(argv) {
     if (flag === '--audit-only') { options.auditOnly = true; continue; }
     if (flag === '--focus-interaction-test') { options.focusInteractionTest = true; continue; }
     if (flag === '--focus-navigation-test') { options.focusNavigationTest = true; continue; }
+    if (flag === '--spread-interaction-test') { options.spreadInteractionTest = true; continue; }
     if (flag === '--legacy-panel') { options.legacyPanel = true; continue; }
     if (flag === '--library') { options.library = true; continue; }
     if (flag === '--p12-bars-test') { options.p12BarsTest = true; continue; }
@@ -88,6 +90,7 @@ function parseArgs(argv) {
   if (!['spread', 'focus'].includes(options.mode)) throw new Error('--mode must be spread or focus');
   if (options.focusInteractionTest && options.mode !== 'focus') throw new Error('--focus-interaction-test requires --mode focus');
   if (options.focusNavigationTest && options.mode !== 'focus') throw new Error('--focus-navigation-test requires --mode focus');
+  if (options.spreadInteractionTest && options.mode !== 'spread') throw new Error('--spread-interaction-test requires --mode spread');
   if (options.p12BarsTest && (options.book !== 'penghu_shihu' || options.lang !== 'en')) {
     throw new Error('--p12-bars-test requires --book penghu_shihu --lang en');
   }
@@ -1159,10 +1162,10 @@ async function main() {
         const focusState = await devtools.evaluate(`({mode:document.body.classList.contains('focus-mode')?'focus':'spread',indicator:document.querySelector('#page-indicator').textContent.trim(),pressed:document.querySelector('#reading-mode-toggle').getAttribute('aria-pressed'),preference:localStorage.getItem('onlinebook.readingMode')})`);
         const keyboardFocusPage = Math.min(startPage + 2, actualTotal);
         const keyboardAnchorPage = keyboardFocusPage === 1 ? 1 : keyboardFocusPage % 2 === 0 ? keyboardFocusPage : keyboardFocusPage - 1;
-        const dragFirstPage = Number((dragPage.match(/\\d+/) || [])[0]) || null;
-        const keyboardFirstPage = Number((keyboardPage.match(/\\d+/) || [])[0]) || null;
-        const spreadFirstPages = [...spreadState.indicator.matchAll(/\\d+/g)].map(match => Number(match[0]));
-        const focusFirstPage = Number((focusState.indicator.match(/\\d+/) || [])[0]) || null;
+        const dragFirstPage = Number((dragPage.match(/\d+/) || [])[0]) || null;
+        const keyboardFirstPage = Number((keyboardPage.match(/\d+/) || [])[0]) || null;
+        const spreadFirstPages = [...spreadState.indicator.matchAll(/\d+/g)].map(match => Number(match[0]));
+        const focusFirstPage = Number((focusState.indicator.match(/\d+/) || [])[0]) || null;
         focusInteraction = {ready:true,startPage,dragPage,dragResult,pointerEvents:await devtools.evaluate(`window.__focusPointerEvents`),preload,spreadState,focusState,
           dragAdvanced:dragFirstPage===startPage+1,keyboardAdvanced:keyboardFirstPage===keyboardFocusPage,
           preloadRequested:preload.requested&&preload.loaded,
@@ -1171,28 +1174,70 @@ async function main() {
             &&focusState.mode==='focus'&&focusFirstPage===keyboardAnchorPage&&focusState.preference==='focus'};
       }
     }
+    let spreadInteraction = null;
+    if (options.spreadInteractionTest) {
+      await devtools.send('Page.navigate', { url: readerUrl });
+      await waitFor(async () => devtools.evaluate(`(() => document.readyState === 'complete'
+        && document.querySelectorAll('#book .leaf img').length > 0 && document.querySelector('#btn-next'))()`), 'spread interaction reader initialization', 60000);
+      await waitFor(async () => devtools.evaluate(`(() => !document.querySelector('#loading-screen')?.isConnected)()`), 'spread interaction loading screen', 60000);
+      const englishInitiallyOpen = await devtools.evaluate(`document.body.classList.contains('page-english-open')`);
+      const englishShouldBeOpen = options.translation === 'auto' ? options.lang === 'en' : options.translation === 'open';
+      if (englishInitiallyOpen !== englishShouldBeOpen) await devtools.evaluate(`document.querySelector('#translation-toggle').click()`);
+      await devtools.evaluate(`document.querySelector('#btn-next').click()`);
+      await delay(480);
+      const dragPoint = await devtools.evaluate(`(() => {
+        const image = [...document.querySelectorAll('#book img')].find(item => item.alt === '第3頁');
+        if (!image) return {ready:false};
+        const rect = image.getBoundingClientRect();
+        return {ready:rect.width>1&&rect.height>1,x:rect.right-18,y:rect.top+rect.height/2,width:rect.width,
+          page:document.querySelector('#page-indicator').textContent.trim(),englishOpen:document.body.classList.contains('page-english-open')};
+      })()`);
+      if (dragPoint.ready) {
+        const dragEndX = Math.round(dragPoint.x - dragPoint.width * 0.9);
+        await devtools.send('Input.dispatchMouseEvent', {type:'mousePressed',x:dragPoint.x,y:dragPoint.y,button:'left',buttons:1});
+        await devtools.send('Input.dispatchMouseEvent', {type:'mouseMoved',x:dragEndX,y:dragPoint.y,button:'left',buttons:1});
+        await devtools.send('Input.dispatchMouseEvent', {type:'mouseReleased',x:dragEndX,y:dragPoint.y,button:'left',buttons:0});
+        await delay(520);
+        const finalPage = await devtools.evaluate(`document.querySelector('#page-indicator').textContent.trim()`);
+        const initialFirstPage = Number((dragPoint.page.match(/\d+/) || [])[0]) || null;
+        const finalFirstPage = Number((finalPage.match(/\d+/) || [])[0]) || null;
+        spreadInteraction = {dragPoint,finalPage,dragAdvanced:finalFirstPage===initialFirstPage+2};
+      } else spreadInteraction = {ready:false,dragPoint};
+    }
     const diagnostics = devtools.diagnostics;
+    const stripHeightSamples = states.flatMap(state => state.stripLayout?.strips.map(strip => strip.stripBounds.bottom - strip.stripBounds.top) || []);
+    const stripHeightRange = stripHeightSamples.length
+      ? Math.max(...stripHeightSamples) - Math.min(...stripHeightSamples)
+      : 0;
+    const stripHeightFailure = stripHeightRange > 1
+      ? [`English strip height changed by ${stripHeightRange}px across captured pages`]
+      : [];
     const visibleStripFailures = states.filter(state => !state.visibleStripPagesMatch)
       .map(state => `visible pages ${state.visiblePages.join('-')}: expected English strips ${state.expectedVisibleStripPages.join(',') || '(none)'}, got ${state.actualStripPages.join(',') || '(none)'}`);
     const wheelFailures = states.filter(state => state.wheelScrollEvidence
       && (!state.wheelScrollEvidence.scrolled || !state.wheelScrollEvidence.pageStateUnchanged))
       .map(state => `page ${state.wheelScrollEvidence.page}: wheel scroll did not move the strip without changing reader state`);
     const audit = {
-      passed: stripFailures.length === 0 && visibleStripFailures.length === 0 && wheelFailures.length === 0 && diagnostics.length === 0
+      passed: stripFailures.length === 0 && visibleStripFailures.length === 0 && wheelFailures.length === 0 && stripHeightFailure.length === 0 && diagnostics.length === 0
         && states.filter(state => state.focusPageAudit).every(state => state.focusPageAudit.focusPageVisible && state.focusPageAudit.companionVisible)
         && (!options.focusNavigationTest || Boolean(focusNavigation?.passed))
+        && (!options.spreadInteractionTest || Boolean(spreadInteraction?.dragAdvanced))
         && (!options.focusInteractionTest || Boolean(focusInteraction?.ready && focusInteraction.dragAdvanced && focusInteraction.keyboardAdvanced && focusInteraction.preloadRequested && focusInteraction.toggleUsesLeftAnchor)),
-      failures: [...stripFailures, ...visibleStripFailures, ...wheelFailures,
+      failures: [...stripFailures, ...visibleStripFailures, ...wheelFailures, ...stripHeightFailure,
         ...states.filter(state => state.focusPageAudit && !state.focusPageAudit.focusPageVisible)
           .map(state => `focus page ${state.visiblePages[0]} is not top-visible in the book viewport`),
         ...states.filter(state => state.focusPageAudit && !state.focusPageAudit.companionVisible)
           .map(state => `focus page ${state.visiblePages[0]} is missing same-spread companion ${state.focusPageAudit.expectedCompanionPage}`),
         ...(options.focusNavigationTest ? focusNavigation?.failures || ['focus navigation audit did not run'] : []),
+        ...(options.spreadInteractionTest && !spreadInteraction?.dragAdvanced ? ['spread interaction: page drag did not advance exactly one spread with English open'] : []),
         ...(options.focusInteractionTest && !focusInteraction?.dragAdvanced ? ['focus interaction: drag did not advance exactly one printed page'] : []),
         ...(options.focusInteractionTest && !focusInteraction?.keyboardAdvanced ? ['focus interaction: keyboard did not advance exactly one printed page'] : []),
         ...(options.focusInteractionTest && !focusInteraction?.preloadRequested ? ['focus interaction: next printed page was not observed in incremental preload'] : []),
         ...(options.focusInteractionTest && !focusInteraction?.toggleUsesLeftAnchor ? ['focus interaction: mode toggle did not use the spread left-page anchor'] : [])],
       focusNavigation,
+      spreadInteraction,
+      stripHeightSamples,
+      stripHeightRange,
       focusInteraction,
       assertions: {
         englishOpen: options.tenSpreadsTest,
@@ -1256,7 +1301,8 @@ async function main() {
       ? `Audited ${states.length} reader state(s); ${devtools.diagnostics.length} browser error(s).`
       : `Finished ${states.length} screenshot(s); ${devtools.diagnostics.length} browser error(s).`);
     console.log(`Index: ${path.join(outDir, manifestName)}`);
-    if (devtools.diagnostics.length || (options.mode === 'focus' && !audit.passed)) process.exitCode = 1;
+    if (devtools.diagnostics.length || (options.mode === 'focus' && !audit.passed)
+      || (options.spreadInteractionTest && !audit.passed) || stripHeightFailure.length) process.exitCode = 1;
   } finally {
     try { devtools?.socket.close(); } catch { /* Already closed. */ }
     if (chromeProcess?.pid) {
