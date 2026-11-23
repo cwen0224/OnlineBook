@@ -218,40 +218,52 @@
             width: min(90vw, 900px);
             grid-template-columns: minmax(0, 1fr);
         }
-        body.focus-mode .page-english-strip {
+        body.focus-mode .page-english-strip-frame {
             height: clamp(140px, 25vh, 300px);
+        }
+        body.focus-mode .page-english-strip {
             font-size: calc(clamp(17px, 1.45vw, 23px) * var(--english-text-scale, 1));
             line-height: 1.5;
         }
-        .page-english-strip {
+        .page-english-strip-frame {
             position: relative;
-            display: flex;
-            align-items: flex-start;
-            justify-content: flex-start;
+            display: block;
             min-width: 0;
             box-sizing: border-box;
             height: clamp(110px, 18vh, 220px);
-            padding: 10px 16px;
             border: 1px solid rgba(255, 244, 226, 0.24);
             border-radius: 14px;
             background: var(--coffee-glass);
+            justify-self: stretch;
+            overflow: hidden;
+            pointer-events: auto;
+        }
+        .page-english-strip {
+            position: absolute;
+            inset: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            padding: 10px 32px 42px 16px;
+            border: 0;
+            border-radius: inherit;
+            background: transparent;
             color: #fffaf3;
             font-size: calc(clamp(16px, 1.25vw, 20px) * var(--english-text-scale, 1));
             line-height: 1.42;
             text-align: left !important;
-            justify-self: stretch;
             overflow-y: auto;
             overscroll-behavior: contain;
             -webkit-overflow-scrolling: touch;
             touch-action: pan-y;
-            /* The fixed strip container is pointer-transparent so the book
-               remains interactive; opt the scrollable card back into hit testing. */
             pointer-events: auto;
             overflow-wrap: anywhere;
             text-shadow: 0 1px 2px rgba(0,0,0,.35);
             white-space: normal;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255,250,243,.32) transparent;
+            scrollbar-width: none;
+            scrollbar-color: transparent transparent;
         }
         .page-english-strip-text {
             display: block;
@@ -272,8 +284,7 @@
             padding: 0;
             line-height: 0;
         }
-        .page-english-strip.is-scrollable { padding-bottom: 34px; }
-        .page-english-strip.is-scrollable::before {
+        .page-english-strip-frame.is-scrollable::before {
             content: '';
             position: absolute;
             z-index: 1;
@@ -284,25 +295,46 @@
             background: linear-gradient(to bottom, rgba(112,74,45,0), rgba(112,74,45,.86));
             pointer-events: none;
         }
-        .page-english-strip.is-scrollable::after {
-            content: '↓ Scroll';
+        .page-english-strip-top-fade {
+            display: none;
             position: absolute;
             z-index: 2;
-            right: 8px;
-            bottom: 5px;
-            padding: 2px 8px;
-            border: 1px solid rgba(255,244,226,.2);
-            border-radius: 999px;
-            background: rgba(76,49,31,.74);
-            color: rgba(255,250,243,.88);
-            font-size: 11px;
-            line-height: 1.35;
-            letter-spacing: .02em;
-            text-shadow: 0 1px 2px rgba(0,0,0,.4);
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 34px;
+            background: linear-gradient(to bottom, rgba(112,74,45,.92), rgba(112,74,45,.62) 48%, rgba(112,74,45,0));
             pointer-events: none;
         }
-        .page-english-strip::-webkit-scrollbar { width: 5px; }
-        .page-english-strip::-webkit-scrollbar-thumb { background: rgba(255,250,243,.28); border-radius: 8px; }
+        .page-english-strip-frame.has-scrolled .page-english-strip-top-fade { display: block; }
+        .page-english-strip::-webkit-scrollbar { display: none; width: 0; height: 0; }
+        .page-english-scrollbar {
+            display: none;
+            position: absolute;
+            z-index: 3;
+            top: 8px;
+            right: 5px;
+            bottom: 46px;
+            width: 12px;
+            border: 1px solid rgba(255,244,226,.3);
+            border-radius: 9px;
+            background: rgba(47,31,21,.48);
+            cursor: pointer;
+            touch-action: none;
+        }
+        .page-english-strip-frame.is-scrollable .page-english-scrollbar { display: block; }
+        .page-english-scrollbar-thumb {
+            position: absolute;
+            top: 0;
+            left: 2px;
+            right: 2px;
+            min-height: 26px;
+            border-radius: 7px;
+            background: rgba(255,250,243,.86);
+            box-shadow: 0 1px 4px rgba(0,0,0,.4);
+            cursor: grab;
+        }
+        .page-english-scrollbar:active .page-english-scrollbar-thumb { cursor: grabbing; }
         body:not(.strip-preview) .page-english-strips { display: none; }
         body.strip-preview:not(.page-english-open) .page-english-strips { display: none; }
         body.strip-page-open #hint { display: none; }
@@ -320,11 +352,10 @@
                 transform: translateX(-50%) scale(var(--strip-preview-scale, 1));
             }
             .page-english-strips { width: 96vw; gap: 6px; }
-            .page-english-strip { height: min(36vh, 300px); padding: 9px 10px; font-size: clamp(14px, 4vw, 16px); line-height: 1.38; }
-            body.focus-mode .page-english-strip { height: min(36vh, 300px); }
+            .page-english-strip-frame { height: min(36vh, 300px); }
+            .page-english-strip { padding: 9px 28px 42px 10px; font-size: clamp(14px, 4vw, 16px); line-height: 1.38; }
             .page-english-strip-text .empty-paragraph { height: .69em; }
-            .page-english-strip.is-scrollable { padding-bottom: 34px; }
-            .page-english-strip.is-scrollable::after { right: 6px; bottom: 4px; }
+            .page-english-scrollbar { right: 4px; width: 12px; }
         }
 
         /* Subtle spine-edge shadow only — no overlay gradients */
@@ -747,11 +778,12 @@
         // scrollable child. Route deltas by pointer position so they scroll the
         // strip instead of falling through to the book's wheel-to-zoom handler.
         document.addEventListener('wheel', (event) => {
-            const strip = [...strips.querySelectorAll('.page-english-strip')].find((item) => {
+            const frame = [...strips.querySelectorAll('.page-english-strip-frame')].find((item) => {
                 const rect = item.getBoundingClientRect();
                 return event.clientX >= rect.left && event.clientX <= rect.right
                     && event.clientY >= rect.top && event.clientY <= rect.bottom;
             });
+            const strip = frame?.querySelector('.page-english-strip');
             if (!strip || strip.scrollHeight <= strip.clientHeight + 1) return;
             event.preventDefault();
             event.stopPropagation();
@@ -814,16 +846,39 @@
             .filter(Boolean);
         const renderSignature = `${readingMode}:${JSON.stringify(visibleEntries)}`;
         const rebuildStrips = strips.dataset.renderSignature !== renderSignature;
+        const syncStripScrollCues = () => strips.querySelectorAll('.page-english-strip').forEach((strip) => {
+            const isScrollable = strip.scrollHeight > strip.clientHeight + 1;
+            strip.classList.toggle('is-scrollable', isScrollable);
+            strip.classList.toggle('has-scrolled', strip.scrollTop > 1);
+            const frame = strip.closest('.page-english-strip-frame');
+            frame?.classList.toggle('is-scrollable', isScrollable);
+            frame?.classList.toggle('has-scrolled', strip.scrollTop > 1);
+            const scrollbar = frame?.querySelector('.page-english-scrollbar');
+            const thumb = scrollbar?.querySelector('.page-english-scrollbar-thumb');
+            if (!scrollbar || !thumb || !isScrollable) return;
+            const trackHeight = scrollbar.clientHeight;
+            const thumbHeight = Math.min(trackHeight, Math.max(26, trackHeight * strip.clientHeight / strip.scrollHeight));
+            const travel = Math.max(0, trackHeight - thumbHeight);
+            const scrollRange = Math.max(1, strip.scrollHeight - strip.clientHeight);
+            thumb.style.height = `${thumbHeight}px`;
+            thumb.style.transform = `translateY(${travel * strip.scrollTop / scrollRange}px)`;
+            scrollbar.setAttribute('aria-valuemax', String(Math.round(scrollRange)));
+            scrollbar.setAttribute('aria-valuenow', String(Math.round(strip.scrollTop)));
+        });
         if (rebuildStrips) {
             stripCueObserver?.disconnect();
             stripCueObserver = null;
             strips.replaceChildren();
             for (const { pageNumber, pageText } of visibleEntries) {
+                const frame = document.createElement('div');
+                frame.className = 'page-english-strip-frame';
+                frame.dataset.page = String(pageNumber);
+                frame.style.gridColumn = readingMode === 'focus' ? '1' : (pageNumber % 2 === 0 ? '1' : '2');
                 const strip = document.createElement('div');
                 strip.className = 'page-english-strip';
                 strip.dataset.page = String(pageNumber);
+                strip.id = `page-english-strip-${pageNumber}`;
                 strip.dataset.englishText = pageText;
-                strip.style.gridColumn = readingMode === 'focus' ? '1' : (pageNumber % 2 === 0 ? '1' : '2');
                 const stripText = document.createElement('div');
                 stripText.className = 'page-english-strip-text';
                 const paragraphs = pageText.split(/\n\s*\n/);
@@ -839,15 +894,74 @@
                     }
                 });
                 strip.append(stripText);
+                const topFade = document.createElement('div');
+                topFade.className = 'page-english-strip-top-fade';
+                topFade.setAttribute('aria-hidden', 'true');
+                strip.append(topFade);
+                const scrollbar = document.createElement('div');
+                scrollbar.className = 'page-english-scrollbar';
+                scrollbar.setAttribute('role', 'scrollbar');
+                scrollbar.setAttribute('aria-label', `Scroll English text for page ${pageNumber}`);
+                scrollbar.setAttribute('aria-controls', strip.id);
+                scrollbar.setAttribute('aria-orientation', 'vertical');
+                scrollbar.setAttribute('aria-valuemin', '0');
+                scrollbar.setAttribute('aria-valuemax', '0');
+                scrollbar.setAttribute('aria-valuenow', '0');
+                scrollbar.tabIndex = 0;
+                const scrollbarThumb = document.createElement('span');
+                scrollbarThumb.className = 'page-english-scrollbar-thumb';
+                scrollbar.append(scrollbarThumb);
+                let scrollbarDrag = null;
+                const scrollFromPointer = (clientY, centerThumb) => {
+                    const trackRect = scrollbar.getBoundingClientRect();
+                    const thumbHeight = scrollbarThumb.getBoundingClientRect().height;
+                    const travel = Math.max(1, trackRect.height - thumbHeight);
+                    const offset = clientY - trackRect.top - (centerThumb ? thumbHeight / 2 : scrollbarDrag?.thumbOffset || 0);
+                    strip.scrollTop = Math.max(0, Math.min(1, offset / travel)) * (strip.scrollHeight - strip.clientHeight);
+                };
+                scrollbar.addEventListener('pointerdown', (event) => {
+                    if (strip.scrollHeight <= strip.clientHeight + 1) return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const thumbRect = scrollbarThumb.getBoundingClientRect();
+                    const onThumb = event.target === scrollbarThumb;
+                    scrollbarDrag = { pointerId: event.pointerId, startY: event.clientY, startScrollTop: strip.scrollTop,
+                        thumbOffset: onThumb ? event.clientY - thumbRect.top : thumbRect.height / 2 };
+                    if (!onThumb) scrollFromPointer(event.clientY, true);
+                    try { scrollbar.setPointerCapture(event.pointerId); } catch (_) { /* Pointer may already be released. */ }
+                });
+                scrollbar.addEventListener('pointermove', (event) => {
+                    if (scrollbarDrag?.pointerId !== event.pointerId) return;
+                    event.preventDefault();
+                    const trackRect = scrollbar.getBoundingClientRect();
+                    const thumbHeight = scrollbarThumb.getBoundingClientRect().height;
+                    const travel = Math.max(1, trackRect.height - thumbHeight);
+                    const offset = scrollbarDrag.thumbOffset + event.clientY - scrollbarDrag.startY;
+                    strip.scrollTop = Math.max(0, Math.min(1, offset / travel)) * (strip.scrollHeight - strip.clientHeight);
+                });
+                const endScrollbarDrag = (event) => {
+                    if (scrollbarDrag?.pointerId === event.pointerId) scrollbarDrag = null;
+                };
+                scrollbar.addEventListener('pointerup', endScrollbarDrag);
+                scrollbar.addEventListener('pointercancel', endScrollbarDrag);
+                scrollbar.addEventListener('keydown', (event) => {
+                    const amount = event.key === 'PageDown' || event.key === 'PageUp' ? strip.clientHeight * .85 : 42;
+                    if (event.key === 'ArrowDown' || event.key === 'PageDown') strip.scrollTop += amount;
+                    else if (event.key === 'ArrowUp' || event.key === 'PageUp') strip.scrollTop -= amount;
+                    else if (event.key === 'Home') strip.scrollTop = 0;
+                    else if (event.key === 'End') strip.scrollTop = strip.scrollHeight;
+                    else return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+                strip.addEventListener('scroll', syncStripScrollCues, { passive: true });
+                frame.append(strip, topFade, scrollbar);
                 strip.setAttribute('lang', 'en');
                 strip.setAttribute('aria-label', `English translation for page ${pageNumber}`);
-                strips.append(strip);
+                strips.append(frame);
             }
             strips.dataset.renderSignature = renderSignature;
         }
-        const syncStripScrollCues = () => strips.querySelectorAll('.page-english-strip').forEach((strip) => {
-            strip.classList.toggle('is-scrollable', strip.scrollHeight > strip.clientHeight + 1);
-        });
         if (rebuildStrips && 'ResizeObserver' in window) {
             stripCueObserver = new ResizeObserver(() => requestAnimationFrame(syncStripScrollCues));
             strips.querySelectorAll('.page-english-strip').forEach((strip) => stripCueObserver.observe(strip));

@@ -833,6 +833,11 @@ async function main() {
             const image = [...document.querySelectorAll('#book img')].find(item => item.alt === '第' + page + '頁');
             const pageRect = image?.getBoundingClientRect();
             const stripRect = strip.getBoundingClientRect();
+            const frame = strip.closest('.page-english-strip-frame');
+            const customScrollbar = frame?.querySelector('.page-english-scrollbar');
+            const customScrollbarThumb = customScrollbar?.querySelector('.page-english-scrollbar-thumb');
+            const canScroll = getComputedStyle(strip).overflowY === 'auto' && strip.scrollHeight > strip.clientHeight + 1;
+            const customScrollbarRect = customScrollbar?.getBoundingClientRect();
             return {
               page,
               text: strip.dataset.englishText || strip.textContent.trim(),
@@ -841,12 +846,14 @@ async function main() {
               gapBelowPage: pageRect ? Math.round(stripRect.top - pageRect.bottom) : null,
               outsideBook: Boolean(pageRect && stripRect.top >= pageRect.bottom),
               overflowY: getComputedStyle(strip).overflowY,
-              canScroll: getComputedStyle(strip).overflowY === 'auto' && strip.scrollHeight > strip.clientHeight + 1,
+              canScroll,
+              hasVisibleScrollbar: canScroll && Boolean(customScrollbar && getComputedStyle(customScrollbar).display !== 'none'
+                && customScrollbarRect.width >= 8 && customScrollbarThumb?.getBoundingClientRect().height >= 20),
               textAlign: getComputedStyle(strip.querySelector('.page-english-strip-text') || strip).textAlign,
               textAlignLast: getComputedStyle(strip.querySelector('.page-english-strip-text') || strip).textAlignLast,
               paragraphGapRatio,
               ordinaryParagraphMarginTop: paragraph ? getComputedStyle(paragraph).marginTop : null,
-              hasScrollCue: strip.classList.contains('is-scrollable'),
+              hasScrollCue: frame.classList.contains('is-scrollable'),
               fits: strip.scrollWidth <= strip.clientWidth + 1 && (strip.scrollHeight <= strip.clientHeight + 1 || getComputedStyle(strip).overflowY === 'auto'),
               scrollWidth: Math.round(strip.scrollWidth), clientWidth: Math.round(strip.clientWidth),
               scrollHeight: Math.round(strip.scrollHeight), clientHeight: Math.round(strip.clientHeight),
@@ -882,13 +889,13 @@ async function main() {
             paragraphGapsHalfLine: pages.filter(page => page.paragraphGapRatio !== null)
               .every(page => Math.abs(page.paragraphGapRatio - 0.5) <= 0.015),
             ordinaryParagraphMarginsUnchanged: pages.every(page => page.ordinaryParagraphMarginTop === '0px'),
-            scrollablePagesHaveCue: pages.every(page => page.canScroll === page.hasScrollCue),
+            scrollablePagesHaveScrollbar: pages.every(page => page.canScroll === page.hasVisibleScrollbar),
             textMatches,
             suppressedPages: expectedForSpread.filter(item => !item.text).map(item => item.page),
             p43ScrollEvidence: pages.find(page => page.page === 43)
               ? { overflowY: pages.find(page => page.page === 43).overflowY, scrollHeight: pages.find(page => page.page === 43).scrollHeight,
                   clientHeight: pages.find(page => page.page === 43).clientHeight, canScroll: pages.find(page => page.page === 43).canScroll,
-                  hasScrollCue: pages.find(page => page.page === 43).hasScrollCue }
+                  hasVisibleScrollbar: pages.find(page => page.page === 43).hasVisibleScrollbar }
               : null,
             scene: { top: Math.round(sceneRect.top), bottom: Math.round(sceneRect.bottom) },
             book: { top: Math.round(bookRect.top), bottom: Math.round(bookRect.bottom) },
@@ -969,15 +976,42 @@ async function main() {
             })()`);
             await delay(50);
           }
-          const after = await devtools.evaluate(`(() => ({
-            scrollTop: document.querySelector('#page-english-strips .page-english-strip[data-page="${scrollableStrip.page}"]')?.scrollTop ?? -1,
-            indicator: document.querySelector('#page-indicator')?.textContent.trim(),
-            angles: [...document.querySelectorAll('#book .leaf')].map(leaf => leaf.style.transform)
-          }))()`);
+          const after = await devtools.evaluate(`(() => {
+            const strip = document.querySelector('#page-english-strips .page-english-strip[data-page="${scrollableStrip.page}"]');
+            const topFade = strip?.parentElement.querySelector('.page-english-strip-top-fade');
+            return {scrollTop:strip?.scrollTop??-1,indicator:document.querySelector('#page-indicator')?.textContent.trim(),
+              angles:[...document.querySelectorAll('#book .leaf')].map(leaf=>leaf.style.transform),
+              topFadeVisible:Boolean(topFade&&getComputedStyle(topFade).display!=='none')};
+          })()`);
+          const scrollbarDragPoint = await devtools.evaluate(`(() => {
+            const strip = document.querySelector('#page-english-strips .page-english-strip[data-page="${scrollableStrip.page}"]');
+            const track = strip?.parentElement.querySelector('.page-english-scrollbar');
+            const thumb = track?.querySelector('.page-english-scrollbar-thumb');
+            if (!strip || !track || !thumb || getComputedStyle(track).display === 'none') return null;
+            const trackRect = track.getBoundingClientRect(), thumbRect = thumb.getBoundingClientRect();
+            return {x:Math.round(thumbRect.left+thumbRect.width/2),y:Math.round(thumbRect.top+thumbRect.height/2),
+              destinationY:Math.round(trackRect.top+trackRect.height/2),trackTop:Math.round(trackRect.top),scrollTop:strip.scrollTop};
+          })()`);
+          let scrollbarDragEvidence = null;
+          if (scrollbarDragPoint) {
+            await devtools.send('Input.dispatchMouseEvent', {type:'mousePressed',x:scrollbarDragPoint.x,y:scrollbarDragPoint.y,button:'left',buttons:1});
+            await devtools.send('Input.dispatchMouseEvent', {type:'mouseMoved',x:scrollbarDragPoint.x,y:scrollbarDragPoint.destinationY,button:'left',buttons:1});
+            await devtools.send('Input.dispatchMouseEvent', {type:'mouseReleased',x:scrollbarDragPoint.x,y:scrollbarDragPoint.destinationY,button:'left',buttons:0});
+            await delay(80);
+            const dragAfter = await devtools.evaluate(`(() => {
+              const strip = document.querySelector('#page-english-strips .page-english-strip[data-page="${scrollableStrip.page}"]');
+              return {scrollTop:strip?.scrollTop??-1,indicator:document.querySelector('#page-indicator')?.textContent.trim(),
+                angles:[...document.querySelectorAll('#book .leaf')].map(leaf=>leaf.style.transform),
+                ariaValue:strip?.parentElement.querySelector('.page-english-scrollbar')?.getAttribute('aria-valuenow')};
+            })()`);
+            scrollbarDragEvidence = {point:scrollbarDragPoint,after:dragAfter,moved:Math.abs(dragAfter.scrollTop-scrollbarDragPoint.scrollTop)>5,
+              pageStateUnchanged:before.indicator===dragAfter.indicator&&JSON.stringify(before.angles)===JSON.stringify(dragAfter.angles)};
+          }
           wheelScrollEvidence = { page: scrollableStrip.page, target, before, after,
             nativeAfter, eventEvidence,
             scrolled: after.scrollTop > before.scrollTop,
-            pageStateUnchanged: before.indicator === after.indicator && JSON.stringify(before.angles) === JSON.stringify(after.angles) };
+            pageStateUnchanged: before.indicator === after.indicator && JSON.stringify(before.angles) === JSON.stringify(after.angles),
+            scrollbarDragEvidence };
         }
         const label = visiblePages.length === 1 ? `page-${String(visiblePages[0]).padStart(3, '0')}` : `spread-${String(visiblePages[0]).padStart(3, '0')}-${String(visiblePages[1]).padStart(3, '0')}`;
         const focusLayout = await devtools.evaluate(`(() => {
@@ -1073,7 +1107,7 @@ async function main() {
         if (!layout.allLeftAligned) failures.push(`spread ${first}-${last}: strip text or card content is not left aligned`);
         if (!layout.paragraphGapsHalfLine) failures.push(`spread ${first}-${last}: paragraph blank-line spacing is not half the normal line height`);
         if (!layout.ordinaryParagraphMarginsUnchanged) failures.push(`spread ${first}-${last}: ordinary paragraph margins changed`);
-        if (!layout.scrollablePagesHaveCue) failures.push(`spread ${first}-${last}: scrollable strip lacks its visible scroll cue or cue is shown unnecessarily`);
+        if (!layout.scrollablePagesHaveScrollbar) failures.push(`spread ${first}-${last}: scrollable strip lacks its visible scrollbar or scrollbar is shown unnecessarily`);
         if (!layout.textMatches) failures.push(`spread ${first}-${last}: text does not match per-page zone text or expected strip count`);
         if (!layout.bookInsideScene) failures.push(`spread ${first}-${last}: book exceeds reserved scene bounds`);
         if (!layout.controlsVisible) failures.push(`spread ${first}-${last}: navigation controls clipped by viewport`);
@@ -1097,8 +1131,8 @@ async function main() {
         if (first <= 43 && last >= 43 && (!layout.p43ScrollEvidence?.canScroll
           || layout.p43ScrollEvidence.overflowY !== 'auto'
           || layout.p43ScrollEvidence.scrollHeight <= layout.p43ScrollEvidence.clientHeight
-          || !layout.p43ScrollEvidence.hasScrollCue)) {
-          failures.push('page 43: audit did not prove scrollHeight > clientHeight, overflow-y auto, and a visible scroll cue');
+          || !layout.p43ScrollEvidence.hasVisibleScrollbar)) {
+          failures.push('page 43: audit did not prove scrollHeight > clientHeight, overflow-y auto, and a visible scrollbar');
         }
       }
       return failures;
@@ -1215,15 +1249,19 @@ async function main() {
     const visibleStripFailures = states.filter(state => !state.visibleStripPagesMatch)
       .map(state => `visible pages ${state.visiblePages.join('-')}: expected English strips ${state.expectedVisibleStripPages.join(',') || '(none)'}, got ${state.actualStripPages.join(',') || '(none)'}`);
     const wheelFailures = states.filter(state => state.wheelScrollEvidence
-      && (!state.wheelScrollEvidence.scrolled || !state.wheelScrollEvidence.pageStateUnchanged))
-      .map(state => `page ${state.wheelScrollEvidence.page}: wheel scroll did not move the strip without changing reader state`);
+      && (!state.wheelScrollEvidence.scrolled || !state.wheelScrollEvidence.pageStateUnchanged
+        || !state.wheelScrollEvidence.after.topFadeVisible
+        || !state.wheelScrollEvidence.scrollbarDragEvidence?.moved || !state.wheelScrollEvidence.scrollbarDragEvidence?.pageStateUnchanged))
+      .map(state => `page ${state.wheelScrollEvidence.page}: wheel or visible scrollbar did not scroll the strip independently of reader navigation`);
+    const scrollbarFailures = states.filter(state => state.stripLayout?.strips.some(strip => strip.canScroll && !strip.hasVisibleScrollbar))
+      .map(state => `pages ${state.visiblePages.join('-')}: overflowing English text is missing its visible scrollbar`);
     const audit = {
-      passed: stripFailures.length === 0 && visibleStripFailures.length === 0 && wheelFailures.length === 0 && stripHeightFailure.length === 0 && diagnostics.length === 0
+      passed: stripFailures.length === 0 && visibleStripFailures.length === 0 && wheelFailures.length === 0 && scrollbarFailures.length === 0 && stripHeightFailure.length === 0 && diagnostics.length === 0
         && states.filter(state => state.focusPageAudit).every(state => state.focusPageAudit.focusPageVisible && state.focusPageAudit.companionVisible)
         && (!options.focusNavigationTest || Boolean(focusNavigation?.passed))
         && (!options.spreadInteractionTest || Boolean(spreadInteraction?.dragAdvanced))
         && (!options.focusInteractionTest || Boolean(focusInteraction?.ready && focusInteraction.dragAdvanced && focusInteraction.keyboardAdvanced && focusInteraction.preloadRequested && focusInteraction.toggleUsesLeftAnchor)),
-      failures: [...stripFailures, ...visibleStripFailures, ...wheelFailures, ...stripHeightFailure,
+      failures: [...stripFailures, ...visibleStripFailures, ...wheelFailures, ...scrollbarFailures, ...stripHeightFailure,
         ...states.filter(state => state.focusPageAudit && !state.focusPageAudit.focusPageVisible)
           .map(state => `focus page ${state.visiblePages[0]} is not top-visible in the book viewport`),
         ...states.filter(state => state.focusPageAudit && !state.focusPageAudit.companionVisible)
