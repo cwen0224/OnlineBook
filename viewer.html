@@ -214,12 +214,15 @@
             pointer-events: none;
             transform-origin: top center;
         }
+        .page-english-strips.is-empty {
+            min-height: clamp(96px, var(--english-strip-frame-height, 18vh), 380px);
+        }
         body.focus-mode .page-english-strips {
             width: min(90vw, 900px);
             grid-template-columns: minmax(0, 1fr);
         }
-        body.focus-mode .page-english-strip-frame {
-            height: clamp(140px, 25vh, 300px);
+        .page-english-strip-frame {
+            height: clamp(96px, var(--english-strip-frame-height, 18vh), 380px);
         }
         body.focus-mode .page-english-strip {
             font-size: calc(clamp(17px, 1.45vw, 23px) * var(--english-text-scale, 1));
@@ -230,7 +233,6 @@
             display: block;
             min-width: 0;
             box-sizing: border-box;
-            height: clamp(110px, 18vh, 220px);
             border: 1px solid rgba(255, 244, 226, 0.24);
             border-radius: 14px;
             background: var(--coffee-glass);
@@ -352,8 +354,9 @@
                 transform: translateX(-50%) scale(var(--strip-preview-scale, 1));
             }
             .page-english-strips { width: 96vw; gap: 6px; }
-            .page-english-strip-frame { height: min(36vh, 300px); }
-            .page-english-strip { padding: 9px 28px 42px 10px; font-size: clamp(14px, 4vw, 16px); line-height: 1.38; }
+            .page-english-strips.is-empty { min-height: clamp(88px, var(--english-strip-frame-height, 18vh), 300px); }
+            .page-english-strip-frame { height: clamp(88px, var(--english-strip-frame-height, 18vh), 300px); }
+            .page-english-strip { padding: 9px 28px 42px 10px; font-size: calc(clamp(14px, 4vw, 16px) * var(--english-text-scale, 1)); line-height: 1.38; }
             .page-english-strip-text .empty-paragraph { height: .69em; }
             .page-english-scrollbar { right: 4px; width: 12px; }
         }
@@ -596,6 +599,18 @@
     const LANGUAGE_PREFERENCE_KEY = 'onlinebook.language';
     const READING_MODE_KEY = 'onlinebook.readingMode';
     const ENGLISH_TEXT_SIZE_KEY = 'onlinebook.englishTextSize';
+    // Frame heights are selected per book and reading mode, never per page.
+    // Each tuple is [Large, Medium, Small] in viewport-height units. Values
+    // reflect the inspected translation-length distributions; very long text
+    // remains scrollable instead of forcing the book off-screen.
+    const englishStripFrameProfiles = {
+        zaojiao:       { spread: [26, 20, 14], focus: [35, 27, 19] },
+        shigo:         { spread: [24, 18, 13], focus: [33, 25, 17] },
+        zaojiao_story: { spread: [24, 18, 13], focus: [32, 24, 17] },
+        penghu_shihu:  { spread: [26, 20, 14], focus: [35, 26, 18] },
+        nautilus:      { spread: [29, 22, 15], focus: [38, 29, 20] },
+        chequbei:      { spread: [28, 21, 14], focus: [37, 28, 19] }
+    };
     const englishSizeLevels = [{ label: '大', scale: 1.18 }, { label: '中', scale: 1 }, { label: '小', scale: 0.84 }];
     let englishTextSizeIndex = 0;
     try {
@@ -606,6 +621,9 @@
     function applyEnglishTextSize() {
         const size = englishSizeLevels[englishTextSizeIndex];
         document.body.style.setProperty('--english-text-scale', String(size.scale));
+        const profile = englishStripFrameProfiles[bookKey] || englishStripFrameProfiles.zaojiao;
+        const frameHeightVh = profile[readingMode][englishTextSizeIndex];
+        document.body.style.setProperty('--english-strip-frame-height', `${frameHeightVh}vh`);
         englishSizeToggle.textContent = size.label;
         const localizedSize = lang === 'en' ? ['Large', 'Medium', 'Small'][englishTextSizeIndex] : size.label;
         englishSizeToggle.setAttribute('aria-label', lang === 'en' ? `English text size: ${localizedSize}` : `英文文字大小：${localizedSize}`);
@@ -615,6 +633,7 @@
         englishTextSizeIndex = (englishTextSizeIndex + 1) % englishSizeLevels.length;
         applyEnglishTextSize();
         try { localStorage.setItem(ENGLISH_TEXT_SIZE_KEY, String(englishTextSizeIndex)); } catch (_) { /* Preference is optional. */ }
+            updatePageEnglishStrips();
     });
     let readingMode = params.get('mode') === 'focus' ? 'focus'
         : params.get('mode') === 'spread' ? 'spread'
@@ -774,20 +793,47 @@
         strips.id = 'page-english-strips';
         strips.className = 'page-english-strips';
         document.body.append(strips);
-        // Trackpad wheels may target the transparent overlay rather than its
-        // scrollable child. Route deltas by pointer position so they scroll the
-        // strip instead of falling through to the book's wheel-to-zoom handler.
+        // Resolve wheel input against the live event path first, rather than
+        // relying only on bounding-box hit testing. The live target matters
+        // when a spread is being rebuilt while a trackpad gesture is in flight.
         document.addEventListener('wheel', (event) => {
-            const frame = [...strips.querySelectorAll('.page-english-strip-frame')].find((item) => {
-                const rect = item.getBoundingClientRect();
-                return event.clientX >= rect.left && event.clientX <= rect.right
-                    && event.clientY >= rect.top && event.clientY <= rect.bottom;
-            });
-            const strip = frame?.querySelector('.page-english-strip');
-            if (!strip || strip.scrollHeight <= strip.clientHeight + 1) return;
+            const findLiveStrip = () => {
+                const path = event.composedPath?.() || [];
+                const fromPath = path.find((node) => node instanceof HTMLElement
+                    && node.matches?.('.page-english-strip'));
+                if (fromPath?.isConnected) return fromPath;
+                const hit = document.elementFromPoint(event.clientX, event.clientY);
+                const fromHit = hit?.closest?.('.page-english-strip');
+                if (fromHit?.isConnected) return fromHit;
+                const frame = [...strips.querySelectorAll('.page-english-strip-frame')].find((item) => {
+                    const rect = item.getBoundingClientRect();
+                    return event.clientX >= rect.left && event.clientX <= rect.right
+                        && event.clientY >= rect.top && event.clientY <= rect.bottom;
+                });
+                return frame?.querySelector('.page-english-strip') || null;
+            };
+            const strip = findLiveStrip();
+            if (!strip) return;
+            const maxScroll = strip.scrollHeight - strip.clientHeight;
+            if (maxScroll <= 1) return;
+            const unit = event.deltaMode === WheelEvent.DOM_DELTA_LINE
+                ? parseFloat(getComputedStyle(strip).lineHeight) || 20
+                : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? strip.clientHeight : 1;
+            const delta = event.deltaY * unit;
+            if (!delta) return;
             event.preventDefault();
-            event.stopPropagation();
-            strip.scrollTop += event.deltaY;
+            event.stopImmediatePropagation();
+            const nextTop = Math.max(0, Math.min(maxScroll, strip.scrollTop + delta));
+            strip.scrollTop = nextTop;
+            // If page navigation replaced a strip during the gesture, transfer
+            // the delta to the current connected strip for that printed page.
+            requestAnimationFrame(() => {
+                if (strip.isConnected) return;
+                const current = strips.querySelector(`.page-english-strip[data-page="${strip.dataset.page}"]`);
+                if (!current) return;
+                const currentMax = Math.max(0, current.scrollHeight - current.clientHeight);
+                current.scrollTop = Math.max(0, Math.min(currentMax, current.scrollTop + delta));
+            });
         }, { capture: true, passive: false });
         updatePageEnglishStrips();
     }
@@ -820,22 +866,35 @@
             const page = placementPages.find((item) => item.page === pageNumber);
             return typeof page?.bottomStripText === 'string' && page.bottomStripText.trim();
         });
-        document.body.classList.toggle('strip-page-open', hasVisibleStrip);
-        if (!hasVisibleStrip || !englishOpen) {
+        document.body.classList.toggle('strip-page-open', englishOpen && hasPageEnglishStrips);
+        strips.classList.toggle('is-empty', !hasVisibleStrip);
+        if (!hasVisibleStrip) {
             stripCueObserver?.disconnect();
             stripCueObserver = null;
             strips.replaceChildren();
-            strips.dataset.renderSignature = '';
+            strips.dataset.renderSignature = `${readingMode}:empty:${firstPage}:${lastPage}`;
             const previousHeight = Number.parseFloat(getComputedStyle(document.body).getPropertyValue('--strip-preview-height')) || 0;
-            document.body.style.setProperty('--strip-preview-height', '0px');
-            document.body.style.removeProperty('--strip-preview-scene-top');
-            document.body.style.removeProperty('--strip-preview-scene-bottom');
-            document.body.style.removeProperty('--strip-preview-strip-top');
-            document.body.style.removeProperty('--strip-preview-page-height');
-            document.body.style.setProperty('--strip-preview-scale', '1');
-            if (previousHeight > 1) scheduleBookRebuild();
+            let measuredHeight;
+            let mobileLayoutChanged = false;
+            if (window.matchMedia('(max-width: 640px)').matches) {
+                mobileLayoutChanged = positionMobileStripComposition(strips);
+                measuredHeight = Math.ceil(strips.getBoundingClientRect().height);
+            } else {
+                mobileLayoutChanged = positionDesktopStripComposition(strips);
+                measuredHeight = Math.ceil(strips.getBoundingClientRect().height);
+            }
+            document.body.style.setProperty('--strip-preview-height', `${measuredHeight}px`);
+            if ((mobileLayoutChanged || Math.abs(measuredHeight - previousHeight) > 1)
+                && !stripLayoutRebuildQueued && !modeTransitionInProgress) {
+                stripLayoutRebuildQueued = true;
+                requestAnimationFrame(() => {
+                    stripLayoutRebuildQueued = false;
+                    if (!modeTransitionInProgress) rebuildBookForAvailableSpace();
+                });
+            }
             return;
         }
+        strips.classList.remove('is-empty');
         const visibleEntries = [...new Set([firstPage, lastPage])]
             .filter((pageNumber) => pageNumber >= 1)
             .map((pageNumber) => {
@@ -1646,6 +1705,7 @@
         navigationBusy = true;
         modeTransitionInProgress = true;
         readingMode = readingMode === 'focus' ? 'spread' : 'focus';
+        applyEnglishTextSize();
         focusPage = anchorPage;
         try { localStorage.setItem(READING_MODE_KEY, readingMode); } catch (_) { /* Preference is optional. */ }
         document.body.classList.toggle('focus-mode', readingMode === 'focus');
